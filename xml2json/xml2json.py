@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-from xml.dom import minidom
+#from elementtree import ElementTree
+import xml.etree.cElementTree as ElementTree
 import sys
 import array
 import string
@@ -40,31 +41,27 @@ matrix_properties = [
 ]
 
 def poly2dict(file, contrib, date): 
-	pt(file)
-		
-	xmldoc = minidom.parse(file)
-	pt("parsed xml")
-	
-	obj = xmldoc.getElementsByTagName('object')[0]
-	pt ("got obj")
-	
-	name = obj.attributes['name'].value
-	type = obj.attributes['type'].value
+	start()		
+	tree = ElementTree.parse(file)
+	root = tree.getroot()
 
-	properties = xmldoc.getElementsByTagName('property')
-	pt ("got props")
+	mt('parse')
 	
+	name = root.attrib['name']
+# 	type = root.attrib['type']
+	
+	start()
 	dict = {}
 	
-	dict['id'] = name
+	dict['_id'] = name
 	dict['date'] = date
 	dict['contributor'] = contrib
 # 	dict['type'] = type
-	
-	for p in properties:
-		key = p.attributes['name'].value
+
+	for p in root.iter('{http://www.math.tu-berlin.de/polymake/#3}property'):
+		key = p.attrib['name']
 		if key in simple_properties:
-			val = p.attributes['value'].value
+			val = p.attrib['value']
 			if val == 'false': 
 				val = 0
 			elif val == 'true':
@@ -72,9 +69,7 @@ def poly2dict(file, contrib, date):
 			else:
 				val = int(val)
 			dict[key] = val
-			
-# 	dict['DIM'] = dict['CONE_DIM']-1
-	pt("built dict")
+	mt('dict')
 	return dict
 
 
@@ -93,24 +88,56 @@ def make_json_string(dict):
 def add_to_db(obj, contrib):
 	mongo = pymongo.MongoClient("localhost", 27017)
 	db = mongo.pm
-	db.test.save(poly2dict(obj, contrib, datetime.datetime.now().strftime("%Y-%m-%d")))
+	db.test.insert(poly2dict(obj, contrib, datetime.datetime.now().strftime("%Y-%m-%d")))
 
 
 def add_list_to_db(objects, contrib):
-	pt("start")
 	mongo = pymongo.MongoClient("localhost", 27017)
 	db = mongo.pm
 	date = datetime.datetime.now().strftime("%Y-%m-%d")
+	docs = []
 	for obj in objects:
-		db.lattice_polys.save(poly2dict(obj, contrib, date))
-	pt("done")
+		docs.append(poly2dict(obj, contrib, date))
+	start()
+	db.test2.insert(docs)
+	mt('db')
 
 def pt(s):
 	print s
 	print time.time()-starting_time
 
+
+def start():
+	global clock
+	clock = time.time()
+	
+
+def mt(x):
+	global parsetime
+	global dicttime
+	global dbtime
+	dur = time.time()-clock
+	if x == 'parse':
+		parsetime += dur
+	if x == 'dict':
+		dicttime += dur
+	if x == 'db':
+		dbtime += dur
+
+def printtime():
+	print "parsing: " + repr(parsetime)
+	print "dictionary: " + repr(dicttime)
+	print "db: " + repr(dbtime)
+
+		
+clock = 0	
+parsetime = 0
+dicttime = 0
+dbtime = 0
 starting_time = time.time()
 
 contrib = "Andreas Paffenholz"
 date = datetime.datetime.now().strftime("%Y-%m-%d")
 add_list_to_db(sys.argv[1:] , contrib)
+printtime()
+#print poly2dict(sys.argv[1],contrib,date)

@@ -24,7 +24,7 @@ object LatticePolytope {
 	# The unique ID of the polytope in the database.
 	#
 	# Contained in extension ''poly_database''
-	property id : String;
+	property _id : String;
 
 	# @category Database
 	# The contributor of the polytope in the database.
