@@ -15,15 +15,3 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
-
-CREDIT poly_database
-	polymake polytope database access functionality.
-	Copyright by Silke Horn.
-	http://solros.de/polymake/poly_database
-
-label poly_database
-
-
-INCLUDE
-	db.rules
-	polytopes.rules

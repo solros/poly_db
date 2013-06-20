@@ -17,13 +17,30 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 CREDIT poly_database
-	polymake polytope database access functionality.
-	Copyright by Silke Horn.
-	http://solros.de/polymake/poly_database
 
-label poly_database
+object LatticePolytope {
 
+	# @category Database
+	# The unique ID of the polytope in the database.
+	#
+	# Contained in extension ''poly_database''
+	property id : String;
 
-INCLUDE
-	db.rules
-	polytopes.rules
+	# @category Database
+	# The contributor of the polytope in the database.
+	#
+	# Contained in extension ''poly_database''
+	property contributor : String;
+
+	# @category Database
+	# The type of the polytope in the database.
+	#
+	# Contained in extension ''poly_database''
+#	property type : String;
+
+	# @category Database
+	# The date the polytope was added to the database.
+	#
+	# Contained in extension ''poly_database''
+	property date : String;
+}

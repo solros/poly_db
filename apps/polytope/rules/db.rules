@@ -17,13 +17,32 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 CREDIT poly_database
-	polymake polytope database access functionality.
-	Copyright by Silke Horn.
-	http://solros.de/polymake/poly_database
-
-label poly_database
 
 
-INCLUDE
-	db.rules
-	polytopes.rules
+use MongoDB;
+use MongoDB::OID;
+
+user_function poly_db_dim {
+	my $d = shift;
+	
+	my $client = MongoDB::MongoClient->new;
+	my $db = $client->get_database('pm');
+	
+	my $polys = $db->get_collection('lattice_polys');
+	
+	my $output = $polys->find({'CONE_DIM'=>$d+1});
+	
+	$output
+	return $output;
+}
+
+user_function poly_db {
+	my $query = shift;
+
+	my $client = MongoDB::MongoClient->new;
+	my $db = $client->get_database('pm');
+	
+	my $polys = $db->get_collection('lattice_polys');
+	
+	my $output = $polys->find($query);
+}

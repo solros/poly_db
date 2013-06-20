@@ -6,7 +6,7 @@ import array
 import string
 import pymongo
 import datetime
-
+import time
 
 simple_properties = [
 	'CONE_DIM', 
@@ -40,23 +40,26 @@ matrix_properties = [
 ]
 
 def poly2dict(file, contrib, date): 
+	pt(file)
+		
 	xmldoc = minidom.parse(file)
+	pt("parsed xml")
+	
 	obj = xmldoc.getElementsByTagName('object')[0]
+	pt ("got obj")
 	
 	name = obj.attributes['name'].value
 	type = obj.attributes['type'].value
-	version = obj.attributes['version'].value
 
 	properties = xmldoc.getElementsByTagName('property')
+	pt ("got props")
 	
 	dict = {}
 	
-	dict['name'] = name
 	dict['id'] = name
-	dict['version'] = version
 	dict['date'] = date
-	dict['contributer'] = contrib
-	dict['type'] = type
+	dict['contributor'] = contrib
+# 	dict['type'] = type
 	
 	for p in properties:
 		key = p.attributes['name'].value
@@ -70,7 +73,8 @@ def poly2dict(file, contrib, date):
 				val = int(val)
 			dict[key] = val
 			
-	dict['DIM'] = dict['CONE_DIM']-1
+# 	dict['DIM'] = dict['CONE_DIM']-1
+	pt("built dict")
 	return dict
 
 
@@ -89,17 +93,24 @@ def make_json_string(dict):
 def add_to_db(obj, contrib):
 	mongo = pymongo.MongoClient("localhost", 27017)
 	db = mongo.pm
-	db.lattice_polys.save(poly2dict(obj, contrib, datetime.datetime.now().strftime("%Y-%m-%d")))
+	db.test.save(poly2dict(obj, contrib, datetime.datetime.now().strftime("%Y-%m-%d")))
 
 
 def add_list_to_db(objects, contrib):
+	pt("start")
 	mongo = pymongo.MongoClient("localhost", 27017)
 	db = mongo.pm
 	date = datetime.datetime.now().strftime("%Y-%m-%d")
 	for obj in objects:
 		db.lattice_polys.save(poly2dict(obj, contrib, date))
+	pt("done")
+
+def pt(s):
+	print s
+	print time.time()-starting_time
+
+starting_time = time.time()
 
 contrib = "Andreas Paffenholz"
 date = datetime.datetime.now().strftime("%Y-%m-%d")
 add_list_to_db(sys.argv[1:] , contrib)
-#print poly2dict(sys.argv[1], contrib, date)
