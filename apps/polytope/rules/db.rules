@@ -32,7 +32,6 @@ user_function poly_db_dim {
 	
 	my $output = $polys->find({'CONE_DIM'=>$d+1});
 	
-	$output
 	return $output;
 }
 
