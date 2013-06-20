@@ -33,12 +33,6 @@ object LatticePolytope {
 	property contributor : String;
 
 	# @category Database
-	# The type of the polytope in the database.
-	#
-	# Contained in extension ''poly_database''
-#	property type : String;
-
-	# @category Database
 	# The date the polytope was added to the database.
 	#
 	# Contained in extension ''poly_database''

@@ -56,22 +56,44 @@ def poly2dict(file, contrib, date):
 	dict['_id'] = name
 	dict['date'] = date
 	dict['contributor'] = contrib
-# 	dict['type'] = type
 
-	for p in root.iter('{http://www.math.tu-berlin.de/polymake/#3}property'):
+	for p in root.findall('{http://www.math.tu-berlin.de/polymake/#3}property'):
 		key = p.attrib['name']
 		if key in simple_properties:
-			val = p.attrib['value']
-			if val == 'false': 
-				val = 0
-			elif val == 'true':
-				val = 1
-			else:
-				val = int(val)
+			val = parse_simple(p)
+			dict[key] = val
+		elif key in vector_properties:
+			val = parse_vector(p[0])
+			dict[key] = val
+		elif key in matrix_properties:
+			val = parse_matrix(p[0])
 			dict[key] = val
 	mt('dict')
 	return dict
 
+
+def parse_simple(p):
+	val = p.attrib['value']
+	if val == 'false': 
+		val = 0
+	elif val == 'true':
+		val = 1
+	else:
+		val = int(val)
+	return val
+
+def parse_vector(p):
+	x = p.text
+	val = x.split(' ')
+	return val
+
+def parse_matrix(p):
+	val = []
+ 	for v in p:
+ 		val.append(parse_vector(v))
+	
+	return val
+	
 
 def poly2json(dict):
 	return make_json_string(dict)
@@ -88,7 +110,7 @@ def make_json_string(dict):
 def add_to_db(obj, contrib):
 	mongo = pymongo.MongoClient("localhost", 27017)
 	db = mongo.pm
-	db.test.insert(poly2dict(obj, contrib, datetime.datetime.now().strftime("%Y-%m-%d")))
+	db.lattice_polys.insert(poly2dict(obj, contrib, datetime.datetime.now().strftime("%Y-%m-%d")))
 
 
 def add_list_to_db(objects, contrib):
@@ -99,7 +121,7 @@ def add_list_to_db(objects, contrib):
 	for obj in objects:
 		docs.append(poly2dict(obj, contrib, date))
 	start()
-	db.test2.insert(docs)
+	db.lattice_polys.insert(docs)
 	mt('db')
 
 def pt(s):
@@ -138,6 +160,9 @@ starting_time = time.time()
 
 contrib = "Andreas Paffenholz"
 date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+
 add_list_to_db(sys.argv[1:] , contrib)
 printtime()
-#print poly2dict(sys.argv[1],contrib,date)
+
+#poly2dict(sys.argv[1],contrib,date)
