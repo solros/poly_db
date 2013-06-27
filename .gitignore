@@ -1,3 +1,5 @@
 Makefile
 mongo-cxx-driver-v2.2/
 xml2json/
+test.xml
+*.poly
