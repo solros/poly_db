@@ -48,7 +48,7 @@ user_function poly_db_id {
 
 # @category Database
 # Returns the polytopes in the database with a given number of vertices.
-# Equivalent to [[poly_db]]({'N_VERTICES' => n}).
+# Equivalent to [[poly_db]]({'N_VERTICES' => //n//}).
 # 
 # Contained in extension ''poly_database''.
 # @param Int n
