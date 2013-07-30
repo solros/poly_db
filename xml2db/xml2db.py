@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# This script inserts data into a MongoDB database. It should be run on the polymake server (or potentially any other database server).
+
+
 #from elementtree import ElementTree
 import xml.etree.cElementTree as ElementTree
 import sys

@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
-# CREDIT poly_database
+CREDIT poly_database
 
 use MongoDB;
 use MongoDB::OID;
@@ -68,7 +68,14 @@ user_function poly_db_vertices {
 user_function poly_db {
 	my $query = shift;
 
-	my $client = MongoDB::MongoClient->new;
+	my $host = "polymake.org";
+	my $port = "27017";
+	my $user = "polymake";
+	my $pwd = "database";
+	my $db_name = "pm";
+
+	my $client = MongoDB::MongoClient->new(host=>$host.":".$port, db_name=>$db_name, username=>$user, password=>$pwd);
+#	my $client = MongoDB::MongoClient->new;
 	my $db = $client->get_database('pm');
 	
 	my $polys = $db->get_collection('lattice_polys');
