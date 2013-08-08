@@ -23,4 +23,5 @@ http://solros.de/polymake/poly_database
 
 INCLUDE
 	db.rules
+	db2.rules
 	polytopes.rules

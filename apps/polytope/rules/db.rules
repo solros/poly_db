@@ -23,70 +23,64 @@ use MongoDB::OID;
 
 
 # @category Database
-# Returns the polytopes in the database of a given dimension //d//.
-# Equivalent to [[poly_db]]({'CONE_DIM' => //d//+1}).
+# Returns the objects in the database //db// in //collection// that match the query.
 # 
 # Contained in extension ''poly_database''.
-# @param Int d
-# @return Array<LatticePolytope>
-user_function poly_db_dim {
-	my $d = shift;
-	return poly_db({'CONE_DIM' => $d+1});
-}
-
-# @category Database
-# Returns the (unique) polytope in the database with a given [[_id]].
-# The IDs are of the form ''F.(dim)D.(some digits)'', e.g. ''F.3D.0000'' is the first 3-dimensional polytope in the database.
-# 
-# Contained in extension ''poly_database''.
-# @param String id
-# @return LatticePolytope
-user_function poly_db_id {
-	my $id = shift;
-	return poly_db({'_id' => $id})->[0];
-}
-
-# @category Database
-# Returns the polytopes in the database with a given number of vertices.
-# Equivalent to [[poly_db]]({'N_VERTICES' => //n//}).
-# 
-# Contained in extension ''poly_database''.
-# @param Int n
-# @return Array<LatticePolytope>
-user_function poly_db_vertices {
-	my $n = shift;
-	return poly_db({'N_VERTICES' => $n});
-}
-
-
-# @category Database
-# Returns the polytopes in the database that match the query.
-# 
-# Contained in extension ''poly_database''.
+# @param String db name of the database, see ...
+# @param String collection name of the collection
 # @param Hash query
-# @return Array<LatticePolytope>
+# @return Array<Object>
 user_function poly_db {
+	my $db_name = shift;
+	my $collection = shift;
 	my $query = shift;
 
+	# TODO: move this to configuration
 	my $host = "polymake.org";
 	my $port = "27017";
 	my $user = "polymake";
 	my $pwd = "database";
-	my $db_name = "pm";
 
 	my $client = MongoDB::MongoClient->new(host=>$host.":".$port, db_name=>$db_name, username=>$user, password=>$pwd);
-#	my $client = MongoDB::MongoClient->new;
-	my $db = $client->get_database('pm');
+	my $db = $client->get_database($db_name);
 	
-	my $polys = $db->get_collection('lattice_polys');
-	
-	my $output = $polys->find($query);
-	
-	return cursor2array($output);
+	my $col = $db->get_collection($collection);
+
+	my $output = $col->find($query);
+		
+	return cursor2array($output, $db_name, $collection);
 }
 
 
+# This is a helper function that transforms the database cursor into an array of polymake objects.
 sub cursor2array {
+	my $cursor = shift;
+	my $db_name = shift;
+	my $collection = shift;
+	
+	if (db_name == 'LatticePolytopes') {
+		return cursor2array_lattice_polytope($cursor);
+	} else if (db_name =='Polytopes') {
+		return cursor2array_polytope_rational($cursor);
+	}
+}
+
+
+sub cursor2array_polytope_rational {
+	my $cursor = shift;
+	
+	my $parray = new Array<Polytope<Rational>>($cursor->count+0);
+	my $i = 0;
+
+	while (my $p = $cursor->next) {
+		$parray->[$i] = new Polytope<Rational>(%$p);
+		++$i;
+	}
+	return $parray;
+}
+
+
+sub cursor2array_lattice_polytope {
 	my $cursor = shift;
 	
 	my $parray = new Array<LatticePolytope>($cursor->count+0);
