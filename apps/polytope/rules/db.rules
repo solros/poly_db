@@ -22,6 +22,20 @@ use MongoDB;
 use MongoDB::OID;
 
 
+# poly_database: The hostname of the database, default 'polymake.org'
+custom $db_host = "polymake.org";
+
+# poly_database: The port of the database, default 27017
+custom $db_port = "27017";
+
+# poly_database: The database user, default 'polymake'
+custom $db_user = "polymake";
+
+# poly_database: The database password, default 'database'
+custom $db_pwd = "database";
+
+
+
 # @category Database
 # Returns the objects in the database //db// in //collection// that match the query.
 # 
@@ -35,13 +49,7 @@ user_function poly_db {
 	my $collection = shift;
 	my $query = shift;
 
-	# TODO: move this to configuration
-	my $host = "polymake.org";
-	my $port = "27017";
-	my $user = "polymake";
-	my $pwd = "database";
-
-	my $client = MongoDB::MongoClient->new(host=>$host.":".$port, db_name=>$db_name, username=>$user, password=>$pwd);
+	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$db_name, username=>$db_user, password=>$db_pwd);
 	my $db = $client->get_database($db_name);
 	
 	my $col = $db->get_collection($collection);
@@ -60,7 +68,7 @@ sub cursor2array {
 	
 	if (db_name == 'LatticePolytopes') {
 		return cursor2array_lattice_polytope($cursor);
-	} else if (db_name =='Polytopes') {
+	} elsif (db_name =='Polytopes') {
 		return cursor2array_polytope_rational($cursor);
 	}
 }
