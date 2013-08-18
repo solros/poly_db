@@ -28,11 +28,14 @@ custom $db_host = "polymake.org";
 # poly_database: The port of the database, default 27017
 custom $db_port = "27017";
 
-# poly_database: The database user, default 'polymake'
+# poly_database: The database username, default 'polymake'
 custom $db_user = "polymake";
 
 # poly_database: The database password, default 'database'
 custom $db_pwd = "database";
+
+# poly_database: The name of the authentication database, default 'pm'
+custom $auth_db = "pm";
 
 
 
@@ -49,7 +52,7 @@ user_function poly_db {
 	my $collection = shift;
 	my $query = shift;
 
-	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$db_name, username=>$db_user, password=>$db_pwd);
+	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
 	my $db = $client->get_database($db_name);
 	
 	my $col = $db->get_collection($collection);
@@ -59,6 +62,28 @@ user_function poly_db {
 	return cursor2array($output, $db_name, $collection);
 }
 
+# @category Database
+# Returns the number of objects in the database //db// in //collection// that match the query.
+# 
+# Contained in extension ''poly_database''.
+# @param String db name of the database, see ...
+# @param String collection name of the collection
+# @param Hash query
+# @return Int
+user_function poly_db_count {
+	my $db_name = shift;
+	my $collection = shift;
+	my $query = shift;
+
+	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	my $db = $client->get_database($db_name);
+	
+	my $col = $db->get_collection($collection);
+
+	return $col->count($query);
+}
+
+
 
 # This is a helper function that transforms the database cursor into an array of polymake objects.
 sub cursor2array {
@@ -66,11 +91,13 @@ sub cursor2array {
 	my $db_name = shift;
 	my $collection = shift;
 	
-	if (db_name == 'LatticePolytopes') {
+	if ($db_name == 'LatticePolytopes') {
 		return cursor2array_lattice_polytope($cursor);
-	} elsif (db_name =='Polytopes') {
+	} elsif ($db_name == 'Polytopes') {
 		return cursor2array_polytope_rational($cursor);
-	}
+# 	} elsif ($collection == 'TOM') {
+# 		return cursor2array_tom($cursor);
+# 	}
 }
 
 

@@ -20,13 +20,39 @@ CREDIT poly_database
 
 
 # @category Database
-# Returns the smooth reflexive lattice polytopes in the database of a given dimension //d//.
-# Equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => //d//+1}).
+# Returns the smooth reflexive lattice polytopes in the database that match the query.
+# Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', //query//).
+# 
+# Contained in extension ''poly_database''.
+# @param Hash query
+# @return Array<LatticePolytope>
+user_function poly_db_smooth_reflexive {
+	my $query = shift;
+	return poly_db('LatticePolytopes', 'SmoothReflexive', $query);
+}
+
+# @category Database
+# Returns the number of smooth reflexive lattice polytopes in the database that match the query.
+# Wrapper for [[poly_db_count]], equivalent to [[poly_db_count]]('LatticePolytopes', 'SmoothReflexive', //query//).
+# 
+# Contained in extension ''poly_database''.
+# @param Hash query
+# @return Int
+user_function poly_db_smooth_reflexive_count {
+	my $query = shift;
+	return poly_db_count('LatticePolytopes', 'SmoothReflexive', $query);
+}
+
+
+
+# @category Database
+# Returns the smooth reflexive lattice polytopes in the database of a given dimension //d//. (This is only recommended for //d// <= 6.)
+# Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => //d//+1}).
 # 
 # Contained in extension ''poly_database''.
 # @param Int d
 # @return Array<LatticePolytope>
-user_function poly_db_dim {
+user_function poly_db_smooth_reflexive_dim {
 	my $d = shift;
 	return poly_db('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => $d+1});
 }
@@ -45,7 +71,7 @@ user_function poly_db_smooth_reflexive_id {
 
 # @category Database
 # Returns the smooth reflexive lattice polytopes in the database with a given number of vertices.
-# Equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'N_VERTICES' => //n//}).
+# Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'N_VERTICES' => //n//}).
 # 
 # Contained in extension ''poly_database''.
 # @param Int n
@@ -54,3 +80,6 @@ user_function poly_db_smooth_reflexive_vertices {
 	my $n = shift;
 	return poly_db('LatticePolytopes', 'SmoothReflexive', {'N_VERTICES' => $n});
 }
+
+
+
