@@ -97,7 +97,7 @@ sub cursor2array {
 		return cursor2array_polytope_rational($cursor);
 # 	} elsif ($collection == 'TOM') {
 # 		return cursor2array_tom($cursor);
-# 	}
+ 	}
 }
 
 
