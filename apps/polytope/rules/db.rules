@@ -37,6 +37,9 @@ custom $db_pwd = "database";
 # poly_database: The name of the authentication database, default 'pm'
 custom $auth_db = "pm";
 
+# poly_database: The name of the type database, default 'pm'
+custom $type_db = "pm";
+
 
 
 # @category Database
@@ -53,13 +56,14 @@ user_function poly_db {
 	my $query = shift;
 
 	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
-	my $db = $client->get_database($db_name);
 	
+	my $type = $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+	
+	my $db = $client->get_database($db_name);
 	my $col = $db->get_collection($collection);
-
 	my $output = $col->find($query);
 		
-	return cursor2array($output, $db_name, $collection);
+	return cursor2array($output, $type);
 }
 
 # @category Database
@@ -88,42 +92,21 @@ user_function poly_db_count {
 # This is a helper function that transforms the database cursor into an array of polymake objects.
 sub cursor2array {
 	my $cursor = shift;
-	my $db_name = shift;
-	my $collection = shift;
+	my $t = shift;
 	
-	if ($db_name == 'LatticePolytopes') {
-		return cursor2array_lattice_polytope($cursor);
-	} elsif ($db_name == 'Polytopes') {
-		return cursor2array_polytope_rational($cursor);
-# 	} elsif ($collection == 'TOM') {
-# 		return cursor2array_tom($cursor);
- 	}
-}
+	my $app = $t->{'app'};
+	my $type = $t->{'type'};
 
+	my $obj_type = User::application($app)->eval_type($type);
+	my $arr_type = User::application($app)->eval_type("Array<$type>");
 
-sub cursor2array_polytope_rational {
-	my $cursor = shift;
-	
-	my $parray = new Array<Polytope<Rational>>($cursor->count+0);
+	my $parray = $arr_type->construct->($cursor->count+0);
 	my $i = 0;
-
 	while (my $p = $cursor->next) {
-		$parray->[$i] = new Polytope<Rational>(%$p);
+		$parray->[$i] = $obj_type->construct->(%$p);
 		++$i;
 	}
 	return $parray;
+
 }
 
-
-sub cursor2array_lattice_polytope {
-	my $cursor = shift;
-	
-	my $parray = new Array<LatticePolytope>($cursor->count+0);
-	my $i = 0;
-
-	while (my $p = $cursor->next) {
-		$parray->[$i] = new LatticePolytope(%$p);
-		++$i;
-	}
-	return $parray;
-}
