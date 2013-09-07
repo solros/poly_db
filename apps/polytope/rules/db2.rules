@@ -19,6 +19,9 @@
 CREDIT poly_database
 
 
+# This file contains wrappers for the functions poly_db and poly_db_count
+
+
 # @category Database
 # Returns the smooth reflexive lattice polytopes in the database that match the query.
 # Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', //query//).

@@ -21,25 +21,23 @@ CREDIT poly_database
 use MongoDB;
 use MongoDB::OID;
 
-
 # poly_database: The hostname of the database, default 'polymake.org'
 custom $db_host = "polymake.org";
 
-# poly_database: The port of the database, default 27017
+# poly_database: The port of the database, default (on the polymake server) 27017
 custom $db_port = "27017";
 
-# poly_database: The database username, default 'polymake'
+# poly_database: The database username, default (on the polymake server) 'polymake'
 custom $db_user = "polymake";
 
-# poly_database: The database password, default 'database'
+# poly_database: The database password, default (on the polymake server) 'database'
 custom $db_pwd = "database";
 
-# poly_database: The name of the authentication database, default 'pm'
+# poly_database: The name of the authentication database, default (on the polymake server) 'pm'
 custom $auth_db = "pm";
 
-# poly_database: The name of the type database, default 'pm'
+# poly_database: The name of the type database, default (on the polymake server) 'pm'
 custom $type_db = "pm";
-
 
 
 # @category Database
