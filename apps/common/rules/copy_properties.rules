@@ -1,0 +1,55 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# @category Database
+# Takes an Object //o// and a template Object of the same type and computes or deletes properties so that they have the same list of known properties.
+# (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
+# @param Object o
+# @param Object template
+# @param RuleChain schedule (optional)
+user_function copy_properties_db {
+	my $o = shift;
+	my $t = shift;
+
+
+	# TODO: check that $o and $t are of compatible types
+
+	my @p = $t->list_properties;
+		
+	my $sched;
+	if (@_) {
+		$sched = shift;
+	} else {
+		$sched = $o->get_schedule($t->list_properties);
+	}
+
+	$sched->apply($o);
+	
+	my @q = $o->list_properties;
+	
+	my $sp = new Set<String>(@p);
+	my $sq = new Set<String>(@q);
+	
+	my $s = $sq-$sp;
+	
+	foreach (@$s) {
+		$o->remove($_);
+	}
+
+}
