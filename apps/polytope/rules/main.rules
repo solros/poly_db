@@ -25,3 +25,4 @@ INCLUDE
 	db.rules
 	db2.rules
 	polytopes.rules
+	db_insert.rules

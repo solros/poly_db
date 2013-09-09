@@ -1,0 +1,98 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+use Term::ReadKey;
+
+
+sub get_credentials {
+	# TODO: cache, key chain??
+	print "user name: ";
+	my $u= <STDIN>;
+	ReadMode 2;
+	print "password: ";
+	my $p= <STDIN>;
+	ReadMode 0;
+	print "\n";
+	chomp($u);
+	chomp($p);
+	return ($u,$p);
+}
+
+# @category Database
+# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with a template object //temp//.
+# 
+# Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
+# @param obj Core::Object
+# @param temp Core::Object template object
+# @param String db database name
+# @param String col collection name
+# @param String username optional
+# @param String password optional
+user_function poly_db_insert {
+	my ($obj, $temp, $db, $col, $u, $p) = @_;
+	
+	unless ($u) {
+		my @cred = get_credentials;
+		$u = $cred[0];
+		$p = $cred[1];
+	}
+	
+	copy_properties_db($obj, $temp);
+	
+	my $client = MongoDB::MongoClient->new;	
+#	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+		
+	my $db = $client->get_database($db);
+	my $col = $db->get_collection($col);
+	my $output = $col->insert($obj);
+
+}
+
+# @category Database
+# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with a template object //temp// (but without computing additional properties).
+# 
+# Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
+# @param obj Core::Object
+# @param temp Core::Object template object
+# @param String db database name
+# @param String col collection name
+# @param String username optional
+# @param String password optional
+user_function poly_db_fast_insert {
+	my ($obj, $temp, $db, $col, $u, $p) = @_;
+	
+	unless ($u) {
+		my @cred = get_credentials;
+		$u = $cred[0];
+		$p = $cred[1];
+	}
+	
+	copy_properties_nonew_db($obj, $temp);
+	
+	my $client = MongoDB::MongoClient->new;	
+#	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+		
+	my $db = $client->get_database($db);
+	my $col = $db->get_collection($col);
+	my $output = $col->insert($obj);
+
+}
+
+sub poly2hash {
+	my $p = shift;
+}
