@@ -21,39 +21,49 @@ CREDIT poly_database
 use MongoDB;
 use MongoDB::OID;
 
+#use IO::Prompt;
+
 # poly_database: The hostname of the database, default 'polymake.org'
 custom $db_host = "polymake.org";
 
-# poly_database: The port of the database, default (on the polymake server) 27017
+# poly_database: The port of the database, default 27017
 custom $db_port = "27017";
 
-# poly_database: The database username, default (on the polymake server) 'polymake'
+# poly_database: The database username, default 'polymake'
 custom $db_user = "polymake";
 
-# poly_database: The database password, default (on the polymake server) 'database'
+# poly_database: The database password, default 'database'
 custom $db_pwd = "database";
 
-# poly_database: The name of the authentication database, default (on the polymake server) 'pm'
+# poly_database: The name of the authentication database, default 'pm'
 custom $auth_db = "pm";
 
-# poly_database: The name of the type database, default (on the polymake server) 'pm'
+# poly_database: The name of the type database, default 'pm'
 custom $type_db = "pm";
 
 
+
 # @category Database
-# Returns the objects in the database //db// in //collection// that match the query.
+# Returns all objects in the database //db// in //collection// that match the query.
 # 
 # Contained in extension ''poly_database''.
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
-# @return Array<Object>
+# @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
+# @return Array<Core::Object>
 user_function poly_db {
 	my $db_name = shift;
 	my $collection = shift;
 	my $query = shift;
+	my $local = shift;
 
-	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	my $client;
+	if ($local) {
+		$client = MongoDB::MongoClient->new;
+	} else {
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	}
 	
 	my $type = $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
 	
@@ -65,19 +75,58 @@ user_function poly_db {
 }
 
 # @category Database
+# Returns one object in the database //db// in //collection// that matches the query.
+# 
+# Contained in extension ''poly_database''.
+# @param String db name of the database, see ...
+# @param String collection name of the collection
+# @param Hash query
+# @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
+# @return Core::Object
+user_function poly_db_one {
+	my $db_name = shift;
+	my $collection = shift;
+	my $query = shift;
+	my $local = shift;
+
+	my $client;
+	if ($local) {
+		$client = MongoDB::MongoClient->new;
+	} else {
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	}
+	
+	my $type = $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+	
+	my $db = $client->get_database($db_name);
+	my $col = $db->get_collection($collection);
+	my $output = $col->find_one($query);
+	
+	return cursor2type($output, $type);
+}
+
+
+# @category Database
 # Returns the number of objects in the database //db// in //collection// that match the query.
 # 
 # Contained in extension ''poly_database''.
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
+# @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
 # @return Int
 user_function poly_db_count {
 	my $db_name = shift;
 	my $collection = shift;
 	my $query = shift;
+	my $local = shift;
 
-	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	my $client;
+	if ($local) {
+		$client = MongoDB::MongoClient->new;
+	} else {
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	}
 	my $db = $client->get_database($db_name);
 	
 	my $col = $db->get_collection($collection);
@@ -108,3 +157,14 @@ sub cursor2array {
 
 }
 
+# This is a helper function that transforms the database cursor into an object.
+sub cursor2type {
+	my $cursor = shift;
+	my $t = shift;
+	
+	my $app = $t->{'app'};
+	my $type = $t->{'type'};
+
+	my $obj_type = User::application($app)->eval_type($type);
+	return $obj_type->construct->(%$cursor);
+}
