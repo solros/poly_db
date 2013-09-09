@@ -127,7 +127,7 @@ sub to_json {
 	my $rtype = $t[1];
 	
 	if ($t eq 'Int' || $t eq 'Bool' || $t eq 'Float' || $t eq 'String' || $t eq 'Rational') {
-		print "$p scalar\n";
+#		print "$p scalar\n";
 		if ($flag) {
 			return "$p";
 		} else {
@@ -135,9 +135,7 @@ sub to_json {
 		}
 	}
 	if ($t eq 'Integer' || $t eq 'Long') {
-		print "$p integer\n";
-		#return "NumberLong(".$p.")";
-		#return int($p);
+#		print "$p integer\n";
 		if ($flag) {
 			return "$p";
 		} else {
@@ -146,23 +144,21 @@ sub to_json {
 	}
 	
 	if ($t eq 'Array' || $t eq 'Vector' || $t eq 'Set' || $t eq 'List') {
-		print "$p array\n";
+#		print "$p array\n";
 		my @r = ();
 		foreach (@$p) {
 			push @r, to_json($_, $rtype, 1);
 		}
 		return \@r;
-		#return '['.join(', ', @r).']';
 	}
 
 	if ($t eq 'Matrix' || $t eq 'Matrix_A_Rational_I_NonSymmetric_Z') {
-		print "$p matrix\n";
+#		print "$p matrix\n";
 		my @r = ();
 		foreach (@$p) {
 			push @r, to_json($_, $_->type->mangled_name, 1);
 		}
 		return \@r;
-		#return '['.join(', ', @r).']';
 	}
 	else {
 		return $p;

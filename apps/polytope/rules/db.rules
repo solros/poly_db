@@ -140,11 +140,19 @@ sub cursor2array {
 	my $parray = $arr_type->construct->($cursor->count+0);
 	my $i = 0;
 	while (my $p = $cursor->next) {
+		type_conversion($p);
 		$parray->[$i] = $obj_type->construct->(%$p);
 		++$i;
 	}
 	return $parray;
 
+}
+
+sub type_conversion {
+	my $h = shift;	
+	foreach my $k (keys %$h) {
+		$h->{$k} =~s /NumberLong\((\d+)\)/$1/g
+	}
 }
 
 # This is a helper function that transforms the database cursor into an object.
@@ -156,5 +164,6 @@ sub cursor2type {
 	my $type = $t->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
+	type_conversion($cursor);
 	return $obj_type->construct->(%$cursor);
 }
