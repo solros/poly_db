@@ -53,22 +53,11 @@ custom $type_db = "pm";
 # @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
 # @return Array<Core::Object>
 user_function poly_db {
-	my $db_name = shift;
-	my $collection = shift;
-	my $query = shift;
-	my $local = shift;
+	my ($db_name, $collection, $query, $local) = @_;
+	my $client = get_client($local);
+	my $type = get_type($client, $db_name, $collection);
+	my $col = get_collection($client, $db_name, $collection);	
 
-	my $client;
-	if ($local) {
-		$client = MongoDB::MongoClient->new;
-	} else {
-		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
-	}
-	
-	my $type = $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
-	
-	my $db = $client->get_database($db_name);
-	my $col = $db->get_collection($collection);
 	my $output = $col->find($query);
 		
 	return cursor2array($output, $type);
@@ -84,22 +73,11 @@ user_function poly_db {
 # @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
 # @return Core::Object
 user_function poly_db_one {
-	my $db_name = shift;
-	my $collection = shift;
-	my $query = shift;
-	my $local = shift;
-
-	my $client;
-	if ($local) {
-		$client = MongoDB::MongoClient->new;
-	} else {
-		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
-	}
-	
-	my $type = $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
-	
-	my $db = $client->get_database($db_name);
-	my $col = $db->get_collection($collection);
+	my ($db_name, $collection, $query, $local) = @_;
+	my $client = get_client($local);
+	my $type = get_type($client, $db_name, $collection);
+	my $col = get_collection($client, $db_name, $collection);	
+		
 	my $output = $col->find_one($query);
 	
 	return cursor2type($output, $type);
@@ -116,10 +94,16 @@ user_function poly_db_one {
 # @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
 # @return Int
 user_function poly_db_count {
-	my $db_name = shift;
-	my $collection = shift;
-	my $query = shift;
-	my $local = shift;
+	my ($db_name, $collection, $query, $local) = @_;
+	my $type = get_type($client, $db_name, $collection);
+	my $col = get_collection($client, $db_name, $collection);	
+
+	return $col->count($query);
+}
+
+
+sub get_client {
+	my ($local) = @_;
 
 	my $client;
 	if ($local) {
@@ -127,14 +111,20 @@ user_function poly_db_count {
 	} else {
 		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
 	}
-	my $db = $client->get_database($db_name);
-	
-	my $col = $db->get_collection($collection);
 
-	return $col->count($query);
+	return $client;
 }
 
+sub get_type {
+	my ($client, $db_name, $collection) = @_;
+	return $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+}
 
+sub get_collection {
+	my ($client, $db_name, $collection) = @_;
+	my $db = $client->get_database($db_name);
+	return $db->get_collection($collection);
+}
 
 # This is a helper function that transforms the database cursor into an array of polymake objects.
 sub cursor2array {
