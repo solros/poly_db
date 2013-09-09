@@ -41,10 +41,11 @@ sub get_credentials {
 # @param temp Core::Object template object
 # @param String db database name
 # @param String col collection name
+# @param Bool local
 # @param String username optional
 # @param String password optional
 user_function poly_db_insert {
-	my ($obj, $temp, $db, $col, $u, $p) = @_;
+	my ($obj, $temp, $db, $col, $local, $u, $p) = @_;
 	
 	unless ($u) {
 		my @cred = get_credentials;
@@ -75,7 +76,7 @@ user_function poly_db_insert {
 # @param String password optional
 user_function poly_db_fast_insert {
 	my ($obj, $temp, $db, $col, $u, $p) = @_;
-	
+ 	
 	unless ($u) {
 		my @cred = get_credentials;
 		$u = $cred[0];
@@ -93,6 +94,58 @@ user_function poly_db_fast_insert {
 
 }
 
-sub poly2hash {
+sub pm2json {
+	my ($p, $id, $contrib) = @_;
+	
+	my $c = $p->contents;
+	my $r = {};
+	
+	$r->{'_id'} = $id;
+	$r->{'contributor'} = $contrib;
+	$r->{'date'} = get_date();
+
+	foreach my $pv (@$c) {
+		print $pv->property->qual_name."\n".$pv->value."\n".$pv->property->type->mangled_name."\n";
+		print to_json($pv->value, $pv->property->type->mangled_name); print "\n";
+		$r->{$pv->property->qual_name} = to_json($pv->value, $pv->property->type->mangled_name);
+	}
+	return $r;
+}
+
+sub get_date {
+	use DateTime;
+	return DateTime->today;	
+}
+
+sub to_json {
 	my $p = shift;
+	my $mtype = shift;
+	my @t = split('__', $mtype, 2);
+	my $t = $t[0];
+	my $rtype = $t[1];
+	if ($t eq 'Int' || $t eq 'Bool' || $t eq 'Float' || $t eq 'String' || $t eq 'Rational') {
+		return $p;
+	}
+	if ($t eq 'Integer' || $t eq 'Long') {
+		return "NumberLong(".$p.")";
+	}
+	
+	if ($t eq 'Array' || $t eq 'Vector' || $t eq 'Set' || $t eq 'List') {
+		my @r = ();
+		foreach (@$p) {
+			push @r, to_json($_, $rtype);
+		}
+		return '['.join(', ', @r).']';
+	}
+
+	if ($t eq 'Matrix' || $t eq 'Matrix_A_Rational_I_NonSymmetric_Z') {
+		my @r = ();
+		foreach (@$p) {
+			push @r, to_json($_, $_->type->mangled_name);
+		}
+		return '['.join(', ', @r).']';
+	}
+	else {
+		return $p;
+	}
 }
