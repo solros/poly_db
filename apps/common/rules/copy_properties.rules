@@ -27,7 +27,6 @@ user_function copy_properties_db {
 	my $o = shift;
 	my $t = shift;
 
-
 	# TODO: check that $o and $t are of compatible types
 
 	# TODO: attachments

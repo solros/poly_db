@@ -33,7 +33,7 @@ user_function set_template_object {
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
-	$tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj)} });
+	$tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2temp($obj)} });
 }
 
 

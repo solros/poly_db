@@ -38,14 +38,16 @@ sub get_credentials {
 # 
 # Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
 # @param obj Core::Object
-# @param temp Core::Object template object
 # @param String db database name
 # @param String col collection name
+# @param String id
+# @param String contrib
 # @param Bool local
 # @param String username optional
 # @param String password optional
+# @return String
 user_function poly_db_insert {
-	my ($obj, $temp, $db, $col, $local, $u, $p) = @_;
+	my ($obj, $db, $col, $id, $contrib, $local, $u, $p) = @_;
 	
 	unless ($u) {
 		my @cred = get_credentials;
@@ -53,15 +55,29 @@ user_function poly_db_insert {
 		$p = $cred[1];
 	}
 	
+	my $temp = get_template_object($db, $col, $local);
+#	print $temp->list_properties();
+#	print "\n";
 	copy_properties_db($obj, $temp);
-	
+#	print "copied\n";
+#	print $obj->list_properties;
 	my $client = MongoDB::MongoClient->new;	
 #	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
 		
 	my $db = $client->get_database($db);
 	my $col = $db->get_collection($col);
-	my $output = $col->insert($obj);
+	my $output = $col->insert(pm2json($obj, $id, $contrib));
+	return $output;
+}
 
+user_function poly_db_force_insert {
+	my ($obj, $db, $col, $id, $contrib, $local, $u, $p) = @_;
+	my $client = MongoDB::MongoClient->new;	
+		
+	my $db = $client->get_database($db);
+	my $col = $db->get_collection($col);
+	my $output = $col->insert(pm2json($obj, $id, $contrib));
+	return $output;
 }
 
 # @category Database
@@ -69,13 +85,12 @@ user_function poly_db_insert {
 # 
 # Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
 # @param obj Core::Object
-# @param temp Core::Object template object
 # @param String db database name
 # @param String col collection name
 # @param String username optional
 # @param String password optional
 user_function poly_db_fast_insert {
-	my ($obj, $temp, $db, $col, $u, $p) = @_;
+	my ($obj, $temp, $db, $col, $id, $contrib, $u, $p) = @_;
  	
 	unless ($u) {
 		my @cred = get_credentials;
@@ -83,6 +98,7 @@ user_function poly_db_fast_insert {
 		$p = $cred[1];
 	}
 	
+	my $temp = get_template_object($db, $col, $local);
 	copy_properties_nonew_db($obj, $temp);
 	
 	my $client = MongoDB::MongoClient->new;	
@@ -90,8 +106,8 @@ user_function poly_db_fast_insert {
 		
 	my $db = $client->get_database($db);
 	my $col = $db->get_collection($col);
-	my $output = $col->insert($obj);
-
+	my $output = $col->insert(pm2json($obj, $id, $contrib));
+	return $output;
 }
 
 sub pm2json {
@@ -104,11 +120,27 @@ sub pm2json {
 	$r->{'contributor'} = $contrib;
 	$r->{'date'} = get_date();
 
+	print "\n";
+	foreach my $pv (@$c) {
+#		print $pv->property->qual_name."\n".$pv->value."\n";
+		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
+		$r->{$pv->property->qual_name} = $x;
+	}
+	return $r;
+}
+
+sub pm2temp {
+	my ($p) = @_;
+	
+	my $c = $p->contents;
+	my $r = {};
+	
 	foreach my $pv (@$c) {
 		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
 		$r->{$pv->property->qual_name} = $x;
 	}
 	return $r;
+
 }
 
 sub get_date {
@@ -158,7 +190,12 @@ sub to_json {
 		}
 		return \@r;
 	}
+	if ($t eq 'SparseVector' || $t eq 'SparseMatrix') {
+#		print "sparse\n";
+		$mtype =~s/Sparse//g;
+		return to_json(dense($p), $mtype, $flag);
+	}
 	else {
-		return $p;
+		return "$p";
 	}
 }
