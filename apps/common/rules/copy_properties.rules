@@ -30,8 +30,11 @@ user_function copy_properties_db {
 
 	# TODO: check that $o and $t are of compatible types
 
+	# TODO: attachments
+
 	my @p = $t->list_properties;
-		
+#	my @ap = $t->list_attachments;
+	
 	my $sched;
 	if (@_) {
 		$sched = shift;
@@ -52,4 +55,28 @@ user_function copy_properties_db {
 		$o->remove($_);
 	}
 
+}
+
+# @category Database
+# Takes an Object //o// and a template Object of the same type and deletes properties of //o// that //template// does not have.
+# (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
+# @param Object o
+# @param Object template
+user_function copy_properties_nonew_db {
+	my $o = shift;
+	my $t = shift;
+
+	my @p = $t->list_properties;
+#	my @ap = $t->list_attachments;
+		
+	my @q = $o->list_properties;
+	
+	my $sp = new Set<String>(@p);
+	my $sq = new Set<String>(@q);
+	
+	my $s = $sq-$sp;
+	
+	foreach (@$s) {
+		$o->remove($_);
+	}
 }
