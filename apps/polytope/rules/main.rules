@@ -26,3 +26,4 @@ INCLUDE
 	db2.rules
 	polytopes.rules
 	db_insert.rules
+	templates.rules

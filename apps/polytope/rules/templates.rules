@@ -1,0 +1,56 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# @category Database
+# Sets the template object for the collection //col// of the database //db//.
+# @param obj Core::Object
+# @param String db database name
+# @param String col collection name
+# @param String username optional
+# @param String password optional
+user_function set_template_object {
+	my ($obj, $db, $col, $u, $p) = @_;
+
+	my $client = MongoDB::MongoClient->new;	
+#	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+		
+	my $tdb = $client->get_database($type_db);
+	my $tcol = $tdb->get_collection("Types");
+
+	$tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj)} });
+}
+
+
+# @category Database
+# Sets the template object for the collection //col// of the database //db//.
+# @param String db database name
+# @param String col collection name
+# @param Bool local
+# @return Core::Object
+user_function get_template_object {
+	my ($db, $col, $local) = @_;
+
+	my $client = get_client($local);
+		
+	my $tcol = $client->get_database($type_db)->get_collection("Types");
+
+	my $doc = $tcol->find({db => $db, col => $col})->next;
+	
+	return cursor2type($doc->{'template'}, $doc);
+}
