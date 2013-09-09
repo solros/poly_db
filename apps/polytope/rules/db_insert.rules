@@ -106,8 +106,9 @@ sub pm2json {
 
 	foreach my $pv (@$c) {
 		print $pv->property->qual_name."\n".$pv->value."\n".$pv->property->type->mangled_name."\n";
-		print to_json($pv->value, $pv->property->type->mangled_name); print "\n";
-		$r->{$pv->property->qual_name} = to_json($pv->value, $pv->property->type->mangled_name);
+		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
+		print $x; print "\n";
+		$r->{$pv->property->qual_name} = $x;
 	}
 	return $r;
 }
@@ -120,30 +121,48 @@ sub get_date {
 sub to_json {
 	my $p = shift;
 	my $mtype = shift;
+	my $flag = shift;
 	my @t = split('__', $mtype, 2);
 	my $t = $t[0];
 	my $rtype = $t[1];
+	
 	if ($t eq 'Int' || $t eq 'Bool' || $t eq 'Float' || $t eq 'String' || $t eq 'Rational') {
-		return $p;
+		print "$p scalar\n";
+		if ($flag) {
+			return "$p";
+		} else {
+			return $p;
+		}
 	}
 	if ($t eq 'Integer' || $t eq 'Long') {
-		return "NumberLong(".$p.")";
+		print "$p integer\n";
+		#return "NumberLong(".$p.")";
+		#return int($p);
+		if ($flag) {
+			return "$p";
+		} else {
+			return int("$p");
+		}
 	}
 	
 	if ($t eq 'Array' || $t eq 'Vector' || $t eq 'Set' || $t eq 'List') {
+		print "$p array\n";
 		my @r = ();
 		foreach (@$p) {
-			push @r, to_json($_, $rtype);
+			push @r, to_json($_, $rtype, 1);
 		}
-		return '['.join(', ', @r).']';
+		return \@r;
+		#return '['.join(', ', @r).']';
 	}
 
 	if ($t eq 'Matrix' || $t eq 'Matrix_A_Rational_I_NonSymmetric_Z') {
+		print "$p matrix\n";
 		my @r = ();
 		foreach (@$p) {
-			push @r, to_json($_, $_->type->mangled_name);
+			push @r, to_json($_, $_->type->mangled_name, 1);
 		}
-		return '['.join(', ', @r).']';
+		return \@r;
+		#return '['.join(', ', @r).']';
 	}
 	else {
 		return $p;
