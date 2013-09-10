@@ -52,7 +52,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 # @return Core::Object
 user_function get_template_object($, $, {local => 0}) {
 	my ($db, $col, $options) = @_;
-	my $local = $options{local};
+	my $local = $options->{local};
 	
 	my $client = get_client($local);
 		

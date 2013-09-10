@@ -24,10 +24,13 @@
 # Contained in extension ''poly_database''.
 # @param Core::Object o
 # @param Core::Object template
-# @param Core::RuleChain schedule (optional)
-user_function copy_properties_db {
-	my $o = shift;
-	my $t = shift;
+# @option Core::RuleChain schedule
+# @option Bool nonew set to 1 if you don't want to compute missing properties
+user_function copy_properties_db ($, $, {schedule => undef, nonew => 0}) {
+	my ($o, $t, $options) = @_;
+
+	my $sched = $options->{schedule};
+	my $nonew = $options->{nonew};
 
 	# TODO: check that $o and $t are of compatible types
 
@@ -36,14 +39,13 @@ user_function copy_properties_db {
 	my @p = $t->list_properties;
 #	my @ap = $t->list_attachments;
 	
-	my $sched;
-	if (@_) {
-		$sched = shift;
-	} else {
-		$sched = $o->get_schedule($t->list_properties);
+	unless ($nonew) {
+		unless (defined($sched)) {
+			$sched = $o->get_schedule($t->list_properties);
+		}
+	
+		$sched->apply($o);
 	}
-
-	$sched->apply($o);
 	
 	my @q = $o->list_properties;
 	
@@ -56,30 +58,4 @@ user_function copy_properties_db {
 		$o->remove($_);
 	}
 
-}
-
-# @category Database Insertion
-# Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and deletes properties of //o// that //template// does not have.
-# (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
-# 
-# Contained in extension ''poly_database''.
-# @param Core::Object o
-# @param Core::Object template
-user_function copy_properties_nonew_db {
-	my $o = shift;
-	my $t = shift;
-
-	my @p = $t->list_properties;
-#	my @ap = $t->list_attachments;
-		
-	my @q = $o->list_properties;
-	
-	my $sp = new Set<String>(@p);
-	my $sq = new Set<String>(@q);
-	
-	my $s = $sq-$sp;
-	
-	foreach (@$s) {
-		$o->remove($_);
-	}
 }

@@ -42,104 +42,37 @@ sub get_credentials {
 # @param Core::Object obj
 # @param String db database name
 # @param String col collection name
-# @param String id
-# @param String contrib
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @return String
-user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", password => ""}){
-	my ($obj, $db, $col, $id, $contrib, $options) = @_;
- 	
- 	my $local = $options->{local};
- 	my $u = $options->{username};
- 	my $p = $options->{password};
-	
-	unless ($u) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-	
-	my $temp = get_template_object($db, $col, $local);
-#	print $temp->list_properties();
-#	print "\n";
-	copy_properties_db($obj, $temp);
-#	print $obj->list_properties;
-
-	my $client = get_client($local, $u, $p);	
-	my $collection = get_collection($client, $db, $col);
-	my $output = $collection->insert(pm2json($obj, $id, $contrib));
-	return $output;
-}
-
-# @category Database Insertion
-# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (but without computing additional properties).
-# 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''poly_database''.
-# @param Core::Object obj
-# @param String db database name
-# @param String col collection name
 # @param String id unique identifier
 # @param String contrib
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
+# @option Bool nonew set to 1 if you don't want to compute missing properties
+# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @return String
-user_function poly_db_fast_insert ($, $, $, $, $, {local => 0, username => "", password => ""}){
+user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0}){
 	my ($obj, $db, $col, $id, $contrib, $options) = @_;
  	
  	my $local = $options->{local};
  	my $u = $options->{username};
  	my $p = $options->{password};
- 	
+	my $nonew = $options->{nonew};
+	my $force = $options->{force};
+	
 	unless ($u) {
 		my @cred = get_credentials;
 		$u = $cred[0];
 		$p = $cred[1];
 	}
 	
-	my $temp = get_template_object($db, $col, $local);
-	copy_properties_nonew_db($obj, $temp);
-	
-	my $client = get_client($local, $u, $p);	
-		
-	my $collection = get_collection($client, $db, $col);
-	my $output = $collection->insert(pm2json($obj, $id, $contrib));
-	return $output;
-}
-
-
-# @category Database Insertion
-# Adds an object //obj// to the collection //col// in the database //db// without any adaption of the properties. Only use this if you absolutely know what you're doing.
-# 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''poly_database''.
-# @param Core::Object obj
-# @param String db database name
-# @param String col collection name
-# @param String id unique identifier
-# @param String contrib
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @return String
-user_function poly_db_force_insert($, $, $, $, $, {local => 0, username => "", password => ""}) {
-	my ($obj, $db, $col, $id, $contrib, $options) = @_;
- 	
- 	my $local = $options->{local};
- 	my $u = $options->{username};
- 	my $p = $options->{password};
-
-	unless ($u) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
+	unless ($force) {
+		my $temp = get_template_object($db, $col, local=>$local);
+	#	print $temp->list_properties();
+	#	print "\n";
+		copy_properties_db($obj, $temp, nonew=>$nonew);
+	#	print $obj->list_properties;
 	}
-
+	
 	my $client = get_client($local, $u, $p);	
 	my $collection = get_collection($client, $db, $col);
 	my $output = $collection->insert(pm2json($obj, $id, $contrib));

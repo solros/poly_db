@@ -28,7 +28,7 @@ sub pm2json {
 	$r->{'date'} = get_date();
 
 	foreach my $pv (@$c) {
-#		print $pv->property->qual_name."\n".$pv->value."\n";
+		print $pv->property->qual_name."\n".$pv->value."\n";
 		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
 		$r->{$pv->property->qual_name} = $x;
 	}
