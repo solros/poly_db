@@ -52,7 +52,7 @@ user_function get_template_object {
 
 	my $doc = $tcol->find({db => $db, col => $col})->next;
 	
-	my $r = cursor2type($doc->{'template'}, $doc);
+	my $r = doc2object($doc->{'template'}, $doc);
 	
 	# TODO: this is stupid -- somehow these properties appear upon creating the polytope from the retrieved data
 	$r->remove("AFFINE_HULL"); $r->remove("LINEALITY_SPACE"); $r->remove("FEASIBLE");

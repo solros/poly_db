@@ -66,10 +66,8 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 #	print $obj->list_properties;
 
 	my $client = get_client($local, $u, $p);	
-		
-	my $db = $client->get_database($db);
-	my $col = $db->get_collection($col);
-	my $output = $col->insert(pm2json($obj, $id, $contrib));
+	my $collection = get_collection($client, $db, $col);
+	my $output = $collection->insert(pm2json($obj, $id, $contrib));
 	return $output;
 }
 
@@ -104,8 +102,7 @@ user_function poly_db_fast_insert ($, $, $, $, $, {local => 0, username => "", p
 	
 	my $client = get_client($local, $u, $p);	
 		
-	my $db_name = $client->get_database($db);
-	my $collection = $db->get_collection($col);
+	my $collection = get_collection($client, $db, $col);
 	my $output = $collection->insert(pm2json($obj, $id, $contrib));
 	return $output;
 }
@@ -138,22 +135,7 @@ user_function poly_db_force_insert($, $, $, $, $, {local => 0, username => "", p
 	}
 
 	my $client = get_client($local, $u, $p);	
-		
-	my $db = $client->get_database($db);
-	my $col = $db->get_collection($col);
-	my $output = $col->insert(pm2json($obj, $id, $contrib));
+	my $collection = get_collection($client, $db, $col);
+	my $output = $collection->insert(pm2json($obj, $id, $contrib));
 	return $output;
-}
-
-user_function test_option ($, {u => 0}) {
-	my $par = shift;
-	my $options=shift;
-	
-	print $par."\n";
-	my $u=$options->{u};
-	if ($u) {
-		print "1";
-	} else {
-		print "0";
-	}
 }
