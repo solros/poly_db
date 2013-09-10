@@ -1,0 +1,88 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# This is a helper function that transforms a database cursor into an array of polymake objects.
+function cursor2array {
+	my $cursor = shift;
+	my $t = shift;
+	
+	my $app = $t->{'app'};
+	my $type = $t->{'type'};
+
+	my $obj_type = User::application($app)->eval_type($type);
+	my $arr_type = User::application($app)->eval_type("Array<$type>");
+
+	my $parray = $arr_type->construct->($cursor->count+0);
+	my $i = 0;
+	while (my $p = $cursor->next) {
+		type_conversion($p);
+		$parray->[$i] = $obj_type->construct->(%$p);
+		++$i;
+	}
+	return $parray;
+
+}
+
+
+# This is a helper function that transforms the database document into an object.
+function doc2object {
+	my $cursor = shift;
+	my $t = shift;
+	
+	my $app = $t->{'app'};
+	my $type = $t->{'type'};
+
+	my $obj_type = User::application($app)->eval_type($type);
+	type_conversion($cursor);
+	return $obj_type->construct->(%$cursor);
+}
+
+
+# @category Database Hands-on
+# Takes local and (optionally) username and password and returns a mongo client.
+# @param Bool local
+# @param String username optional
+# @param String password optional
+# @return MongoClient
+function get_client {
+	my ($local, $u, $p) = @_;
+
+	my $client;
+	if ($local) {
+		$client = MongoDB::MongoClient->new;
+	} elsif (!$u || !$p) {
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+	} else {
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+	}
+	return $client;
+}
+
+# returns the database entry with the type information for a given collection
+function get_type {
+	my ($client, $db_name, $collection) = @_;
+	return $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+}
+
+# returns a collection object
+function get_collection {
+	my ($client, $db_name, $collection) = @_;
+	my $db = $client->get_database($db_name);
+	return $db->get_collection($collection);
+}
