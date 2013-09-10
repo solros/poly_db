@@ -42,12 +42,16 @@ sub get_credentials {
 # @param String col collection name
 # @param String id
 # @param String contrib
-# @param Bool local
-# @param String username optional
-# @param String password optional
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
 # @return String
-user_function poly_db_insert {
-	my ($obj, $db, $col, $id, $contrib, $local, $u, $p) = @_;
+user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", password => ""}){
+	my ($obj, $db, $col, $id, $contrib, $options) = @_;
+ 	
+ 	my $local = $options->{local};
+ 	my $u = $options->{username};
+ 	my $p = $options->{password};
 	
 	unless ($u) {
 		my @cred = get_credentials;
@@ -77,10 +81,18 @@ user_function poly_db_insert {
 # @param obj Core::Object
 # @param String db database name
 # @param String col collection name
-# @param String username optional
-# @param String password optional
-user_function poly_db_fast_insert {
-	my ($obj, $temp, $db, $col, $id, $contrib, $u, $p) = @_;
+# @param String id
+# @param String contrib
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @return String
+user_function poly_db_fast_insert ($, $, $, $, $, {local => 0, username => "", password => ""}){
+	my ($obj, $db, $col, $id, $contrib, $options) = @_;
+ 	
+ 	my $local = $options->{local};
+ 	my $u = $options->{username};
+ 	my $p = $options->{password};
  	
 	unless ($u) {
 		my @cred = get_credentials;
@@ -94,19 +106,49 @@ user_function poly_db_fast_insert {
 	my $client = MongoDB::MongoClient->new;	
 #	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
 		
-	my $db = $client->get_database($db);
-	my $col = $db->get_collection($col);
-	my $output = $col->insert(pm2json($obj, $id, $contrib));
+	my $db_name = $client->get_database($db);
+	my $collection = $db->get_collection($col);
+	my $output = $collection->insert(pm2json($obj, $id, $contrib));
 	return $output;
 }
 
 
-user_function poly_db_force_insert {
-	my ($obj, $db, $col, $id, $contrib, $local, $u, $p) = @_;
+# @category Database
+# Adds an object //obj// to the collection //col// in the database //db// without any adaption of the properties. Only use this if you absolutely know what you're doing.
+# 
+# Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
+# @param obj Core::Object
+# @param String db database name
+# @param String col collection name
+# @param String id
+# @param String contrib
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @return String
+user_function poly_db_force_insert($, $, $, $, $, {local => 0, username => "", password => ""}) {
+	my ($obj, $db, $col, $id, $contrib, $options) = @_;
+ 	
+ 	my $local = $options->{local};
+ 	my $u = $options->{username};
+ 	my $p = $options->{password};
 	my $client = MongoDB::MongoClient->new;	
 		
 	my $db = $client->get_database($db);
 	my $col = $db->get_collection($col);
 	my $output = $col->insert(pm2json($obj, $id, $contrib));
 	return $output;
+}
+
+user_function test_option ($, {u => 0}) {
+	my $par = shift;
+	my $options=shift;
+	
+	print $par."\n";
+	my $u=$options->{u};
+	if ($u) {
+		print "1";
+	} else {
+		print "0";
+	}
 }
