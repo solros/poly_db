@@ -63,10 +63,9 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 #	print $temp->list_properties();
 #	print "\n";
 	copy_properties_db($obj, $temp);
-#	print "copied\n";
 #	print $obj->list_properties;
-	my $client = MongoDB::MongoClient->new;	
-#	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+
+	my $client = get_client($local, $u, $p);	
 		
 	my $db = $client->get_database($db);
 	my $col = $db->get_collection($col);
@@ -103,8 +102,7 @@ user_function poly_db_fast_insert ($, $, $, $, $, {local => 0, username => "", p
 	my $temp = get_template_object($db, $col, $local);
 	copy_properties_nonew_db($obj, $temp);
 	
-	my $client = MongoDB::MongoClient->new;	
-#	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+	my $client = get_client($local, $u, $p);	
 		
 	my $db_name = $client->get_database($db);
 	my $collection = $db->get_collection($col);
@@ -132,7 +130,14 @@ user_function poly_db_force_insert($, $, $, $, $, {local => 0, username => "", p
  	my $local = $options->{local};
  	my $u = $options->{username};
  	my $p = $options->{password};
-	my $client = MongoDB::MongoClient->new;	
+
+	unless ($u) {
+		my @cred = get_credentials;
+		$u = $cred[0];
+		$p = $cred[1];
+	}
+
+	my $client = get_client($local, $u, $p);	
 		
 	my $db = $client->get_database($db);
 	my $col = $db->get_collection($col);
