@@ -39,7 +39,7 @@ sub get_credentials {
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
 # Contained in extension ''poly_database''.
-# @param obj Core::Object
+# @param Core::Object obj
 # @param String db database name
 # @param String col collection name
 # @param String id
@@ -79,10 +79,10 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
 # Contained in extension ''poly_database''.
-# @param obj Core::Object
+# @param Core::Object obj
 # @param String db database name
 # @param String col collection name
-# @param String id
+# @param String id unique identifier
 # @param String contrib
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
@@ -118,10 +118,10 @@ user_function poly_db_fast_insert ($, $, $, $, $, {local => 0, username => "", p
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
 # Contained in extension ''poly_database''.
-# @param obj Core::Object
+# @param Core::Object obj
 # @param String db database name
 # @param String col collection name
-# @param String id
+# @param String id unique identifier
 # @param String contrib
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username

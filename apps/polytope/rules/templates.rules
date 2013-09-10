@@ -21,16 +21,19 @@
 # Sets the template object for the collection //col// of the database //db//.
 # 
 # Contained in extension ''poly_database''.
-# @param obj Core::Object
+# @param Core::Object obj
 # @param String db database name
 # @param String col collection name
-# @param String username optional
-# @param String password optional
-user_function set_template_object {
-	my ($obj, $db, $col, $u, $p) = @_;
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
+	my ($obj, $db, $col, $options) = @_;
+	my $local = $options{local};
+	my $u = $options{username};
+	my $p = $options{password};
 
-	my $client = MongoDB::MongoClient->new;	
-#	my $client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+	my $client = get_client($local, $u, $p);
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
@@ -45,11 +48,12 @@ user_function set_template_object {
 # Contained in extension ''poly_database''.
 # @param String db database name
 # @param String col collection name
-# @param Bool local
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @return Core::Object
-user_function get_template_object {
-	my ($db, $col, $local) = @_;
-
+user_function get_template_object($, $, {local => 0}) {
+	my ($db, $col, $options) = @_;
+	my $local = $options{local};
+	
 	my $client = get_client($local);
 		
 	my $tcol = $client->get_database($type_db)->get_collection("Types");
