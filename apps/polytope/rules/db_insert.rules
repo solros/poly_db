@@ -34,9 +34,9 @@ sub get_credentials {
 }
 
 # @category Database
-# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with a template object //temp//.
+# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection.
 # 
-# Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # @param obj Core::Object
 # @param String db database name
 # @param String col collection name
@@ -74,9 +74,9 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 }
 
 # @category Database
-# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with a template object //temp// (but without computing additional properties).
+# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (but without computing additional properties).
 # 
-# Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # @param obj Core::Object
 # @param String db database name
 # @param String col collection name
@@ -114,7 +114,7 @@ user_function poly_db_fast_insert ($, $, $, $, $, {local => 0, username => "", p
 # @category Database
 # Adds an object //obj// to the collection //col// in the database //db// without any adaption of the properties. Only use this if you absolutely know what you're doing.
 # 
-# Note that you need admin access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # @param obj Core::Object
 # @param String db database name
 # @param String col collection name
