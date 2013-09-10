@@ -86,3 +86,13 @@ function get_collection {
 	my $db = $client->get_database($db_name);
 	return $db->get_collection($collection);
 }
+
+
+# the current date as a string in the form yyyy-mm-dd
+sub get_date {
+	use DateTime;
+
+	my $dt = DateTime->today;
+	return $dt->date;
+}
+

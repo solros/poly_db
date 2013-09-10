@@ -103,13 +103,6 @@ sub to_json {
 	}
 }
 
-# the current date as a string in the form yyyy-mm-dd
-sub get_date {
-	use DateTime;
-
-	my $dt = DateTime->today;
-	return $dt->date;
-}
 
 # converts the db output back to pm format
 sub type_conversion {
