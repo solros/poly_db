@@ -17,9 +17,11 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# @category Database
+# @category Database Insertion
 # Takes an Object //o// and a template Object of the same type and computes or deletes properties so that they have the same list of known properties.
 # (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
+# 
+# Contained in extension ''poly_database''.
 # @param Object o
 # @param Object template
 # @param RuleChain schedule (optional)
@@ -56,9 +58,11 @@ user_function copy_properties_db {
 
 }
 
-# @category Database
+# @category Database Insertion
 # Takes an Object //o// and a template Object of the same type and deletes properties of //o// that //template// does not have.
 # (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
+# 
+# Contained in extension ''poly_database''.
 # @param Object o
 # @param Object template
 user_function copy_properties_nonew_db {

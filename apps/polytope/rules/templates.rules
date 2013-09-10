@@ -17,8 +17,10 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# @category Database
+# @category Database Insertion
 # Sets the template object for the collection //col// of the database //db//.
+# 
+# Contained in extension ''poly_database''.
 # @param obj Core::Object
 # @param String db database name
 # @param String col collection name
@@ -37,8 +39,10 @@ user_function set_template_object {
 }
 
 
-# @category Database
+# @category Database Insertion
 # Sets the template object for the collection //col// of the database //db//.
+# 
+# Contained in extension ''poly_database''.
 # @param String db database name
 # @param String col collection name
 # @param Bool local
