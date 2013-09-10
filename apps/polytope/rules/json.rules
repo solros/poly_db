@@ -1,0 +1,121 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+# converts a polymake object to json (for db insertion)
+sub pm2json {
+	my ($p, $id, $contrib) = @_;
+	
+	my $c = $p->contents;
+	my $r = {};
+	
+	$r->{'_id'} = $id;
+	$r->{'contributor'} = $contrib;
+	$r->{'date'} = get_date();
+
+	foreach my $pv (@$c) {
+#		print $pv->property->qual_name."\n".$pv->value."\n";
+		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
+		$r->{$pv->property->qual_name} = $x;
+	}
+	return $r;
+}
+
+# converts a polymake object to json (for db insertion) but w/o db properties such as _id, date, contributor
+sub pm2temp {
+	my ($p) = @_;
+	
+	my $c = $p->contents;
+	my $r = {};
+	
+	foreach my $pv (@$c) {
+		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
+		$r->{$pv->property->qual_name} = $x;
+	}
+	return $r;
+
+}
+
+# converts a polymake property to json
+sub to_json {
+	my $p = shift;
+	my $mtype = shift;
+	my $flag = shift;
+	my @t = split('__', $mtype, 2);
+	my $t = $t[0];
+	my $rtype = $t[1];
+	
+	if ($t eq 'Int' || $t eq 'Bool' || $t eq 'Float' || $t eq 'String' || $t eq 'Rational') {
+#		print "$p scalar\n";
+		if ($flag) {
+			return "$p";
+		} else {
+			return $p;
+		}
+	}
+	if ($t eq 'Integer' || $t eq 'Long') {
+#		print "$p integer\n";
+		if ($flag) {
+			return "$p";
+		} else {
+			return int("$p");
+		}
+	}
+	
+	if ($t eq 'Array' || $t eq 'Vector' || $t eq 'Set' || $t eq 'List') {
+#		print "$p array\n";
+		my @r = ();
+		foreach (@$p) {
+			push @r, to_json($_, $rtype, 1);
+		}
+		return \@r;
+	}
+
+	if ($t eq 'Matrix' || $t eq 'Matrix_A_Rational_I_NonSymmetric_Z') {
+#		print "$p matrix\n";
+		my @r = ();
+		foreach (@$p) {
+			push @r, to_json($_, $_->type->mangled_name, 1);
+		}
+		return \@r;
+	}
+	if ($t eq 'SparseVector' || $t eq 'SparseMatrix') {
+#		print "sparse\n";
+		$mtype =~s/Sparse//g;
+		return to_json(dense($p), $mtype, $flag);
+	}
+	else {
+		return "$p";
+	}
+}
+
+# the current date as a string in the form yyyy-mm-dd
+sub get_date {
+	use DateTime;
+
+	my $dt = DateTime->today;
+	return $dt->date;
+}
+
+# converts the db output back to pm format
+sub type_conversion {
+	my $h = shift;	
+	foreach my $k (keys %$h) {
+		$h->{$k} =~s /NumberLong\((\d+)\)/$1/g
+	}
+}
+

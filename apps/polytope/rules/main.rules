@@ -27,3 +27,4 @@ INCLUDE
 	polytopes.rules
 	db_insert.rules
 	templates.rules
+	json.rules

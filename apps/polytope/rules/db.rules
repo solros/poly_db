@@ -148,12 +148,6 @@ sub cursor2array {
 
 }
 
-sub type_conversion {
-	my $h = shift;	
-	foreach my $k (keys %$h) {
-		$h->{$k} =~s /NumberLong\((\d+)\)/$1/g
-	}
-}
 
 # This is a helper function that transforms the database cursor into an object.
 sub cursor2type {
