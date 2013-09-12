@@ -17,38 +17,31 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 # converts a polymake object to json (for db insertion)
+# if temp is set db properties such as _id, date, contributor are not added
 sub pm2json {
-	my ($p, $id, $contrib) = @_;
+	my ($p, $id, $contrib, $temp) = @_;
 	
 	my $c = $p->contents;
 	my $r = {};
 	
-	$r->{'_id'} = $id;
-	$r->{'contributor'} = $contrib;
-	$r->{'date'} = get_date();
-
+	unless ($temp) {
+		$r->{'_id'} = $id;
+		$r->{'contributor'} = $contrib;
+		$r->{'date'} = get_date();
+	}
+	
 	foreach my $pv (@$c) {
-#		print $pv->property->qual_name."\n".$pv->value."\n";
-		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
-		$r->{$pv->property->qual_name} = $x;
+		if (defined($pv)) {
+#			print $pv->property->qual_name."\n";
+#			print $pv->value."\n";
+			my $x = to_json($pv->value, $pv->property->type->mangled_name); 
+			$r->{$pv->property->qual_name} = $x;
+		}
 	}
 	return $r;
 }
 
-# converts a polymake object to json (for db insertion) but w/o db properties such as _id, date, contributor
-sub pm2temp {
-	my ($p) = @_;
-	
-	my $c = $p->contents;
-	my $r = {};
-	
-	foreach my $pv (@$c) {
-		my $x = to_json($pv->value, $pv->property->type->mangled_name); 
-		$r->{$pv->property->qual_name} = $x;
-	}
-	return $r;
 
-}
 
 # converts a polymake property to json
 sub to_json {

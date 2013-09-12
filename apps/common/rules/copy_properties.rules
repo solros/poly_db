@@ -53,10 +53,9 @@ user_function copy_properties_db ($, $, {schedule => undef, nonew => 0}) {
 	my $sq = new Set<String>(@q);
 	
 	my $s = $sq-$sp;
-		
+	
 	foreach (@$s) {
-		#print "$_\n";
-		$o->remove($_, 1);
+		$o->remove($_,1);
 	}
 
 }

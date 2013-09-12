@@ -63,20 +63,20 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 	my $sched = $options->{schedule};
 	my $temp = $options->{template};
 	
-	unless ($u) {
+	unless ($u || $local) {
 		my @cred = get_credentials;
 		$u = $cred[0];
 		$p = $cred[1];
 	}
-	
+#	print $obj->list_properties; print "\n";
 	unless ($force) {
 		unless ($temp) {
 			$temp = get_template_object($db, $col, local=>$local);
-		#	print $temp->list_properties();
-		#	print "\n";
+#			print $temp->list_properties();
+#			print "\n";
 		}
 		copy_properties_db($obj, $temp, nonew=>$nonew, schedule=>$sched);
-	#	print $obj->list_properties;
+#		print $obj->list_properties;
 	}
 	
 	my $client = get_client($local, $u, $p);	

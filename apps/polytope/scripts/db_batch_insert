@@ -27,7 +27,7 @@ sub batch_insert {
 	
 	my @files = @_;
 	
-	my @c = get_credentials();
+	my @c = get_credentials() unless ($local);
 	my $fst = load($files[0]);
 	
 	my $temp = get_template_object($db_name, $collection, local=>$local);
