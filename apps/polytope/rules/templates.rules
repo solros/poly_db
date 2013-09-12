@@ -29,9 +29,9 @@
 # @option String password
 user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
 	my ($obj, $db, $col, $options) = @_;
-	my $local = $options{local};
-	my $u = $options{username};
-	my $p = $options{password};
+	my $local = $options->{local};
+	my $u = $options->{username};
+	my $p = $options->{password};
 
 	my $client = get_client($local, $u, $p);
 		
@@ -61,9 +61,6 @@ user_function get_template_object($, $, {local => 0}) {
 	my $doc = $tcol->find({db => $db, col => $col})->next;
 	
 	my $r = doc2object($doc->{'template'}, $doc);
-	
-	# TODO: this is stupid -- somehow these properties appear upon creating the polytope from the retrieved data
-	$r->remove("AFFINE_HULL"); $r->remove("LINEALITY_SPACE"); $r->remove("FEASIBLE");
 	
 	return $r;
 }
