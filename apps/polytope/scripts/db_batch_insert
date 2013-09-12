@@ -1,0 +1,56 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+use application 'polytope';
+
+sub batch_insert {
+	my $db_name = shift;
+	my $collection = shift;
+	my $contrib = shift;
+	my $local = shift;
+	my $nonew = shift;
+	
+	my @files = @_;
+	
+	my @c = get_credentials();
+	my $fst = load($files[0]);
+	
+	my $temp = get_template_object($db_name, $collection, local=>$local);
+	
+	my $sched = $fst->get_schedule($temp->list_properties);
+
+	foreach (@files) {
+		my $obj = load($_);
+		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
+	}
+
+
+	my $client = get_client($local, $c[0], $c[1]);	
+	my $col = get_collection($client, $db_name, $collection);
+	
+	foreach (@files) {
+		my $obj = load($_);
+		my $id = $obj->name;
+		
+		my $json = pm2json($obj, $id, $contrib);
+		print $col->insert($json);
+		print " ";
+	}
+}
+
+batch_insert(@ARGV);

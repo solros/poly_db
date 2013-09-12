@@ -19,7 +19,7 @@
 use Term::ReadKey;
 
 
-sub get_credentials {
+user_function get_credentials {
 	# TODO: cache, key chain??
 	print "user name: ";
 	my $u= <STDIN>;
@@ -34,7 +34,7 @@ sub get_credentials {
 }
 
 # @category Database Insertion
-# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection.
+# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
@@ -49,8 +49,10 @@ sub get_credentials {
 # @option String password
 # @option Bool nonew set to 1 if you don't want to compute missing properties
 # @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
+# @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @return String
-user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0}){
+user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, schedule => undef, template => undef}){
 	my ($obj, $db, $col, $id, $contrib, $options) = @_;
  	
  	my $local = $options->{local};
@@ -58,6 +60,8 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
  	my $p = $options->{password};
 	my $nonew = $options->{nonew};
 	my $force = $options->{force};
+	my $sched = $options->{schedule};
+	my $temp = $options->{template};
 	
 	unless ($u) {
 		my @cred = get_credentials;
@@ -66,15 +70,48 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 	}
 	
 	unless ($force) {
-		my $temp = get_template_object($db, $col, local=>$local);
-	#	print $temp->list_properties();
-	#	print "\n";
-		copy_properties_db($obj, $temp, nonew=>$nonew);
+		unless ($temp) {
+			$temp = get_template_object($db, $col, local=>$local);
+		#	print $temp->list_properties();
+		#	print "\n";
+		}
+		copy_properties_db($obj, $temp, nonew=>$nonew, schedule=>$sched);
 	#	print $obj->list_properties;
 	}
 	
 	my $client = get_client($local, $u, $p);	
 	my $collection = get_collection($client, $db, $col);
-	my $output = $collection->insert(pm2json($obj, $id, $contrib));
+	
+	my $json = pm2json($obj, $id, $contrib);
+	my $output = $collection->insert($json);
 	return $output;
 }
+
+
+# @category Database Insertion
+# Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @param String file polymake object stored in a file
+# @param String db database name
+# @param String col collection name
+# @param String id unique identifier
+# @param String contrib
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option Bool nonew set to 1 if you don't want to compute missing properties
+# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
+# @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @return String
+user_function poly_db_insert_from_file($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, schedule => undef, template => undef}) {
+	my ($file, $db, $col, $id, $contrib, $options) = @_;
+
+	my $obj = load($file);
+	
+	return poly_db_insert($obj, $db, $col, $id, $contrib, $options);
+}
+
