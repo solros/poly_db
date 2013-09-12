@@ -103,12 +103,3 @@ sub to_json {
 	}
 }
 
-
-# converts the db output back to pm format
-sub type_conversion {
-	my $h = shift;	
-	foreach my $k (keys %$h) {
-		$h->{$k} =~s /NumberLong\((\d+)\)/$1/g
-	}
-}
-
