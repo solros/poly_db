@@ -51,7 +51,10 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 	my $t = get_template_object($db_name, $col_name, local => $local);
 	my $fst;
 	if ($by_id) {
-		$fst = poly_db_one($db_name, $col_name, {'_id' => $obj_list->[0]}, $options->{local});
+		unless ($fst = poly_db_one($db_name, $col_name, {'_id' => $obj_list->[0]}, $options->{local})) {
+			print "non-existent id: $obj_list->[0]\n";
+			return;
+		}
 	} else {
 		$fst = $obj_list->[0];
 	}
@@ -63,7 +66,10 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 		my $id; my $obj;
 		if ($by_id) {
 			$id = $curr;
-			$obj = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local});
+			unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local})) {
+				print "non-existent id: $obj_list->[0]\n";
+				return;
+			}
 		} else {
 			$obj = $curr;
 			$id = $obj->_id;	
@@ -98,7 +104,7 @@ user_function poly_db_update_id($, $, $, {local => 0, username => "", password =
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
-	my $p = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local});
+	unless (my $p = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local})) {return;}
 	
 	return poly_db_update_one($db_name, $col_name, $p, $options);
 }
@@ -160,56 +166,7 @@ user_function poly_db_update_one($, $, $, {local => 0, username => "", password 
 user_function poly_db_query_update($, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($query, $db_name, $col_name, $options) = @_;
 
-	my $obj_list = poly_db($db_name, $col_name, $query, local => $options->{local});
+	unless (my $obj_list = poly_db($db_name, $col_name, $query, local => $options->{local})) {return;}
 
 	poly_db_batch_update($obj_list, $db_name, $col_name, $options);
-}
-
-
-# @category Database Update
-# Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
-# 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''poly_database''.
-# @param Array<String> obj_list either an Array<[[Core::Object]]> of polymake objects or an Array<String> of [[_id|IDs]]
-# @param String db database name
-# @param String col collection name
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @option String contrib use this to update the [[contributor]]
-user_function poly_db_batch_update_id($, $, $, {local => 0, username => "", password => "", contrib => ""}) {
-	my ($obj_list, $db_name, $col_name, $options) = @_;
-
-	my $u = $options->{username};
-	my $p = $options->{password};
-	my $local = $options->{local};
-	
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-
-	my $t = get_template_object($db_name, $col_name, local => $local);
-
-	my $fst;
-	$fst = poly_db_one($db_name, $col_name, {'_id' => $obj_list->[0]}, $options->{local});
-	my $sched = $fst->get_schedule($t->list_properties);
-
-	
-	foreach my $curr (@$obj_list) {
-
-		my $id; my $obj;
-		$id = $curr;
-		$obj = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local});
-
-		my $contrib;
-		unless ($contrib = $options->{contrib}) {
-			$contrib = $obj->contributor;	
-		}
-		
-		poly_db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
-	}
 }
