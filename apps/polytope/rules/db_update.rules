@@ -1,0 +1,91 @@
+# Copyright (c) 2013 Silke Horn
+# http://solros.de/polymake/poly_database
+# 
+# This file is part of the polymake extension poly_database.
+# 
+# poly_database is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# poly_database is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+# @category Database Update
+# Updates the objects the match //query// in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @param Hash query
+# @param String db database name
+# @param String col collection name
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option String contrib use this to update the contributor
+# @option Int limit
+# @return String
+user_function poly_db_update($, $, $, {username => "", password => "", contrib => "", limit => 0}) {
+	
+	my ($db_name, $col_name, $query, $options) = @_;
+
+
+
+}
+
+
+
+user_function poly_db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef}) {
+	
+	my ($db_name, $col_name, $id, $options) = @_;
+	
+	my $p = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local});
+	
+	return poly_db_update_one($db_name, $col_name, $p, $options);
+}
+
+
+# @category Database Update
+# Updates an object in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @param String db database name
+# @param String col collection name
+# @param Core::Object obj
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option String contrib use this to update the contributor
+# @option Core::ChainRule schedule
+# @return String
+user_function poly_db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef}) {
+
+	my ($db_name, $col_name, $obj, $options) = @_;
+
+	my $t = get_template_object($db_name, $col_name, local => $options->{local});
+	
+	my $id = $obj->_id;
+	my $contrib;
+	if ($options->{contrib}) {
+		$contrib = $options->{contrib};
+	} else {
+		$contrib = $obj->contributor;	
+	}
+	
+	copy_properties_db($obj, $t, schedule => $options->{schedule});
+	
+	my $client = get_client($options->{local}, $options->{username}, $options->{password});	
+	my $collection = get_collection($client, $db_name, $col_name);
+	
+	return $collection->save(pm2json($obj, $id, $contrib));
+}
