@@ -24,26 +24,55 @@
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
 # Contained in extension ''poly_database''.
-# @param Hash query
 # @param String db database name
 # @param String col collection name
+# @param Hash query
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option String contrib use this to update the contributor
-# @option Int limit
-# @return String
-user_function poly_db_update($, $, $, {username => "", password => "", contrib => "", limit => 0}) {
-	
+# @option String contrib use this to update the [[contributor]]
+user_function poly_db_batch_update($, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($db_name, $col_name, $query, $options) = @_;
+	
+	my $obj_list = poly_db($db_name, $col_name, $query, $options->{local});
 
 
+	my $t = get_template_object($db_name, $col_name, local => $options->{local});
 
+	my $fst = $obj_list->[0];
+	my $sched = $fst->get_schedule($t->list_properties);
+
+	
+	foreach my $obj (@$obj_list) {
+
+		my $id = $obj->_id;
+
+		my $contrib;
+		unless ($contrib = $options->{contrib}) {
+			$contrib = $obj->contributor;	
+		}
+		
+		poly_db_update_one($db_name, $col_name, $obj, local => $options->{local}, username => $options->{username}, password => $options->{password}, contrib => $contrib, schedule => $sched, template => $t);
+	}
 }
 
 
-
-user_function poly_db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef}) {
+# @category Database Update
+# Updates the object with a given [[_id]] in the collection //col// in the database //db// by matching its properties with the template object for this collection.
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @param String db database name
+# @param String col collection name
+# @param String id
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option String contrib use this to update the [[contributor]]
+# @option Core::ChainRule schedule
+# @return String
+user_function poly_db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
@@ -65,20 +94,22 @@ user_function poly_db_update_id($, $, $, {local => 0, username => "", password =
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option String contrib use this to update the contributor
+# @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
+# @option Core::Object template
 # @return String
-user_function poly_db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef}) {
+user_function poly_db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 
-	my $t = get_template_object($db_name, $col_name, local => $options->{local});
+	my $t;
+	unless (defined($t = $options->{template})) {
+		$t = get_template_object($db_name, $col_name, local => $options->{local});
+	}
 	
 	my $id = $obj->_id;
 	my $contrib;
-	if ($options->{contrib}) {
-		$contrib = $options->{contrib};
-	} else {
+	unless ($contrib = $options->{contrib}) {
 		$contrib = $obj->contributor;	
 	}
 	
