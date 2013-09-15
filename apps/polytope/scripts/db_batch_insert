@@ -27,30 +27,7 @@ sub batch_insert {
 	
 	my @files = @_;
 	
-	my @c = get_credentials() unless ($local);
-	my $fst = load($files[0]);
-	
-	my $temp = get_template_object($db_name, $collection, local=>$local);
-	
-	my $sched = $fst->get_schedule($temp->list_properties);
-
-	foreach (@files) {
-		my $obj = load($_);
-		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
-	}
-
-
-	my $client = get_client($local, $c[0], $c[1]);	
-	my $col = get_collection($client, $db_name, $collection);
-	
-	foreach (@files) {
-		my $obj = load($_);
-		my $id = generate_id($obj->name, $db_name, $collection);
-		
-		my $json = pm2json($obj, $id, $contrib);
-		print $col->insert($json);
-		print " ";
-	}
+	db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew);
 }
 
 batch_insert(@ARGV);
