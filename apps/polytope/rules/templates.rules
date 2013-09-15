@@ -42,12 +42,18 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 		$p = $cred[1];
 	}
 
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($local, $u, $p, "admin");
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
-	$tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+	my $output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+
+	if ($output->{ok}) {
+		print "successfully set template object for collection $col in database $db\n"
+	} else {
+		print "an error occurred when trying to set the template object for collection $col in database $db\n";
+	}
 }
 
 
