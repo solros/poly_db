@@ -97,20 +97,28 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 # @param String file polymake object stored in a file
 # @param String db database name
 # @param String col collection name
-# @param String id unique identifier
 # @param String contrib
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
+# @option String id unique identifier
 # @option Bool nonew set to 1 if you don't want to compute missing properties
 # @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @return String
-user_function poly_db_insert_from_file($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, schedule => undef, template => undef}) {
-	my ($file, $db, $col, $id, $contrib, $options) = @_;
+user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", password => "", id => "", nonew => 0, force => 0, schedule => undef, template => undef}) {
+	my ($file, $db, $col, $contrib, $options) = @_;
 
-	my $obj = load($file);
+	my $obj = User::load($file);
+	
+	my $id = $options->{id};
+	
+	unless ($id) {
+		unless ($id = generate_id($file, $db, $col)) {
+			return;
+		}
+	}
 	
 	return poly_db_insert($obj, $db, $col, $id, $contrib, $options);
 }

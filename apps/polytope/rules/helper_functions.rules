@@ -94,3 +94,19 @@ sub get_date {
 	return $dt->date;
 }
 
+
+function generate_id {
+	my ($name, $db, $col) = @_;
+	
+	if ($col eq "SmoothReflexive") {
+		if ($name =~ m/\.(\d+D)\.(\d+)/) {
+			return "F.$1.$2";
+		} else {
+			croak("name $name does not yield valid id for collection $col\n");
+			return;
+		}
+	}
+	
+	croak("no rule to generate id for collection $col\n");
+	return;
+}
