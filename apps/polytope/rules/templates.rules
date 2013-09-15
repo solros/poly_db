@@ -29,6 +29,7 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
+# @option String auth_db the database you wish to authenticate against, default "admin"
 # @return String
 user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
 	my ($obj, $db, $col, $options) = @_;
@@ -42,7 +43,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 		$p = $cred[1];
 	}
 
-	my $client = get_client($local, $u, $p, "admin");
+	my $client = get_client($local, $u, $p);
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
