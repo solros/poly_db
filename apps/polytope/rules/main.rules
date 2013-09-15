@@ -29,3 +29,4 @@ INCLUDE
 	templates.rules
 	json.rules
 	helper_functions.rules
+	db_update.rules

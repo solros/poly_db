@@ -59,6 +59,7 @@ user_function poly_db {
 	my $col = get_collection($client, $db_name, $collection);	
 
 	my $output = $col->find($query);
+	unless ($output) {print "No such object.\n"; return;}
 		
 	return cursor2array($output, $type);
 }
@@ -80,6 +81,7 @@ user_function poly_db_one {
 		
 	my $output = $col->find_one($query);
 	
+	unless ($output) {print "No such object.\n"; return;}
 	return doc2object($output, $type);
 }
 
