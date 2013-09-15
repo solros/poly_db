@@ -20,6 +20,8 @@
 # @category Database Insertion
 # Sets the template object for the collection //col// of the database //db//.
 # 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
 # Contained in extension ''poly_database''.
 # @param Core::Object obj
 # @param String db database name
@@ -27,18 +29,32 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
+# @option String auth_db the database you wish to authenticate against, default "admin"
+# @return String
 user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
 	my $p = $options->{password};
 
+	unless ($u || $local) {
+		my @cred = get_credentials;
+		$u = $cred[0];
+		$p = $cred[1];
+	}
+
 	my $client = get_client($local, $u, $p);
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
-	$tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+	my $output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+
+	if ($output->{ok}) {
+		print "successfully set template object for collection $col in database $db\n"
+	} else {
+		print "an error occurred when trying to set the template object for collection $col in database $db\n";
+	}
 }
 
 

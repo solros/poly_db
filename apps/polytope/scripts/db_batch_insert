@@ -45,7 +45,7 @@ sub batch_insert {
 	
 	foreach (@files) {
 		my $obj = load($_);
-		my $id = $obj->name;
+		my $id = generate_id($obj->name, $db_name, $collection);
 		
 		my $json = pm2json($obj, $id, $contrib);
 		print $col->insert($json);

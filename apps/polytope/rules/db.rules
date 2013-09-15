@@ -35,8 +35,8 @@ custom $db_user = "polymake";
 # poly_database: The database password, default 'database'
 custom $db_pwd = "database";
 
-# poly_database: The name of the authentication database, default 'pm'
-custom $auth_db = "pm";
+# poly_database: The name of the authentication database, default 'admin'
+custom $auth_db = "admin";
 
 # poly_database: The name of the type database, default 'pm'
 custom $type_db = "pm";
