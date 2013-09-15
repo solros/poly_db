@@ -29,11 +29,13 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
+# @option Bool replace_type set to 1 if you want to replace type information for this collection
 user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
 	my $p = $options->{password};
+	my $r = $options->{replace_type};
 
 	unless ($u || $local) {
 		my @cred = get_credentials;
@@ -42,11 +44,32 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	}
 
 	my $client = get_client($local, $u, $p);
+
+	my $t = get_type($client, $db, $col);
+
+
+	my $app = $obj->type->application->name;
+	my $objtype = $obj->type->full_name;
+
+	unless ($r) {
+		unless ($t->{'app'} eq $app) {
+			croak("application $app of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");
+		}
+		unless ($t->{'type'} eq $objtype) {
+			croak("type $obj of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");		
+		}
+	}
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
-	my $output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+	my $output;
+	if ($r) {
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, 'template' => pm2json($obj,"","",1)} });
+		
+	} else {
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+	}
 
 	if ($output->{ok}) {
 		print "successfully set template object for collection $col in database $db\n"
