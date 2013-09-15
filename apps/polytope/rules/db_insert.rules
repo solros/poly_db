@@ -123,3 +123,59 @@ user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", 
 	return poly_db_insert($obj, $db, $col, $id, $contrib, $options);
 }
 
+
+# @category Database Insertion
+# Adds a list of objects from files to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @param Array<String> files list of file names
+# @param String db database name
+# @param String col collection name
+# @param String contrib
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option Bool nonew set to 1 if you don't want to compute missing properties
+# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+sub db_batch_insert {
+	my ($files, $db_name, $collection, $contrib, $options);
+	my $local = $options->{local};
+	my $nonew = $options->{nonew};
+	my $u = $options->{username};
+	my $p = $options->{password};
+	
+	my @files = @$files;
+	
+	my @c;
+	unless ($u || $local) {
+		@c = get_credentials();
+		$u = $cred[0];
+		$p = $cred[1];
+	}
+
+	my $fst = User::load($files[0]);
+	
+	my $temp = get_template_object($db_name, $collection, local=>$local);
+	
+	my $sched = $fst->get_schedule($temp->list_properties);
+
+	foreach (@files) {
+		my $obj = User::load($_);
+		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
+	}
+
+
+	my $client = get_client($local, $c[0], $c[1]);	
+	my $col = get_collection($client, $db_name, $collection);
+	
+	foreach (@files) {
+		my $obj = User::load($_);
+		my $id = generate_id($obj->name, $db_name, $collection);
+		
+		my $json = pm2json($obj, $id, $contrib);
+		print $col->insert($json);
+		print " ";
+	}
+}
