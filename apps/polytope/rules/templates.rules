@@ -20,6 +20,8 @@
 # @category Database Insertion
 # Sets the template object for the collection //col// of the database //db//.
 # 
+# Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
+# 
 # Contained in extension ''poly_database''.
 # @param Core::Object obj
 # @param String db database name
@@ -27,18 +29,53 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
+# @option Bool replace_type set to 1 if you want to replace type information for this collection
 user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
 	my $p = $options->{password};
+	my $r = $options->{replace_type};
+
+	unless ($u || $local) {
+		my @cred = get_credentials;
+		$u = $cred[0];
+		$p = $cred[1];
+	}
 
 	my $client = get_client($local, $u, $p);
+
+	my $t = get_type($client, $db, $col);
+
+
+	my $app = $obj->type->application->name;
+	my $objtype = $obj->type->full_name;
+
+	unless ($r) {
+		unless ($t->{'app'} eq $app) {
+			croak("application $app of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");
+		}
+		unless ($t->{'type'} eq $objtype) {
+			croak("type $obj of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");		
+		}
+	}
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
-	$tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+	my $output;
+	if ($r) {
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, 'template' => pm2json($obj,"","",1)} });
+		
+	} else {
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+	}
+
+	if ($output->{ok}) {
+		print "successfully set template object for collection $col in database $db\n"
+	} else {
+		print "an error occurred when trying to set the template object for collection $col in database $db\n";
+	}
 }
 
 
@@ -63,4 +100,52 @@ user_function get_template_object($, $, {local => 0}) {
 	my $r = doc2object($doc->{'template'}, $doc);
 	
 	return $r;
+}
+
+
+
+
+
+# @category Database Insertion
+# Creates a new collection //col// in the database //db// for objects of type //app//://type//. You can optionally set the template object for this collection.
+# 
+# Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @param String db database name
+# @param String col collection name
+# @param String app application name for the objects
+# @param String type type name for the objects
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option Core::Object template
+user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, version => ""}) {
+	my ($db, $col, $app, $type, $options) = @_;
+	my $local = $options->{local};
+	my $u = $options->{username};
+	my $p = $options->{password};
+
+	unless ($u || $local) {
+		my @cred = get_credentials;
+		$u = $cred[0];
+		$p = $cred[1];
+	}
+
+	my $client = get_client($local, $u, $p);
+		
+	my $tdb = $client->get_database($type_db);
+	my $tcol = $tdb->get_collection("Types");
+
+	my $output	= $tcol->save({'db'=>$db, 'col'=>$col, 'app'=>$app, 'type'=>$type});
+
+	if ($output->{ok}) {
+		print "successfully saved type information for collection $col in database $db\n"
+	} else {
+		print "an error occurred when trying to create collection $col in database $db\n";
+	}
+	
+	if (defined($options->{template})) {
+		set_template_object($options->{template}, $db, $col, local=>$options->{local}, username=>$u, password=>$p);
+	}
 }
