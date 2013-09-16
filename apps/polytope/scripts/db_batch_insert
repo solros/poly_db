@@ -24,10 +24,15 @@ sub batch_insert {
 	my $contrib = shift;
 	my $local = shift;
 	my $nonew = shift;
+	my $u = shift;
+	my $p = shift;
+	my $md = shift;
 	
 	my @files = @_;
+
+	print "db_name: $db_name\ncollection: $collection\ncontrib: $contrib\nfiles:\n".join(' ',@files)."\n";
 	
-	db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew);
+	poly_db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew, username=>$u, password=>$p, move_dir => $md);
 }
 
 batch_insert(@ARGV);
