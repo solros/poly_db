@@ -62,7 +62,7 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 	my $force = $options->{force};
 	my $sched = $options->{schedule};
 	my $temp = $options->{template};
-	
+		
 	unless ($u || $local) {
 		my @cred = get_credentials;
 		$u = $cred[0];
@@ -139,8 +139,10 @@ user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", 
 # @option String password
 # @option Bool nonew set to 1 if you don't want to compute missing properties
 # @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
-sub db_batch_insert {
-	my ($files, $db_name, $collection, $contrib, $options);
+# @option String move_dir directory in which processed files are moved
+# @option Bool verbose
+user_function poly_db_batch_insert ($, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, move_dir => ""}){
+	my ($files, $db_name, $collection, $contrib, $options) = @_;
 	my $local = $options->{local};
 	my $nonew = $options->{nonew};
 	my $u = $options->{username};
@@ -151,31 +153,47 @@ sub db_batch_insert {
 	my @c;
 	unless ($u || $local) {
 		@c = get_credentials();
-		$u = $cred[0];
-		$p = $cred[1];
+		$u = $c[0];
+		$p = $c[1];
 	}
 
 	my $fst = User::load($files[0]);
 	
 	my $temp = get_template_object($db_name, $collection, local=>$local);
-	
-	my $sched = $fst->get_schedule($temp->list_properties);
-
+#	print $temp; print "\n";
+	my $sched = undef;
+	unless ($nonew) {
+		$sched = $fst->get_schedule($temp->list_properties);
+	}
+	print "inserting ...\n";
 	foreach (@files) {
 		my $obj = User::load($_);
+		$obj->CONE_DIM;
+#		print $obj->name; print "\n";
 		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
+#		print "copy_properties_db done\n";
 	}
 
-
-	my $client = get_client($local, $c[0], $c[1]);	
+	my $client = get_client($local, $u, $p);	
 	my $col = get_collection($client, $db_name, $collection);
 	
-	foreach (@files) {
-		my $obj = User::load($_);
+	my $md = $options->{move_dir};
+	if ($md) {
+		system("mkdir -p $md");
+	}
+	
+	foreach my $file (@files) {
+		my $obj = User::load($file);
 		my $id = generate_id($obj->name, $db_name, $collection);
 		
+		if ($col->find_one({'_id'=>$id})) {next;}
 		my $json = pm2json($obj, $id, $contrib);
-		print $col->insert($json);
-		print " ";
+		my $output = $col->insert($json);
+		if ($options->{verbose}) {print "$output ";}
+
+		if ($md) {
+			system("mv $file $md");
+		}
 	}
+	print "\n";
 }
