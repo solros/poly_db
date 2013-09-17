@@ -24,33 +24,15 @@ sub batch_insert {
 	my $contrib = shift;
 	my $local = shift;
 	my $nonew = shift;
+	my $u = shift;
+	my $p = shift;
+	my $md = shift;
 	
 	my @files = @_;
-	
-	my @c = get_credentials() unless ($local);
-	my $fst = load($files[0]);
-	
-	my $temp = get_template_object($db_name, $collection, local=>$local);
-	
-	my $sched = $fst->get_schedule($temp->list_properties);
 
-	foreach (@files) {
-		my $obj = load($_);
-		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
-	}
-
-
-	my $client = get_client($local, $c[0], $c[1]);	
-	my $col = get_collection($client, $db_name, $collection);
+	print "db_name: $db_name\ncollection: $collection\ncontrib: $contrib\nmove_dir: $md\nfiles:\n".join(' ',@files)."\n";
 	
-	foreach (@files) {
-		my $obj = load($_);
-		my $id = generate_id($obj->name, $db_name, $collection);
-		
-		my $json = pm2json($obj, $id, $contrib);
-		print $col->insert($json);
-		print " ";
-	}
+	poly_db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew, username=>$u, password=>$p, move_dir => $md);
 }
 
 batch_insert(@ARGV);
