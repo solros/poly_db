@@ -30,7 +30,7 @@ sub batch_insert {
 	
 	my @files = @_;
 
-	print "db_name: $db_name\ncollection: $collection\ncontrib: $contrib\nfiles:\n".join(' ',@files)."\n";
+	print "db_name: $db_name\ncollection: $collection\ncontrib: $contrib\nmove_dir: $md\nfiles:\n".join(' ',@files)."\n";
 	
 	poly_db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew, username=>$u, password=>$p, move_dir => $md);
 }

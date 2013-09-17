@@ -186,7 +186,13 @@ user_function poly_db_batch_insert ($, $, $, $, {local => 0, username => "", pas
 		my $obj = User::load($file);
 		my $id = generate_id($obj->name, $db_name, $collection);
 		
-		if ($col->find_one({'_id'=>$id})) {next;}
+		if ($col->find_one({'_id'=>$id})) {
+			if ($md) {
+				system("mv $file $md");
+			}	
+			next;
+		}
+
 		my $json = pm2json($obj, $id, $contrib);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
