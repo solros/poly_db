@@ -97,6 +97,7 @@ user_function poly_db_one {
 # @return Int
 user_function poly_db_count {
 	my ($db_name, $collection, $query, $local) = @_;
+	my $client = get_client($local);
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 
