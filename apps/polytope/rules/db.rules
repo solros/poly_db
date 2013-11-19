@@ -43,7 +43,7 @@ custom $type_db = "pm";
 
 
 
-# @category Database Retrieval
+# @category Database
 # Returns all objects in the database //db// in //collection// that match the query.
 # 
 # Contained in extension ''poly_database''.
@@ -64,7 +64,7 @@ user_function poly_db {
 	return cursor2array($output, $type);
 }
 
-# @category Database Retrieval
+# @category Database
 # Returns one object in the database //db// in //collection// that matches the query.
 # 
 # Contained in extension ''poly_database''.
@@ -86,7 +86,7 @@ user_function poly_db_one {
 }
 
 
-# @category Database Retrieval
+# @category Database
 # Returns the number of objects in the database //db// in //collection// that match the query.
 # 
 # Contained in extension ''poly_database''.

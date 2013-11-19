@@ -22,7 +22,7 @@ CREDIT poly_database
 # This file contains wrappers for the functions poly_db, poly_db_one and poly_db_count
 
 
-# @category Database Wrappers
+# @category Database
 # Returns all smooth reflexive lattice polytopes in the database that match the query.
 # Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', //query//).
 # 
@@ -36,7 +36,7 @@ user_function poly_db_smooth_reflexive {
 	return poly_db('LatticePolytopes', 'SmoothReflexive', $query, $local);
 }
 
-# @category Database Wrappers
+# @category Database
 # Returns one smooth reflexive lattice polytope in the database that matches the query.
 # Wrapper for [[poly_db_one]], equivalent to [[poly_db_one]]('LatticePolytopes', 'SmoothReflexive', //query//).
 # 
@@ -51,7 +51,7 @@ user_function poly_db_smooth_reflexive_one {
 }
 
 
-# @category Database Wrappers
+# @category Database
 # Returns the number of smooth reflexive lattice polytopes in the database that match the query.
 # Wrapper for [[poly_db_count]], equivalent to [[poly_db_count]]('LatticePolytopes', 'SmoothReflexive', //query//).
 # 
@@ -67,7 +67,7 @@ user_function poly_db_smooth_reflexive_count {
 
 
 
-# @category Database Wrappers
+# @category Database
 # Returns the smooth reflexive lattice polytopes in the database of a given dimension //d//. (This is only recommended for //d// <= 6.)
 # Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => //d//+1}).
 # 
@@ -79,7 +79,7 @@ user_function poly_db_smooth_reflexive_dim {
 	return poly_db('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => $d+1});
 }
 
-# @category Database Wrappers
+# @category Database
 # Returns the (unique) smooth reflexive lattice polytope in the database with a given [[_id]].
 # The IDs are of the form ''F.(dim)D.(some digits)'', e.g. ''F.3D.0000'' is the first 3-dimensional polytope in the database.
 # 
@@ -93,7 +93,7 @@ user_function poly_db_smooth_reflexive_id {
 	return poly_db('LatticePolytopes', 'SmoothReflexive', {'_id' => $id}, $local)->[0];
 }
 
-# @category Database Wrappers
+# @category Database
 # Returns the smooth reflexive lattice polytopes in the database with a given number of vertices.
 # Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'N_VERTICES' => //n//}).
 # 
