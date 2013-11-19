@@ -33,7 +33,7 @@ user_function get_credentials {
 	return ($u,$p);
 }
 
-# @category Database Insertion
+# @category Database
 # Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -88,7 +88,7 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 }
 
 
-# @category Database Insertion
+# @category Database
 # Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -124,7 +124,7 @@ user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", 
 }
 
 
-# @category Database Insertion
+# @category Database
 # Adds a list of objects from files to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.

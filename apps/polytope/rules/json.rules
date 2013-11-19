@@ -16,6 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
+
+
+
 # converts a polymake object to json (for db insertion)
 # if temp is set db properties such as _id, date, contributor are not added
 sub pm2json {
