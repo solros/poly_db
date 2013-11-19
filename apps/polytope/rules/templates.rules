@@ -17,7 +17,7 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# @category Database Insertion
+# @category Database
 # Sets the template object for the collection //col// of the database //db//.
 # 
 # Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
@@ -79,8 +79,8 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 }
 
 
-# @category Database Insertion
-# Sets the template object for the collection //col// of the database //db//.
+# @category Database
+# Returns the template object for the collection //col// of the database //db//.
 # 
 # Contained in extension ''poly_database''.
 # @param String db database name
@@ -106,7 +106,7 @@ user_function get_template_object($, $, {local => 0}) {
 
 
 
-# @category Database Insertion
+# @category Database
 # Creates a new collection //col// in the database //db// for objects of type //app//://type//. You can optionally set the template object for this collection.
 # 
 # Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.

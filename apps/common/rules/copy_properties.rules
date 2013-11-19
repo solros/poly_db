@@ -17,8 +17,8 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# @category Database Insertion
-# Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have the same list of known properties.
+# @category Database
+# Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
 # (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
 # 
 # Contained in extension ''poly_database''.

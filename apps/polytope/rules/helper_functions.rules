@@ -52,7 +52,7 @@ function doc2object {
 }
 
 
-# @category Database Hands-on
+# @category Database
 # Takes local and (optionally) username and password and returns a mongo client.
 # @param Bool local
 # @param String username optional
@@ -94,7 +94,7 @@ sub get_date {
 	return $dt->date;
 }
 
-
+# generates a unique ID for the object from the name of the file
 function generate_id {
 	my ($name, $db, $col) = @_;
 	
