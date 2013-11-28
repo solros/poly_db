@@ -18,8 +18,6 @@
 
 CREDIT poly_database
 
-use MongoDB;
-use MongoDB::OID;
 
 #use IO::Prompt;
 
@@ -44,7 +42,7 @@ custom $type_db = "pm";
 
 
 # @category Database
-# Returns all objects in the database //db// in //collection// that match the query. This is only recommended for a reasonably small number of matching objects.
+# Returns all objects in the database //db// in //collection// that match the query. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
 # 
 # Contained in extension ''poly_database''.
 # @param String db name of the database, see ...

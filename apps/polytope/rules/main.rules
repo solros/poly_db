@@ -16,10 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
-CREDIT poly_database
-Access to the polymake polytope database.
-Written by Silke Horn.
-http://solros.de/polymake/poly_database
 
 INCLUDE
 	db2.rules
