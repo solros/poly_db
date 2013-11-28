@@ -19,7 +19,7 @@
 use Term::ReadKey;
 
 
-user_function get_credentials {
+function get_credentials {
 	# TODO: cache, key chain??
 	print "user name: ";
 	my $u= <STDIN>;
@@ -48,7 +48,7 @@ user_function get_credentials {
 # @option String username
 # @option String password
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @return String
@@ -103,7 +103,7 @@ user_function db_insert ($, $, $, $, $, {local => 0, username => "", password =>
 # @option String password
 # @option String id unique identifier
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @return String

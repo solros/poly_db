@@ -17,31 +17,7 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CREDIT poly_database
-Access to the polymake polytope database.
-Written by Silke Horn.
-http://solros.de/polymake/poly_database
-
-use MongoDB;
-use MongoDB::OID;
-
-
-# A database cursor. Can be used for buffering.
+# @category Basic Types
 # 
 # Contained in extension ''poly_database''.
-declare object DatabaseCursor;
-
-
-
-
-INCLUDE
-	property_types.rules
-	copy_properties.rules
-	helper_functions.rules
-	templates.rules
-	json.rules
-	db.rules
-	db_insert.rules
-	db_update.rules
-	db_update_client.rules
-	cursor.rules
+declare property_type HASH : c++ (special => 'perl::Hash');
