@@ -22,12 +22,5 @@ Written by Silke Horn.
 http://solros.de/polymake/poly_database
 
 INCLUDE
-	db.rules
 	db2.rules
 	polytopes.rules
-	db_insert.rules
-	templates.rules
-	json.rules
-	helper_functions.rules
-	db_update.rules
-	db_update_client.rules
