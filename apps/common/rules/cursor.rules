@@ -17,3 +17,104 @@
 # along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
 
 CREDIT poly_database
+
+use MongoDB;
+use MongoDB::OID;
+
+
+object DatabaseCursor {
+
+	# The hostname of the database, default 'polymake.org'.
+	property HOST : String;
+	
+	# The port of the database, default 27017.
+	property PORT : Int;
+	
+	# The name of the authentication database, default 'admin'.
+	property AUTH_DB : String;
+
+	# The name of the type database, default 'pm'.
+	property TYPE_DB : String;
+
+	property USER_NAME : String;
+
+	property PASSWORD : String;
+
+	# The name of the database the cursor accesses.
+	property DATABASE : String;
+	
+	# The name of the collection the cursor accesses.
+	property COLLECTION : String;
+
+
+	# The query.
+	property QUERY : HASH;
+
+
+	# The type of the objects in the [[COLLECTION]].
+	property TYPE : String;
+	
+	# The application of the objects in the [[COLLECTION]].
+	property APP : String;
+
+	# The number of objects matching [[QUERY]].
+	property COUNT : Int;
+
+	# Set this to 1 if you want to access a local database server.
+	property LOCAL : Bool;
+
+
+	# The actual MongoCursor. The "heart" of this object.
+	property CURSOR : SCALAR;
+
+
+	
+	rule initial : DATABASE : {
+		croak("\nillegal input: to define a DatabaseCursor you have to specify a DATABASE and COLLECTION");
+	}
+
+	rule initial : COLLECTION : {
+		croak("\nillegal input: to define a DatabaseCursor you have to specify a DATABASE and COLLECTION");
+	}
+
+	rule initial : QUERY : {
+		$this->QUERY = {};
+	}
+	
+	rule initial : LOCAL : {
+		$this->LOCAL = 0;
+	}
+	
+	rule initial : TYPE, APP : {
+		my $client = get_client($this->LOCAL);
+		my $type = get_type($client, $this->DATABASE, $this->COLLECTION);
+		my $app = $type->{'app'};
+		my $type = $type->{'type'};
+		$this->APP = $app;
+		$this->TYPE = $type;
+	}
+	precondition : exists (DATABASE);
+	precondition : exists (COLLECTION);
+	
+	rule CURSOR : DATABASE, COLLECTION, QUERY, LOCAL{
+		my $client = get_client($this->LOCAL);
+		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
+		my $cursor = $col->find($this->QUERY);
+		$this->CURSOR = $cursor;
+	}
+
+	rule COUNT : CURSOR {
+		$this->COUNT = $this->CURSOR->count;
+	}
+
+
+	# Returns the next object.
+	# @return Core::Object
+	user_method next {
+		my $this = shift;
+		my $type = User::application($this->APP)->eval_type($this->TYPE);
+		my $p = $this->CURSOR->next;
+		return $type->construct->(%$p);
+	}
+	
+}
