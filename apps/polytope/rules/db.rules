@@ -44,17 +44,19 @@ custom $type_db = "pm";
 
 
 # @category Database
-# Returns all objects in the database //db// in //collection// that match the query.
+# Returns all objects in the database //db// in //collection// that match the query. This is only recommended for a reasonably small number of matching objects.
 # 
 # Contained in extension ''poly_database''.
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
-# @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username 
+# @option String password
 # @return Array<Core::Object>
-user_function poly_db {
-	my ($db_name, $collection, $query, $local) = @_;
-	my $client = get_client($local);
+user_function poly_db ($, $, $, {local => 0, username => "", password => ""}){
+	my ($db_name, $collection, $query, $options) = @_;
+	my $client = get_client($options->{local}, $options->{username}, $options->{password});
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 
@@ -71,11 +73,13 @@ user_function poly_db {
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
-# @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username 
+# @option String password
 # @return Core::Object
-user_function poly_db_one {
-	my ($db_name, $collection, $query, $local) = @_;
-	my $client = get_client($local);
+user_function poly_db_one ($, $, $, {local => 0, username => "", password => ""}){
+	my ($db_name, $collection, $query, $options) = @_;
+	my $client = get_client($options->{local}, $options->{username}, $options->{password});
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 		
@@ -93,11 +97,13 @@ user_function poly_db_one {
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
-# @param Bool local optional, set to 1 if you want to use a local database (on localhost), default 0
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username 
+# @option String password
 # @return Int
 user_function poly_db_count {
-	my ($db_name, $collection, $query, $local) = @_;
-	my $client = get_client($local);
+	my ($db_name, $collection, $query, $options) = @_;
+	my $client = get_client($options->{local}, $options->{username}, $options->{password});
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 
