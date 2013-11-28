@@ -100,6 +100,8 @@ object DatabaseCursor {
 		my $client = get_client($this->LOCAL);
 		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
 		my $cursor = $col->find($this->QUERY);
+#		print %{$cursor->explain};
+		$cursor->has_next;
 		$this->CURSOR = $cursor;
 	}
 
