@@ -31,7 +31,7 @@
 # @option String username
 # @option String password
 # @option String contrib use this to update the [[contributor]]
-user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
+user_function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($obj_list, $db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
@@ -80,7 +80,7 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 			$contrib = $obj->contributor;	
 		}
 		
-		poly_db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
+		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
 	}
 }
 
@@ -100,13 +100,13 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 # @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
 # @return String
-user_function poly_db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
+user_function db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
 	unless (my $p = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local})) {return;}
 	
-	return poly_db_update_one($db_name, $col_name, $p, $options);
+	return db_update_one($db_name, $col_name, $p, $options);
 }
 
 
@@ -126,7 +126,7 @@ user_function poly_db_update_id($, $, $, {local => 0, username => "", password =
 # @option Core::ChainRule schedule
 # @option Core::Object template
 # @return String
-user_function poly_db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
+function db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 
@@ -163,10 +163,10 @@ user_function poly_db_update_one($, $, $, {local => 0, username => "", password 
 # @option String username
 # @option String password
 # @option String contrib use this to update the [[contributor]]
-user_function poly_db_query_update($, $, $, {local => 0, username => "", password => "", contrib => ""}) {
+function db_query_update($, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($query, $db_name, $col_name, $options) = @_;
 
 	unless (my $obj_list = poly_db($db_name, $col_name, $query, local => $options->{local})) {return;}
 
-	poly_db_batch_update($obj_list, $db_name, $col_name, $options);
+	db_batch_update($obj_list, $db_name, $col_name, $options);
 }

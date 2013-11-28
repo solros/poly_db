@@ -21,16 +21,19 @@ use DateTime;
 
 
 
-user_function poly_db_work_on_packages ($, $, {local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
+user_function db_work_on_packages ($, $, {local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
 
-	my $next = db_get_package("LatticePolytopes", "SmoothReflexive", $options);
+	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
-	poly_db_batch_update_smooth_reflexive($next);
+	while (my $next = db_get_package("LatticePolytopes", "SmoothReflexive", $lup)) {
 	
-	
+		poly_db_batch_update_smooth_reflexive($next, $options);
+		
+		db_finish_package("LatticePolytopes", "SmoothReflexive", $next, $lup)
+	}
 }
 
-# @category Database Update Client
+# @category Database
 # Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopes. It updates the objects 
 # Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
 # 
@@ -43,7 +46,7 @@ user_function poly_db_work_on_packages ($, $, {local => 0, username => "", passw
 # @option String password
 # @option String contrib use this to update the [[contributor]]
 # @option Int package_size
-user_function poly_db_batch_update_smooth_reflexive($, {local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
+function db_batch_update_smooth_reflexive($, {local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
 	my ($pack, $options) = @_;
 
 	my $u = $options->{username};
@@ -62,7 +65,7 @@ user_function poly_db_batch_update_smooth_reflexive($, {local => 0, username => 
 
 	my $t = get_template_object($db_name, $col_name, local => $local);
 	
-	my $fst = $pack*$ps;
+	my $fst = $pack*$ps;	# the number of the first object in the package
 	
 	my $fst_id = get_id($dim, $fst);
 	my $fst_obj;
@@ -86,11 +89,16 @@ user_function poly_db_batch_update_smooth_reflexive($, {local => 0, username => 
 			$contrib = $obj->contributor;	
 		}
 		
-		poly_db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
+		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
 	}
 }
 
 
+# @category Database
+# Finds a packages that is neither done nor active. Write to the database that this package is now active and record starttime and host.
+# @param String db
+# @param String col
+# @return Int
 function db_get_package($, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
@@ -108,16 +116,20 @@ function db_get_package($, $, {local => 0, username => "", password => ""}) {
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
 	my $package = $col->find_one({'done'=>0, 'active'=>0});
-	my $p = $package->{_id};
+	my $id = $package->{_id};
 
-	$col->update({'_id' => $p},{'$set' => {'active'=>1} });
+	$col->update({'_id' => $id},{'$set' => {'active'=>1} });
 
 
-	$col->update({'_id' => $p},{'$set' => {'active'=>1, 'hostname'=>hostname(), 'start'=>DateTime->now} });
+	$col->update({'_id' => $id},{'$set' => {'active'=>1, 'hostname'=>hostname(), 'start'=>DateTime->now} });
 	
-	return $p;
+	return $id;
 }
 
+# Writes to the database that package //id// is finished and records end time.
+# @param String db
+# @param String col
+# @param Int id
 function db_finish_package($, $, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $col_name, $id, $options) = @_;
 	my $u = $options->{username};
@@ -137,6 +149,18 @@ function db_finish_package($, $, $, {local => 0, username => "", password => ""}
 	$col->update({'_id'=>$id},{'$set' => {'done'=>1, 'end'=>DateTime->now} });
 }
 
+
+# @category Database
+# Subdivides all objects that match //query// into packages that are to be updated.
+# 
+# Contained in extension ''poly_database''.
+# @param String db
+# @param String col
+# @param HASH query
+# @param Int psize package size
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
 user_function create_packages ($, $, $, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $col_name, $query, $package_size, $options) = @_;
 	
@@ -146,6 +170,7 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	
 	my $client = get_client($local, $u, $p);
 	
+	# create new collection to store packages with status
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
 	for (my $i = 0; $i < $npacks; ++$i) {
