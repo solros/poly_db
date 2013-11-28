@@ -40,10 +40,10 @@ object DatabaseCursor {
 
 	property PASSWORD : String;
 
-	# The name of the database the cursor accesses.
+	# The name of the database the cursor accesses. Needed for initialization.
 	property DATABASE : String;
 	
-	# The name of the collection the cursor accesses.
+	# The name of the collection the cursor accesses. Needed for initialization.
 	property COLLECTION : String;
 
 
