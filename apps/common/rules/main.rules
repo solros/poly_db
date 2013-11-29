@@ -26,7 +26,7 @@ use MongoDB;
 use MongoDB::OID;
 
 
-# A database cursor. Initialize it with a [[DATABASE]] name, a [[COLLECTION]] name and a [[QUERY]]. You can then iterate over the objects matching the [[QUERY]] with [[next]].
+# A database cursor. Initialize it with a [[DATABASE]] name, a [[COLLECTION]] name and a [[QUERY]]. You can then iterate over the objects matching the [[QUERY]] with [[next]]. It lazily fetches more objects from the database server.
 # 
 # Contained in extension ''poly_database''.
 declare object DatabaseCursor;
