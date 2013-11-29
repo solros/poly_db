@@ -40,10 +40,10 @@ object DatabaseCursor {
 
 	property PASSWORD : String;
 
-	# The name of the database the cursor accesses.
+	# The name of the database the cursor accesses. Needed for initialization.
 	property DATABASE : String;
 	
-	# The name of the collection the cursor accesses.
+	# The name of the collection the cursor accesses. Needed for initialization.
 	property COLLECTION : String;
 
 
@@ -100,6 +100,8 @@ object DatabaseCursor {
 		my $client = get_client($this->LOCAL);
 		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
 		my $cursor = $col->find($this->QUERY);
+#		print %{$cursor->explain};
+		$cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
 		$this->CURSOR = $cursor;
 	}
 
@@ -114,7 +116,26 @@ object DatabaseCursor {
 		my $this = shift;
 		my $type = User::application($this->APP)->eval_type($this->TYPE);
 		my $p = $this->CURSOR->next;
+		unless ($p) {print "no such object"; return;}
 		return $type->construct->(%$p);
 	}
+
+	# Returns true if there is another object to fetch.
+	# @return Bool
+	user_method has_next {
+		my $this = shift;
+		return $this->CURSOR->has_next;
+	}
+	
+	# Reset the [[CURSOR]].
+#	user_method reset {
+#		my $this = shift;
+##		$this->CURSOR->reset->has_next;
+#		my $client = get_client($this->LOCAL);
+#		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
+#		my $cursor = $col->find($this->QUERY);
+#		$cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
+#		$this->CURSOR = $cursor;
+#	}
 	
 }

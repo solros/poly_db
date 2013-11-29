@@ -18,3 +18,12 @@ After downloading the extension (and installing MongoDB) install it to polymake 
 
 in polymake.
 
+
+Usage
+------
+
+You can use the functions poly_db, poly_db_one and poly_db_count for simple database queries.
+
+See [here](http://solros.de/polymake/poly_database/doc) for a reference documentation of the basic read functions.
+
+For queries returning a large number of matching objects you should construct a DatabaseCursor object to iterate over the objects.
