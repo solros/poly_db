@@ -74,7 +74,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	for (my $i = 0; $i < $ps; ++$i) {
 		my $id = get_id($dim, $fst+$i);
 		my $obj;
-		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, local => $options->{local})) {
+		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, local=>$options->{local}, username=>$u, password=>$p)) {
 			print "non-existent id: $id\n";
 			return;
 		}
@@ -151,7 +151,7 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	
 	my $npack = ceil($total/$package_size);
 	
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($options->{local}, $u, $p);
 	
 	# create new collection to store packages with status
 	my $col = get_collection($client, $db_name, $col_name."_status");
