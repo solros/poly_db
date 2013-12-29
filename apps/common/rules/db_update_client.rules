@@ -38,7 +38,7 @@ user_function db_do_package ({local => 0, username => "", password => "", contri
 	
 	my $n = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup);
 
-	poly_db_batch_update_smooth_reflexive($n, $options);
+	db_batch_update_smooth_reflexive($n, $options);
 		
 	db_finish_package("LatticePolytopes", "SmoothReflexiveR", $n, $lup)	
 }
@@ -49,7 +49,7 @@ user_function db_work_on_packages ({local => 0, username => "", password => "", 
 	
 	while (my $next = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup)) {
 	
-		poly_db_batch_update_smooth_reflexive($next, $options);
+		db_batch_update_smooth_reflexive($next, $options);
 		
 		db_finish_package("LatticePolytopes", "SmoothReflexiveR", $next, $lup)
 	}
