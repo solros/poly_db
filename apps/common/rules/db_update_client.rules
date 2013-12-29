@@ -20,7 +20,7 @@ use Sys::Hostname;
 use DateTime;
 
 # @category Database
-# # Updates a pack of objects in the collection SmoothReflexiveR in the database LatticePolytopes. 
+# Updates a pack of objects in the collection SmoothReflexiveR in the database LatticePolytopes. 
 # Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -43,6 +43,17 @@ user_function db_do_package ({local => 0, username => "", password => "", contri
 	db_finish_package("LatticePolytopes", "SmoothReflexiveR", $n, $lup)	
 }
 
+# @category Database
+# Perpetually works on the database until it is killed.
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option String contrib use this to update the [[contributor]]
+# @option Int package_size
 user_function db_work_on_packages ({local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
 
 	my $options = shift;
@@ -110,6 +121,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 		}
 		
 		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
+		print $id." ";
 	}
 }
 
@@ -191,6 +203,31 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	
 	for (my $i = 0; $i < $npacks; ++$i) {
 		$col->insert({'_id'=>$i, 'done'=>0, 'active'=>0});
+	}
+}
+
+
+
+# @category Database
+# Prints all active packages in the collection //col// in database //db//.
+# 
+# Contained in extension ''poly_database''.
+# @param String db
+# @param String col
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+user_function show_active_packages ($, $, {local => 0, username => "", password => ""}) {
+	my ($db_name, $col_name, $options) = @_;
+	
+	my $client = get_client($options->{local}, $options->{username}, $options->{password});
+	
+	my $col = get_collection($client, $db_name, $col_name."_status");
+	
+	my $active = $col->find({'done'=>0, 'active'=>1});
+
+	while (my $p = $active->next) {
+		print "id: ". $p->{_id}."\nstart: ".$p->{start}."\nhost: ".$p->{hostname}."\n\n";
 	}
 }
 

@@ -22,9 +22,7 @@ sub work {
 	my $u = shift;
 	my $p = shift;
 	my $local = shift;
-	
-	my @files = @_;
-	
+		
 	db_work_on_packages(local=>$local, username=>$u, password=>$p);
 }
 
