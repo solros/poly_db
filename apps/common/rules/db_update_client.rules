@@ -76,12 +76,12 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	my $local = $options->{local};
 	my $ps = $options->{package_size};
 
-	my $x = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, local=>$options->{local}, username=>$u, password=>$p);
-	my $dim = $x->DIM;
-	
 	my $db_name = "LatticePolytopes";
 	my $col_name = "SmoothReflexiveR";
 
+	my $x = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, local=>$options->{local}, username=>$u, password=>$p);
+	my $dim = $x->DIM;
+	
 	my $t = get_template_object($db_name, $col_name, local => $local);
 	
 	my $fst = $pack*$ps;	# the number of the first object in the package
@@ -144,7 +144,7 @@ function db_get_package($, $, {local => 0, username => "", password => ""}) {
 # @param String db
 # @param String col
 # @param Int id
-# @param Bool reset
+# @option Bool reset
 function db_finish_package($, $, $, {local => 0, username => "", password => "", reset=>0}) {
 	my ($db_name, $col_name, $id, $options) = @_;
 	my $u = $options->{username};
