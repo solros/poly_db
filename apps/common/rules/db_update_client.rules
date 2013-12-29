@@ -227,7 +227,7 @@ user_function show_active_packages ($, $, {local => 0, username => "", password 
 	my $active = $col->find({'done'=>0, 'active'=>1});
 
 	while (my $p = $active->next) {
-		print "id: ". $p->{_id}."\nstart: ".$p->{start}."\nhost: ".$p->{hostname}."\nfinish with\ndb_finish_package('$db_name','$col_name',".$p->{_id}.",username=>".$options->{username}.",password=>".$options->{password}.",reset=>1);"."\n\n";
+		print "id: ". $p->{_id}."\nstart: ".$p->{start}."\nhost: ".$p->{hostname}."\nreset with\ndb_finish_package('$db_name','$col_name',".$p->{_id}.",username=>'".$options->{username}."',password=>'".$options->{password}."',reset=>1);"."\n\n";
 	}
 }
 
