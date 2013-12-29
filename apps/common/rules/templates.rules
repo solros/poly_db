@@ -30,7 +30,7 @@
 # @option String username
 # @option String password
 # @option Bool replace_type set to 1 if you want to replace type information for this collection
-user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
+user_function set_template_object($, $, $, {local => 0, username => "", password => "", replace_type=>0}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
@@ -51,7 +51,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	my $app = $obj->type->application->name;
 	my $objtype = $obj->type->full_name;
 
-	unless ($r) {
+	unless ($r or (not($app) and not($objtype))) {
 		unless ($t->{'app'} eq $app) {
 			croak("application $app of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");
 		}

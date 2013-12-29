@@ -101,7 +101,7 @@ user_function poly_db_one ($, $, $, {local => 0, username => "", password => ""}
 # @option String username 
 # @option String password
 # @return Int
-user_function poly_db_count {
+user_function poly_db_count($, $, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $collection, $query, $options) = @_;
 	my $client = get_client($options->{local}, $options->{username}, $options->{password});
 	my $type = get_type($client, $db_name, $collection);

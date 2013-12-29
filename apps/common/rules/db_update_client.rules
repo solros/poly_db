@@ -25,16 +25,16 @@ user_function db_work_on_packages ($, $, {local => 0, username => "", password =
 
 	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
-	while (my $next = db_get_package("LatticePolytopes", "SmoothReflexive", $lup)) {
+	while (my $next = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup)) {
 	
 		poly_db_batch_update_smooth_reflexive($next, $options);
 		
-		db_finish_package("LatticePolytopes", "SmoothReflexive", $next, $lup)
+		db_finish_package("LatticePolytopes", "SmoothReflexiveR", $next, $lup)
 	}
 }
 
 # @category Database
-# Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopes. It updates the objects 
+# Updates a pack of objects in the collection SmoothReflexiveR in the database LatticePolytopes. 
 # Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -54,22 +54,17 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	my $local = $options->{local};
 	my $ps = $options->{package_size};
 	
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-
 	my $db_name = "LatticePolytopes";
-	my $col_name = "SmoothReflexive";
+	my $col_name = "SmoothReflexiveR";
 
 	my $t = get_template_object($db_name, $col_name, local => $local);
+	my $dim = $t->DIM;
 	
 	my $fst = $pack*$ps;	# the number of the first object in the package
 	
 	my $fst_id = get_id($dim, $fst);
 	my $fst_obj;
-	unless ($fst_obj = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, $options->{local})) {
+	unless ($fst_obj = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, local=>$options->{local}, username=>$u, password=>$p)) {
 		print "non-existent id: $fst_id\n";
 		return;
 	}
@@ -79,7 +74,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	for (my $i = 0; $i < $ps; ++$i) {
 		my $id = get_id($dim, $fst+$i);
 		my $obj;
-		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local})) {
+		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, local => $options->{local})) {
 			print "non-existent id: $id\n";
 			return;
 		}
@@ -104,13 +99,7 @@ function db_get_package($, $, {local => 0, username => "", password => ""}) {
 	my $u = $options->{username};
 	my $p = $options->{password};
 	my $local = $options->{local};
-	
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-	
+		
 	my $client = get_client($local, $u, $p);
 	
 	my $col = get_collection($client, $db_name, $col_name."_status");
@@ -136,12 +125,6 @@ function db_finish_package($, $, $, {local => 0, username => "", password => ""}
 	my $p = $options->{password};
 	my $local = $options->{local};
 	
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-	
 	my $client = get_client($local, $u, $p);
 	
 	my $col = get_collection($client, $db_name, $col_name."_status");
@@ -164,7 +147,7 @@ function db_finish_package($, $, $, {local => 0, username => "", password => ""}
 user_function create_packages ($, $, $, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $col_name, $query, $package_size, $options) = @_;
 	
-	my $total = poly_db_count($db_name, $col_name, $query, $local);
+	my $total = poly_db_count($db_name, $col_name, $query, $options);
 	
 	my $npack = ceil($total/$package_size);
 	
