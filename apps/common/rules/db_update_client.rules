@@ -19,9 +19,31 @@
 use Sys::Hostname;
 use DateTime;
 
+# @category Database
+# # Updates a pack of objects in the collection SmoothReflexiveR in the database LatticePolytopes. 
+# Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
+# 
+# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# 
+# Contained in extension ''poly_database''.
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option String contrib use this to update the [[contributor]]
+# @option Int package_size
+user_function db_do_package ({local => 0, username => "", password => "", contrib => "", package_size => 1000}){
+	my $options = shift;
 
+	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
+	
+	my $n = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup))
 
-user_function db_work_on_packages ($, $, {local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
+	poly_db_batch_update_smooth_reflexive($n, $options);
+		
+	db_finish_package("LatticePolytopes", "SmoothReflexiveR", $n, $lup)	
+}
+
+user_function db_work_on_packages ({local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
 
 	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
@@ -112,6 +134,7 @@ function db_get_package($, $, {local => 0, username => "", password => ""}) {
 
 	$col->update({'_id' => $id},{'$set' => {'active'=>1, 'hostname'=>hostname(), 'start'=>DateTime->now} });
 	
+	print hostname() . " started working on package $id\n at " . DateTime->now . "\n";
 	return $id;
 }
 
@@ -130,6 +153,7 @@ function db_finish_package($, $, $, {local => 0, username => "", password => ""}
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
 	$col->update({'_id'=>$id},{'$set' => {'done'=>1, 'end'=>DateTime->now} });
+	print hostname() . " finished working on package $id\n at " . DateTime->now . "\n";
 }
 
 
