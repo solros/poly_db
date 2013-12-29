@@ -79,8 +79,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	my $db_name = "LatticePolytopes";
 	my $col_name = "SmoothReflexiveR";
 
-	my $x = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, local=>$options->{local}, username=>$u, password=>$p);
-	my $dim = $x->DIM;
+	my $dim = 8;
 	
 	my $t = get_template_object($db_name, $col_name, local => $local);
 	
