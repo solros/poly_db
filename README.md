@@ -11,7 +11,7 @@ Note that you first have to install the Perl driver for MongoDB (from cpan) by i
 
 	sudo cpan MongoDB
 
-If you don't have sudo-rights (or don't want to apply them here) see [here](http://solros.de/polymake/poly_database/mongo.html) or the file Install_MongoDB for install information. 
+If you don't have sudo-rights (or don't want to apply them here) see [here](http://solros.de/polymake/poly_database/mongo.php) or the file Install_MongoDB for install information. 
 
 After downloading the extension (and installing MongoDB) install it to polymake by running
 
