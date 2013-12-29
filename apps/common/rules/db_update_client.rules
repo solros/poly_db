@@ -36,7 +36,7 @@ user_function db_do_package ({local => 0, username => "", password => "", contri
 
 	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
-	my $n = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup))
+	my $n = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup);
 
 	poly_db_batch_update_smooth_reflexive($n, $options);
 		
