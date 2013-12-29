@@ -149,7 +149,7 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	
 	my $total = poly_db_count($db_name, $col_name, $query, $options);
 	
-	my $npack = ceil($total/$package_size);
+	my $npacks = ceil($total/$package_size);
 	
 	my $client = get_client($options->{local},$options->{username},$options->{password});
 	
