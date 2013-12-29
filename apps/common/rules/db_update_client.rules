@@ -151,7 +151,7 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	
 	my $npack = ceil($total/$package_size);
 	
-	my $client = get_client($options->{local}, $u, $p);
+	my $client = get_client($options);
 	
 	# create new collection to store packages with status
 	my $col = get_collection($client, $db_name, $col_name."_status");
