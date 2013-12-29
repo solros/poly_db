@@ -45,6 +45,8 @@ user_function db_do_package ({local => 0, username => "", password => "", contri
 
 user_function db_work_on_packages ({local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
 
+	my $options = shift;
+
 	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
 	while (my $next = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup)) {
