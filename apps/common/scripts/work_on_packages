@@ -19,6 +19,8 @@
 use application 'polytope';
 
 sub work {
+	prefer("libnormaliz");
+	
 	my $u = shift;
 	my $p = shift;
 	my $local = shift;

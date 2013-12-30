@@ -51,15 +51,17 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	my $app = $obj->type->application->name;
 	my $objtype = $obj->type->full_name;
 
-	unless ($r or (not($app) and not($objtype))) {
-		unless ($t->{'app'} eq $app) {
-			croak("application $app of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");
+	if ($t->{'app'} and $t->{'type'}) {
+		unless ($r) {
+			unless ($t->{'app'} eq $app) {
+				croak("application $app of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");
+			}
+			unless ($t->{'type'} eq $objtype) {
+				croak("type $obj of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");		
+			}
 		}
-		unless ($t->{'type'} eq $objtype) {
-			croak("type $obj of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");		
-		}
-	}
-		
+	} else { $r = 1; }
+	
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
@@ -72,7 +74,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	}
 
 	if ($output->{ok}) {
-		print "successfully set template object for collection $col in database $db\n"
+		print "successfully set template object for collection $col in database $db (object of type $app:$objtype)\n"
 	} else {
 		print "an error occurred when trying to set the template object for collection $col in database $db\n";
 	}
@@ -99,6 +101,7 @@ user_function get_template_object($, $, {local => 0}) {
 
 	my $doc = $tcol->find({db => $db, col => $col})->next;
 	
+	unless ($doc) {croak("no template data for collection $col in database $db");}
 	my $r = doc2object($doc->{'template'}, $doc);
 	
 	undef $client;
@@ -144,9 +147,9 @@ user_function set_type_info($, $, $, $, {local => 0, username => "", password =>
 	my $output	= $tcol->save({'db'=>$db, 'col'=>$col, 'app'=>$app, 'type'=>$type});
 
 	if ($output->{ok}) {
-		print "successfully saved type information for collection $col in database $db\n"
+		print "successfully saved type information for $db.$col\n"
 	} else {
-		print "an error occurred when trying to create collection $col in database $db\n";
+		print "an error occurred when trying to save type information for $db.$col\n";
 	}
 	
 	if (defined($options->{template})) {
