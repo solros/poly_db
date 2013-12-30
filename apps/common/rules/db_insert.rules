@@ -120,7 +120,7 @@ user_function db_insert_from_file($, $, $, $, {local => 0, username => "", passw
 		}
 	}
 	
-	return poly_db_insert($obj, $db, $col, $id, $contrib, $options);
+	return db_insert($obj, $db, $col, $id, $contrib, $options);
 }
 
 
@@ -138,7 +138,7 @@ user_function db_insert_from_file($, $, $, $, {local => 0, username => "", passw
 # @option String username
 # @option String password
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose
 user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, move_dir => ""}){
@@ -160,7 +160,7 @@ user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password
 	my $fst = User::load($files[0]);
 	
 	my $temp = get_template_object($db_name, $collection, local=>$local);
-#	print $temp; print "\n";
+
 	my $sched = undef;
 	unless ($nonew) {
 		$sched = $fst->get_schedule($temp->list_properties);
@@ -169,9 +169,7 @@ user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password
 	foreach (@files) {
 		my $obj = User::load($_);
 		$obj->CONE_DIM;
-#		print $obj->name; print "\n";
 		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
-#		print "copy_properties_db done\n";
 	}
 
 	my $client = get_client($local, $u, $p);	
@@ -201,5 +199,6 @@ user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password
 			system("mv $file $md");
 		}
 	}
+	undef $client;
 	print "\n";
 }

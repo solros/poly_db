@@ -68,22 +68,6 @@ user_function poly_db_smooth_reflexive_count ($, {local => 0, username => "", pa
 
 
 # @category Database
-# Returns the smooth reflexive lattice polytopes in the database of a given dimension //d//. (This is only recommended for //d// <= 6.)
-# Wrapper for [[poly_db]], equivalent to [[poly_db]]('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => //d//+1}).
-# 
-# Contained in extension ''poly_database''.
-# @param Int d
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username 
-# @option String password
-# @return Array<LatticePolytope>
-user_function poly_db_smooth_reflexive_dim ($, {local => 0, username => "", password => ""}){
-	my $d = shift;
-	my $options = shift;
-	return poly_db('LatticePolytopes', 'SmoothReflexive', {'CONE_DIM' => $d+1}, $options);
-}
-
-# @category Database
 # Returns the (unique) smooth reflexive lattice polytope in the database with a given [[_id]].
 # The IDs are of the form ''F.(dim)D.(some digits)'', e.g. ''F.3D.0000'' is the first 3-dimensional polytope in the database.
 # 

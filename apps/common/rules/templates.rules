@@ -43,7 +43,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 		$p = $cred[1];
 	}
 
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($options);
 
 	my $t = get_type($client, $db, $col);
 
@@ -76,6 +76,8 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	} else {
 		print "an error occurred when trying to set the template object for collection $col in database $db\n";
 	}
+	
+	undef $client;
 }
 
 
@@ -91,13 +93,15 @@ user_function get_template_object($, $, {local => 0}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	
-	my $client = get_client($local);
+	my $client = get_client($local, "", "");
 		
 	my $tcol = $client->get_database($type_db)->get_collection("Types");
 
 	my $doc = $tcol->find({db => $db, col => $col})->next;
 	
 	my $r = doc2object($doc->{'template'}, $doc);
+	
+	undef $client;
 	
 	return $r;
 }
@@ -148,4 +152,6 @@ user_function set_type_info($, $, $, $, {local => 0, username => "", password =>
 	if (defined($options->{template})) {
 		set_template_object($options->{template}, $db, $col, local=>$options->{local}, username=>$u, password=>$p);
 	}
+	
+	undef $client;
 }

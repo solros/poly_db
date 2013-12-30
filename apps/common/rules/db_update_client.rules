@@ -20,7 +20,7 @@ use Sys::Hostname;
 use DateTime;
 
 # @category Database
-# Updates a pack of objects in the collection SmoothReflexiveR in the database LatticePolytopes. 
+# Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -31,16 +31,14 @@ use DateTime;
 # @option String password
 # @option String contrib use this to update the [[contributor]]
 # @option Int package_size
-user_function db_do_package ({local => 0, username => "", password => "", contrib => "", package_size => 1000}){
+user_function db_do_package ({local => 0, username => "", password => "", contrib => "", package_size => 100}){
 	my $options = shift;
-
-	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
-	my $n = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup);
+	my $n = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options));
 
 	db_batch_update_smooth_reflexive($n, $options);
 		
-	db_finish_package("LatticePolytopes", "SmoothReflexiveR", $n, $lup)	
+	db_finish_package("LatticePolytopesR", "SmoothReflexive", $n, lup($options))	
 }
 
 # @category Database
@@ -54,22 +52,20 @@ user_function db_do_package ({local => 0, username => "", password => "", contri
 # @option String password
 # @option String contrib use this to update the [[contributor]]
 # @option Int package_size
-user_function db_work_on_packages ({local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
+user_function db_work_on_packages ({local => 0, username => "", password => "", contrib => "", package_size => 100}) {
 
 	my $options = shift;
-
-	my $lup = {local=>$options->{local}, username=>$options->{username}, password=>$options->{password}};
 	
-	while (my $next = db_get_package("LatticePolytopes", "SmoothReflexiveR", $lup)) {
+	while (my $next = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options))) {
 	
 		db_batch_update_smooth_reflexive($next, $options);
 		
-		db_finish_package("LatticePolytopes", "SmoothReflexiveR", $next, $lup)
+		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next, lup($options));
 	}
 }
 
 # @category Database
-# Updates a pack of objects in the collection SmoothReflexiveR in the database LatticePolytopes. 
+# Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -81,7 +77,7 @@ user_function db_work_on_packages ({local => 0, username => "", password => "", 
 # @option String password
 # @option String contrib use this to update the [[contributor]]
 # @option Int package_size
-function db_batch_update_smooth_reflexive($, {local => 0, username => "", password => "", contrib => "", package_size => 1000}) {
+function db_batch_update_smooth_reflexive($, {local => 0, username => "", password => "", contrib => "", package_size => 100}) {
 	my ($pack, $options) = @_;
 
 	my $u = $options->{username};
@@ -89,8 +85,8 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	my $local = $options->{local};
 	my $ps = $options->{package_size};
 
-	my $db_name = "LatticePolytopes";
-	my $col_name = "SmoothReflexiveR";
+	my $db_name = "LatticePolytopesR";
+	my $col_name = "SmoothReflexive";
 
 	my $dim = 8;
 	
@@ -100,17 +96,18 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	
 	my $fst_id = get_id($dim, $fst);
 	my $fst_obj;
-	unless ($fst_obj = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, local=>$options->{local}, username=>$u, password=>$p)) {
+	unless ($fst_obj = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, lup($options))) {
 		print "non-existent id: $fst_id\n";
 		return;
 	}
 
 	my $sched = $fst_obj->get_schedule($t->list_properties);
+	my $client = get_client($options);
 	
 	for (my $i = 0; $i < $ps; ++$i) {
 		my $id = get_id($dim, $fst+$i);
 		my $obj;
-		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, local=>$options->{local}, username=>$u, password=>$p)) {
+		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, lup($options), client => $client)) {
 			print "non-existent id: $id\n";
 			return;
 		}
@@ -120,7 +117,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 			$contrib = $obj->contributor;	
 		}
 		
-		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
+		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t, client => $client);
 		print $id." ";
 	}
 }
@@ -176,6 +173,7 @@ function db_finish_package($, $, $, {local => 0, username => "", password => "",
 		$col->update({'_id'=>$id},{'$set' => {'done'=>1, 'end'=>DateTime->now} });
 		print hostname() . " finished working on package $id at " . DateTime->now . "\n";
 	}
+	undef $client;
 }
 
 # @category Database
@@ -196,7 +194,7 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	
 	my $npacks = ceil($total/$package_size);
 	
-	my $client = get_client($options->{local},$options->{username},$options->{password});
+	my $client = get_client($options);
 	
 	# create new collection to store packages with status
 	my $col = get_collection($client, $db_name, $col_name."_status");
@@ -204,6 +202,8 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 	for (my $i = 0; $i < $npacks; ++$i) {
 		$col->insert({'_id'=>$i, 'done'=>0, 'active'=>0});
 	}
+	
+	undef $client;
 }
 
 
@@ -220,7 +220,7 @@ user_function create_packages ($, $, $, $, {local => 0, username => "", password
 user_function show_active_packages ($, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $col_name, $options) = @_;
 	
-	my $client = get_client($options->{local}, $options->{username}, $options->{password});
+	my $client = get_client($options);
 	
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
@@ -229,7 +229,34 @@ user_function show_active_packages ($, $, {local => 0, username => "", password 
 	while (my $p = $active->next) {
 		print "id: ". $p->{_id}."\nstart: ".$p->{start}."\nhost: ".$p->{hostname}."\nreset with\ndb_finish_package('$db_name','$col_name',".$p->{_id}.",username=>'".$options->{username}."',password=>'".$options->{password}."',reset=>1);"."\n\n";
 	}
+	undef $client;
 }
+
+# @category Database
+# Resets all active packages in the collection //col// in database //db//. Only use this if you are sure that they are no longer being processed.
+# 
+# Contained in extension ''poly_database''.
+# @param String db
+# @param String col
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+user_function reset_active_packages ($, $, {local => 0, username => "", password => ""}) {
+	my ($db_name, $col_name, $options) = @_;
+	
+	my $client = get_client($options);
+	
+	my $col = get_collection($client, $db_name, $col_name."_status");
+	
+	my $active = $col->find({'done'=>0, 'active'=>1});
+
+	while (my $p = $active->next) {
+		db_finish_package($db_name, $col_name, $p->{_id}, local=>$options->{local}, username=>$options->{username}, password=>$options->{password}, reset=>1);
+	}
+	undef $client;
+}
+
+
 
 sub get_id {
 	my ($d, $i) = @_;
