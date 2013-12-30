@@ -121,6 +121,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 			print $id." ";
 		} else {
 			print "\nan error occurred when updating $id\n";
+		}
 	}
 	
 	undef $client;
