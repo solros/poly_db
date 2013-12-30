@@ -97,8 +97,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	my $fst_id = get_id($dim, $fst);
 	my $fst_obj;
 	unless ($fst_obj = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, lup($options))) {
-		print "non-existent id: $fst_id\n";
-		return;
+		croak("non-existent id: $fst_id\n");
 	}
 
 	my $sched = $fst_obj->get_schedule($t->list_properties);
@@ -108,8 +107,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 		my $id = get_id($dim, $fst+$i);
 		my $obj;
 		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, lup($options), client => $client)) {
-			print "non-existent id: $id\n";
-			return;
+			croak("non-existent id: $id\n");
 		}
 
 		my $contrib;
@@ -117,9 +115,15 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 			$contrib = $obj->contributor;	
 		}
 		
-		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t, client => $client);
-		print $id." ";
+		my $output = db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t, client => $client);
+		
+		if ($output->{ok}) {
+			print $id." ";
+		} else {
+			print "\nan error occurred when updating $id\n";
 	}
+	
+	undef $client;
 }
 
 
@@ -147,6 +151,8 @@ function db_get_package($, $, {local => 0, username => "", password => ""}) {
 	$col->update({'_id' => $id},{'$set' => {'active'=>1, 'hostname'=>hostname(), 'start'=>DateTime->now} });
 	
 	print hostname() . " started working on package $id at " . DateTime->now . "\n";
+	
+	undef $client;
 	return $id;
 }
 
@@ -171,7 +177,7 @@ function db_finish_package($, $, $, {local => 0, username => "", password => "",
 	
 	} else {
 		$col->update({'_id'=>$id},{'$set' => {'done'=>1, 'end'=>DateTime->now} });
-		print hostname() . " finished working on package $id at " . DateTime->now . "\n";
+		print "\n".hostname() . " finished working on package $id at " . DateTime->now . "\n";
 	}
 	undef $client;
 }
