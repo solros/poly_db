@@ -29,7 +29,8 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool replace_type set to 1 if you want to replace type information for this collection
+# @option Bool replace_type set to 1 if you want to replace type information for this collection, default 0
+# @option tiny, default 0
 user_function set_template_object($, $, $, {local => 0, username => "", password => "", replace_type=>0, tiny=>0}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
@@ -100,6 +101,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 # @param String db database name
 # @param String col collection name
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option Bool tiny, default 0
 # @return Core::Object
 user_function get_template_object($, $, {local => 0, tiny => 0}) {
 	my ($db, $col, $options) = @_;
@@ -142,6 +144,7 @@ user_function get_template_object($, $, {local => 0, tiny => 0}) {
 # @option String username
 # @option String password
 # @option Core::Object template
+# @option Core::Object tinytemplate template object with minimal set of properties (used for schedule computation)
 user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => ""}) {
 	my ($db, $col, $app, $type, $options) = @_;
 	my $local = $options->{local};
