@@ -1,20 +1,20 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension poly_db.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# poly_db is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# poly_db is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
 
 use Term::ReadKey;
 
@@ -38,7 +38,7 @@ function get_credentials {
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''poly_db''.
 # @param Core::Object obj
 # @param String db database name
 # @param String col collection name
@@ -93,7 +93,7 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''poly_db''.
 # @param String file polymake object stored in a file
 # @param String db database name
 # @param String col collection name
@@ -129,7 +129,7 @@ user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", 
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''poly_db''.
 # @param Array<String> files list of file names
 # @param String db database name
 # @param String col collection name
