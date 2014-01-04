@@ -1,8 +1,8 @@
 
 
-URI http://solros.de/polymake/poly_database#1.0
+URI http://solros.de/polymake/poly_db#1.0
 
 
-#CREDIT poly_database
+#CREDIT poly_db
 #Access to the polymake polytope database.
 #Written by Silke Horn.

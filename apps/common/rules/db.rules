@@ -1,42 +1,42 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension poly_db.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# poly_db is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# poly_db is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
 
-CREDIT poly_database
+CREDIT poly_db
 
 
 #use IO::Prompt;
 
-# poly_database: The hostname of the database, default 'polymake.org'
+# poly_db: The hostname of the database, default 'polymake.org'
 custom $db_host = "polymake.org";
 
-# poly_database: The port of the database, default 27017
+# poly_db: The port of the database, default 27017
 custom $db_port = "27017";
 
-# poly_database: The database username, default 'polymake'
+# poly_db: The database username, default 'polymake'
 custom $db_user = "polymake";
 
-# poly_database: The database password, default 'database'
+# poly_db: The database password, default 'database'
 custom $db_pwd = "database";
 
-# poly_database: The name of the authentication database, default 'admin'
+# poly_db: The name of the authentication database, default 'admin'
 custom $auth_db = "admin";
 
-# poly_database: The name of the type database, default 'pm'
+# poly_db: The name of the type database, default 'pm'
 custom $type_db = "pm";
 
 
@@ -44,7 +44,7 @@ custom $type_db = "pm";
 # @category Database
 # Returns all objects in the database //db// in //collection// that match the query. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''poly_db''.
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
@@ -68,7 +68,7 @@ user_function poly_db ($, $, $, {local => 0, username => "", password => ""}){
 # @category Database
 # Returns one object in the database //db// in //collection// that matches the query.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''poly_db''.
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
@@ -97,7 +97,7 @@ user_function poly_db_one ($, $, $, {local => 0, username => "", password => "",
 # @category Database
 # Returns the number of objects in the database //db// in //collection// that match the query.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''poly_db''.
 # @param String db name of the database, see ...
 # @param String collection name of the collection
 # @param Hash query
