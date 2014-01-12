@@ -30,7 +30,7 @@
 # @option String username
 # @option String password
 # @option Bool replace_type set to 1 if you want to replace type information for this collection, default 0
-# @option tiny, default 0
+# @option Bool tiny, default 0
 user_function set_template_object($, $, $, {local => 0, username => "", password => "", replace_type=>0, tiny=>0}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
