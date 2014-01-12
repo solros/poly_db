@@ -23,6 +23,8 @@ in polymake.
 Usage
 ------
 
+See [here](http://polymake.org/doku.php/tutorial/poly_db_tutorial) for a tutorial.
+
 You can use the functions poly_db, poly_db_one and poly_db_count for simple database queries.
 
 See [here](http://solros.de/polymake/poly_db/doc) for a reference documentation of the basic read functions.

@@ -99,7 +99,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	for (my $i = 0; $i < $ps; ++$i) {
 		my $id = get_id($dim, $fst+$i);
 		my $obj;
-		unless ($obj = poly_db_one({'_id' => $id}, lup($options), client => $client), db => $db_name, collection => $col_name) {
+		unless ($obj = poly_db_one({'_id' => $id}, lup($options), client => $client, db => $db_name, collection => $col_name)) {
 			croak("non-existent id: $id\n");
 		}
 

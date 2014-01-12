@@ -47,7 +47,7 @@ custom $collection_name = "";
 
 
 # @category Database
-# Returns all objects in the database //db// in //collection// that match the query. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
+# Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
 # 
 # Contained in extension ''poly_db''.
 # @param Hash query
@@ -74,7 +74,7 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 }
 
 # @category Database
-# Returns one object in the database //db// in //collection// that matches the query.
+# Returns one object in the database //db// in //collection// that matches the //query//.
 # 
 # Contained in extension ''poly_db''.
 # @param Hash query
@@ -105,7 +105,7 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 
 
 # @category Database
-# Returns the number of objects in the database //db// in //collection// that match the query.
+# Returns the number of objects in the database //db// in //collection// that match the //query//.
 # 
 # Contained in extension ''poly_db''.
 # @param Hash query
@@ -116,7 +116,7 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 # @option String password Some databases might have access control.
 # @return Int
 user_function poly_db_count($, {db => $db_name, collection => $collection_name, local => 0, username => "", password => ""}) {
-	my ($db_name, $collection, $query, $options) = @_;
+	my ($query, $options) = @_;
 
 	check_options($options);
 
