@@ -59,7 +59,16 @@ function doc2object {
 # @param String password optional
 # @return MongoClient
 function get_client {
-	my ($local, $u, $p) = @_;
+	my @args = @_;
+	my ($local, $u, $p);
+	if (@args == 3) {
+		($local, $u, $p) = @args;
+	} else {
+		my $h = $args[0];
+		$local = $h->{local};
+		$u = $h->{username};
+		$p = $h->{password};
+	}
 
 	my $client;
 	if ($local) {
@@ -109,4 +118,15 @@ function generate_id {
 	
 	croak("no rule to generate id for collection $col\n");
 	return;
+}
+
+
+# generates a hash containing local, username and password from a possible larger one
+function lup {
+	my $o = shift;
+	my $r = {};
+	$r->{local}=$o->{local};
+	$r->{username}=$o->{username};
+	$r->{password}=$o->{password};
+	return $r;
 }

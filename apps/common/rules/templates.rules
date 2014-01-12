@@ -29,8 +29,9 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool replace_type set to 1 if you want to replace type information for this collection
-user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
+# @option Bool replace_type set to 1 if you want to replace type information for this collection, default 0
+# @option Bool tiny, default 0
+user_function set_template_object($, $, $, {local => 0, username => "", password => "", replace_type=>0, tiny=>0}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
@@ -43,7 +44,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 		$p = $cred[1];
 	}
 
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($options);
 
 	my $t = get_type($client, $db, $col);
 
@@ -51,31 +52,45 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	my $app = $obj->type->application->name;
 	my $objtype = $obj->type->full_name;
 
+	unless ($t->{'app'}) {
+		croak("no type info set for $db.$col; use the function set_type_info instead\n");
+	}
+
 	unless ($r) {
 		unless ($t->{'app'} eq $app) {
-			croak("application $app of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");
+			croak("application $app of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");
 		}
 		unless ($t->{'type'} eq $objtype) {
-			croak("type $obj of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");		
+			croak("type $obj of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");		
 		}
 	}
-		
+	
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
 	my $output;
+	
+	my $temptype;
+	if ($options->{tiny}){
+		$temptype="tinytemplate";
+	} else {
+		$temptype="template";
+	}
+	
 	if ($r) {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, 'template' => pm2json($obj,"","",1)} });
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, $temptype => pm2json($obj,"","",1)} });
 		
 	} else {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {$temptype => pm2json($obj,"","",1)} });
 	}
 
 	if ($output->{ok}) {
-		print "successfully set template object for collection $col in database $db\n"
+		print "successfully set template object for collection $col in database $db (object of type $app:$objtype)\n"
 	} else {
 		print "an error occurred when trying to set the template object for collection $col in database $db\n";
 	}
+	
+	undef $client;
 }
 
 
@@ -86,18 +101,27 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 # @param String db database name
 # @param String col collection name
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option Bool tiny, default 0
 # @return Core::Object
-user_function get_template_object($, $, {local => 0}) {
+user_function get_template_object($, $, {local => 0, tiny => 0}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	
-	my $client = get_client($local);
+	my $client = get_client($local, "", "");
 		
 	my $tcol = $client->get_database($type_db)->get_collection("Types");
 
 	my $doc = $tcol->find({db => $db, col => $col})->next;
 	
-	my $r = doc2object($doc->{'template'}, $doc);
+	unless ($doc) {croak("no template data for collection $col in database $db");}
+	
+	my $r;
+	if ($options->{tiny}) {
+		$r = doc2object($doc->{'tinytemplate'}, $doc);
+	} else {
+			$r = doc2object($doc->{'template'}, $doc);
+	}
+	undef $client;
 	
 	return $r;
 }
@@ -120,7 +144,8 @@ user_function get_template_object($, $, {local => 0}) {
 # @option String username
 # @option String password
 # @option Core::Object template
-user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, version => ""}) {
+# @option Core::Object tinytemplate template object with minimal set of properties
+user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => ""}) {
 	my ($db, $col, $app, $type, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
@@ -140,12 +165,17 @@ user_function set_type_info($, $, $, $, {local => 0, username => "", password =>
 	my $output	= $tcol->save({'db'=>$db, 'col'=>$col, 'app'=>$app, 'type'=>$type});
 
 	if ($output->{ok}) {
-		print "successfully saved type information for collection $col in database $db\n"
+		print "successfully saved type information for $db.$col\n"
 	} else {
-		print "an error occurred when trying to create collection $col in database $db\n";
+		print "an error occurred when trying to save type information for $db.$col\n";
 	}
 	
 	if (defined($options->{template})) {
 		set_template_object($options->{template}, $db, $col, local=>$options->{local}, username=>$u, password=>$p);
 	}
+	if (defined($options->{tinytemplate})) {
+		set_template_object($options->{tinytemplate}, $db, $col, local=>$options->{local}, username=>$u, password=>$p, tiny=>1);
+	}
+	
+	undef $client;
 }

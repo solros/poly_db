@@ -32,7 +32,7 @@ sub batch_insert {
 
 	print "db_name: $db_name\ncollection: $collection\ncontrib: $contrib\nmove_dir: $md\nfiles:\n".join(' ',@files)."\n";
 	
-	poly_db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew, username=>$u, password=>$p, move_dir => $md);
+	db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew, username=>$u, password=>$p, move_dir => $md);
 }
 
 batch_insert(@ARGV);

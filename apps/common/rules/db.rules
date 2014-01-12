@@ -54,7 +54,7 @@ custom $type_db = "pm";
 # @return Array<Core::Object>
 user_function poly_db ($, $, $, {local => 0, username => "", password => ""}){
 	my ($db_name, $collection, $query, $options) = @_;
-	my $client = get_client($options->{local}, $options->{username}, $options->{password});
+	my $client = get_client($options);
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 
@@ -76,16 +76,20 @@ user_function poly_db ($, $, $, {local => 0, username => "", password => ""}){
 # @option String username 
 # @option String password
 # @return Core::Object
-user_function poly_db_one ($, $, $, {local => 0, username => "", password => ""}){
+user_function poly_db_one ($, $, $, {local => 0, username => "", password => "", client => undef}){
 	my ($db_name, $collection, $query, $options) = @_;
-	my $client = get_client($options->{local}, $options->{username}, $options->{password});
+	
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+	
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 		
 	my $output = $col->find_one($query);
 	
-	undef $client;
-	unless ($output) {print "No such object.\n"; return;}
+	unless ($output) { croak("No such object.\n"); }
 	return doc2object($output, $type);
 }
 
@@ -101,9 +105,9 @@ user_function poly_db_one ($, $, $, {local => 0, username => "", password => ""}
 # @option String username 
 # @option String password
 # @return Int
-user_function poly_db_count {
+user_function poly_db_count($, $, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $collection, $query, $options) = @_;
-	my $client = get_client($options->{local}, $options->{username}, $options->{password});
+	my $client = get_client($options);
 	my $type = get_type($client, $db_name, $collection);
 	my $col = get_collection($client, $db_name, $collection);	
 
