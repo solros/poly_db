@@ -100,7 +100,6 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 		croak("non-existent id: $fst_id\n");
 	}
 
-	my $sched = $fst_obj->get_schedule($t->list_properties);
 	my $client = get_client($options);
 	
 	for (my $i = 0; $i < $ps; ++$i) {
@@ -115,7 +114,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 			$contrib = $obj->contributor;	
 		}
 		
-		my $output = db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t, client => $client);
+		my $output = db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, template => $t, client => $client);
 		
 		if ($output->{ok}) {
 			print $id." ";

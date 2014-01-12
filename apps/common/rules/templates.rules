@@ -144,7 +144,7 @@ user_function get_template_object($, $, {local => 0, tiny => 0}) {
 # @option String username
 # @option String password
 # @option Core::Object template
-# @option Core::Object tinytemplate template object with minimal set of properties (used for schedule computation)
+# @option Core::Object tinytemplate template object with minimal set of properties
 user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => ""}) {
 	my ($db, $col, $app, $type, $options) = @_;
 	my $local = $options->{local};

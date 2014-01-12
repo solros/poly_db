@@ -161,15 +161,11 @@ user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password
 	
 	my $temp = get_template_object($db_name, $collection, local=>$local);
 
-	my $sched = undef;
-	unless ($nonew) {
-		$sched = $fst->get_schedule($temp->list_properties);
-	}
 	print "inserting ...\n";
 	foreach (@files) {
 		my $obj = User::load($_);
 		$obj->CONE_DIM;
-		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
+		copy_properties_db($obj, $temp, nonew=>$nonew);
 	}
 
 	my $client = get_client($local, $u, $p);	
