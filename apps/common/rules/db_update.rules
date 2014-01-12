@@ -51,7 +51,7 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 	my $t = get_template_object($db_name, $col_name, local => $local);
 	my $fst;
 	if ($by_id) {
-		unless ($fst = poly_db_one($db_name, $col_name, {'_id' => $obj_list->[0]}, lup($options))) {
+		unless ($fst = poly_db_one({'_id' => $obj_list->[0]}, lup($options), db => $db_name, collection => $col_name)) {
 			print "non-existent id: $obj_list->[0]\n";
 			return;
 		}
@@ -68,7 +68,7 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 		my $id; my $obj;
 		if ($by_id) {
 			$id = $curr;
-			unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, lup($options), client => $client)) {
+			unless ($obj = poly_db_one({'_id' => $id}, lup($options), client => $client, db => $db_name, collection => $col_name)) {
 				print "non-existent id: $obj_list->[0]\n";
 				return;
 			}
@@ -107,7 +107,7 @@ user_function db_update_id($, $, $, {local => 0, username => "", password => "",
 	my ($db_name, $col_name, $id, $options) = @_;
 	
 	my $p;
-	unless ($p = poly_db_one($db_name, $col_name, {'_id' => $id}, lup($options))) {croak("non-existent id: $id\n");}
+	unless ($p = poly_db_one({'_id' => $id}, lup($options), db => $db_name, collection => $col_name)) {croak("non-existent id: $id\n");}
 	
 	return db_update_one($db_name, $col_name, $p, $options);
 }

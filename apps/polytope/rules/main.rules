@@ -18,5 +18,4 @@
 
 
 INCLUDE
-	db2.rules
 	polytopes.rules
