@@ -26,11 +26,12 @@
 # @param Core::Object template
 # @option Core::RuleChain schedule
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-user_function copy_properties_db ($, $, {schedule => undef, nonew => 0}) {
+user_function copy_properties_db ($, $, {schedule => undef, nonew => 0, noschedule=>0}) {
 	my ($o, $t, $options) = @_;
 
 	my $sched = $options->{schedule};
 	my $nonew = $options->{nonew};
+	my $nosched = $options->{noschedule};
 
 	# TODO: check that $o and $t are of compatible types
 
@@ -40,11 +41,20 @@ user_function copy_properties_db ($, $, {schedule => undef, nonew => 0}) {
 #	my @ap = $t->list_attachments;
 	
 	unless ($nonew) {
-		unless (defined($sched)) {
-			$sched = $o->get_schedule($t->list_properties);
+		if ($nosched) {
+			foreach($t->list_properties){
+#				print "$_ ";
+				my $s = $o->get_schedule($_);
+#				print ". ";
+				$s->apply($o);
+#				print ".  ";
+			}
+		} else {
+			unless (defined($sched)) {
+				$sched = $o->get_schedule($t->list_properties);
+			}
+			$sched->apply($o);
 		}
-	
-		$sched->apply($o);
 	}
 	
 	my @q = $o->list_properties;
