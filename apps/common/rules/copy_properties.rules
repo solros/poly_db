@@ -43,11 +43,11 @@ user_function copy_properties_db ($, $, {schedule => undef, nonew => 0, noschedu
 	unless ($nonew) {
 		if ($nosched) {
 			foreach($t->list_properties){
-				print "$_ ";
+#				print "$_ ";
 				my $s = $o->get_schedule($_);
-				print ". ";
+#				print ". ";
 				$s->apply($o);
-				print ".  ";
+#				print ".  ";
 			}
 		} else {
 			unless (defined($sched)) {
