@@ -94,18 +94,12 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => "", passwo
 	
 	my $fst = $pack*$ps;	# the number of the first object in the package
 	
-	my $fst_id = get_id($dim, $fst);
-	my $fst_obj;
-	unless ($fst_obj = poly_db_one($db_name, $col_name, {'_id' => $fst_id}, lup($options))) {
-		croak("non-existent id: $fst_id\n");
-	}
-
 	my $client = get_client($options);
 	
 	for (my $i = 0; $i < $ps; ++$i) {
 		my $id = get_id($dim, $fst+$i);
 		my $obj;
-		unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, lup($options), client => $client)) {
+		unless ($obj = poly_db_one({'_id' => $id}, lup($options), client => $client, db => $db_name, collection => $col_name)) {
 			croak("non-existent id: $id\n");
 		}
 
@@ -196,7 +190,7 @@ function db_finish_package($, $, $, {local => 0, username => "", password => "",
 user_function create_packages ($, $, $, $, {local => 0, username => "", password => ""}) {
 	my ($db_name, $col_name, $query, $package_size, $options) = @_;
 	
-	my $total = poly_db_count($db_name, $col_name, $query, $options);
+	my $total = poly_db_count($query, $options, db => $db_name, collection => $col_name);
 	
 	my $npacks = ceil($total/$package_size);
 	

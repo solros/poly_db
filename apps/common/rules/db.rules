@@ -19,7 +19,6 @@
 CREDIT poly_db
 
 
-#use IO::Prompt;
 
 # poly_db: The hostname of the database, default 'polymake.org'
 custom $db_host = "polymake.org";
@@ -39,24 +38,33 @@ custom $auth_db = "admin";
 # poly_db: The name of the type database, default 'pm'
 custom $type_db = "pm";
 
+# poly_db: The name of the database you want to access. Set this if you want to access a certain database all (or most of) the time.
+custom $db_name = "";
+
+# poly_db: The name of the collection you want to access. Set this if you want to access a certain collection all (or most of) the time.
+custom $collection_name = "";
+
 
 
 # @category Database
-# Returns all objects in the database //db// in //collection// that match the query. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
+# Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
 # 
 # Contained in extension ''poly_db''.
-# @param String db name of the database, see ...
-# @param String collection name of the collection
 # @param Hash query
+# @option String db name of the database, see ...
+# @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username 
-# @option String password
+# @option String username Some databases might have access control.
+# @option String password Some databases might have access control.
 # @return Array<Core::Object>
-user_function poly_db ($, $, $, {local => 0, username => "", password => ""}){
-	my ($db_name, $collection, $query, $options) = @_;
+user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}){
+	my ($query, $options) = @_;
+
+	check_options($options);
+
 	my $client = get_client($options);
-	my $type = get_type($client, $db_name, $collection);
-	my $col = get_collection($client, $db_name, $collection);	
+	my $type = get_type($client, $options->{db}, $options->{collection});
+	my $col = get_collection($client, $options->{db}, $options->{collection});	
 
 	my $output = $col->find($query);
 	unless ($output) {print "No such object.\n"; return;}
@@ -66,26 +74,28 @@ user_function poly_db ($, $, $, {local => 0, username => "", password => ""}){
 }
 
 # @category Database
-# Returns one object in the database //db// in //collection// that matches the query.
+# Returns one object in the database //db// in //collection// that matches the //query//.
 # 
 # Contained in extension ''poly_db''.
-# @param String db name of the database, see ...
-# @param String collection name of the collection
 # @param Hash query
+# @option String db name of the database, see ...
+# @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username 
-# @option String password
+# @option String username Some databases might have access control.
+# @option String password Some databases might have access control.
 # @return Core::Object
-user_function poly_db_one ($, $, $, {local => 0, username => "", password => "", client => undef}){
-	my ($db_name, $collection, $query, $options) = @_;
+user_function poly_db_one ($, {db => $db_name, collection => $collection_name, local => 0, username => "", password => "", client => undef}){
+	my ($query, $options) = @_;
+
+	check_options($options);
 	
 	my $client;
 	unless(defined($client = $options->{client})) {
 		$client = get_client($options);
 	}
-	
-	my $type = get_type($client, $db_name, $collection);
-	my $col = get_collection($client, $db_name, $collection);	
+
+	my $type = get_type($client, $options->{db}, $options->{collection});
+	my $col = get_collection($client, $options->{db}, $options->{collection});	
 		
 	my $output = $col->find_one($query);
 	
@@ -95,22 +105,32 @@ user_function poly_db_one ($, $, $, {local => 0, username => "", password => "",
 
 
 # @category Database
-# Returns the number of objects in the database //db// in //collection// that match the query.
+# Returns the number of objects in the database //db// in //collection// that match the //query//.
 # 
 # Contained in extension ''poly_db''.
-# @param String db name of the database, see ...
-# @param String collection name of the collection
 # @param Hash query
+# @option String db name of the database, see ...
+# @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username 
-# @option String password
+# @option String username Some databases might have access control.
+# @option String password Some databases might have access control.
 # @return Int
-user_function poly_db_count($, $, $, {local => 0, username => "", password => ""}) {
-	my ($db_name, $collection, $query, $options) = @_;
+user_function poly_db_count($, {db => $db_name, collection => $collection_name, local => 0, username => "", password => ""}) {
+	my ($query, $options) = @_;
+
+	check_options($options);
+
 	my $client = get_client($options);
-	my $type = get_type($client, $db_name, $collection);
-	my $col = get_collection($client, $db_name, $collection);	
+	my $type = get_type($client, $options->{db}, $options->{collection});
+	my $col = get_collection($client, $options->{db}, $options->{collection});	
 
 	undef $client;
 	return $col->count($query);
+}
+
+
+sub check_options {
+	my $options = shift;
+	unless ($options->{db}) { croak("Please specify a database.\n"); }
+	unless ($options->{collection}) { croak("Please specify a collection.\n"); }
 }
