@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
 
+CREDIT poly_db
+
 
 # @category Database
 # Sets the template object for the collection //col// of the database //db//.

@@ -16,10 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
 
+CREDIT poly_db
 
 
 # @category Database
-# Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
+# Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
@@ -102,7 +103,7 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 # @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
 # @return String
-user_function db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
+user_function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
@@ -130,7 +131,7 @@ user_function db_update_id($, $, $, {local => 0, username => "", password => "",
 # @option Core::Object template
 # @option MongoClient client
 # @return String
-function db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef, client => undef}) {
+function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 

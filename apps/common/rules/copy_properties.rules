@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
 
+CREDIT poly_db
+
 
 # @category Database
 # Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.

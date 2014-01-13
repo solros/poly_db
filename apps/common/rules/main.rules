@@ -18,9 +18,9 @@
 
 
 CREDIT poly_db
-Access to the polymake polytope database.
-Written by Silke Horn.
-http://solros.de/polymake/poly_db
+  Access to the polymake polytope database.
+  Copyright by Silke Horn.
+  http://solros.de/polymake/poly_db
 
 use MongoDB;
 use MongoDB::OID;
