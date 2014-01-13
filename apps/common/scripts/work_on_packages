@@ -18,6 +18,8 @@
 
 use application 'polytope';
 
+select((select(STDOUT), $|=1)[0]);
+
 sub work {
 	prefer("libnormaliz");
 	
