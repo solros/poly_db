@@ -34,14 +34,14 @@ use DateTime;
 # @option String password
 # @option Int package_size default 100
 # @option String contrib use this to update the [[contributor]]
-user_function db_do_package ({local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100}){
+user_function db_do_package ({local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100, client => undef}){
 	my $options = shift;
 	
-	my $n = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options));
+	my $n = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options), client => $options->{client});
 
 	db_batch_update_smooth_reflexive($n, $options);
 		
-	db_finish_package("LatticePolytopesR", "SmoothReflexive", $n, lup($options))	
+	db_finish_package("LatticePolytopesR", "SmoothReflexive", $n, lup($options), client => $options->{client})	
 }
 
 # @category Database
@@ -58,12 +58,13 @@ user_function db_do_package ({local => 0, username => $db_user, password => $db_
 user_function db_work_on_packages ({local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100}) {
 
 	my $options = shift;
+	my $client = get_client($options);
 	
-	while (my $next = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options))) {
+	while (my $next = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options), client => $client)) {
 	
-		db_batch_update_smooth_reflexive($next, $options);
+		db_batch_update_smooth_reflexive($next, $options, client => $client);
 		
-		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next, lup($options));
+		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next, lup($options), client => $client);
 	}
 }
 
@@ -80,7 +81,7 @@ user_function db_work_on_packages ({local => 0, username => $db_user, password =
 # @option String password
 # @option Int package_size default 100
 # @option String contrib use this to update the [[contributor]]
-function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100}) {
+function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100, client => undef}) {
 	my ($pack, $options) = @_;
 
 	my $u = $options->{username};
@@ -92,12 +93,16 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, 
 	my $col_name = "SmoothReflexive";
 
 	my $dim = 8;
+
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client	= get_client($options);
+	}
 	
-	my $t = get_template_object($db_name, $col_name, local => $local);
+	my $t = get_template_object($db_name, $col_name, local => $local, client => $client);
 	
 	my $fst = $pack*$ps;	# the number of the first object in the package
 	
-	my $client = get_client($options);
 	
 	for (my $i = 0; $i < $ps; ++$i) {
 		my $id = get_id($dim, $fst+$i);
@@ -119,8 +124,6 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, 
 			print "\nan error occurred when updating $id\n";
 		}
 	}
-	
-	undef $client;
 }
 
 
@@ -129,13 +132,16 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, 
 # @param String db
 # @param String col
 # @return Int
-function db_get_package($, $, {local => 0, username => $db_user, password => $db_pwd}) {
+function db_get_package($, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
 	my ($db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
 	my $local = $options->{local};
 		
-	my $client = get_client($local, $u, $p);
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client	= get_client($local, $u, $p);
+	}
 	
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
@@ -149,7 +155,6 @@ function db_get_package($, $, {local => 0, username => $db_user, password => $db
 	
 	print hostname() . " started working on package $id at " . DateTime->now . "\n";
 	
-	undef $client;
 	return $id;
 }
 
@@ -158,13 +163,16 @@ function db_get_package($, $, {local => 0, username => $db_user, password => $db
 # @param String col
 # @param Int id
 # @option Bool reset
-function db_finish_package($, $, $, {local => 0, username => $db_user, password => $db_pwd, reset => 0}) {
+function db_finish_package($, $, $, {local => 0, username => $db_user, password => $db_pwd, reset => 0, client => undef}) {
 	my ($db_name, $col_name, $id, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
 	my $local = $options->{local};
 	
-	my $client = get_client($local, $u, $p);
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client	= get_client($local, $u, $p);
+	}
 	
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
@@ -176,7 +184,6 @@ function db_finish_package($, $, $, {local => 0, username => $db_user, password 
 		$col->update({'_id'=>$id},{'$set' => {'done'=>1, 'end'=>DateTime->now} });
 		print "\n".hostname() . " finished working on package $id at " . DateTime->now . "\n";
 	}
-	undef $client;
 }
 
 # @category Database
