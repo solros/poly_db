@@ -49,7 +49,7 @@ object DatabaseCursor {
 	property COLLECTION : String;
 
 
-	# The query.
+	# The query. See [[http://polymake.org/doku.php/tutorial/poly_db_tutorial|the tutorial]] for information.
 	property QUERY : HASH;
 
 
@@ -69,6 +69,12 @@ object DatabaseCursor {
 	# The actual MongoCursor. The "heart" of this object. Will be created automatically.
 	property CURSOR : SCALAR;
 
+
+	# Specify how you want to sort the objects.
+	property SORT_BY : String;
+
+	# Specify where to start.
+	property START_POSITION : Int;
 
 	
 	rule initial : DATABASE : {
