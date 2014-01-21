@@ -44,4 +44,5 @@ INCLUDE
 	db_insert.rules
 	db_update.rules
 	db_update_client.rules
+	cursor_properties.rules
 	cursor.rules
