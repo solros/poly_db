@@ -70,6 +70,14 @@ object DatabaseCursor {
 	property CURSOR : SCALAR;
 
 
+	# Specify how you want to sort the objects.
+	property SORT_BY : String;
+	# sort, orderby
+
+	# Specify where to start.
+	property START_POSITION : Int;
+	# skip
+
 	
 	rule initial : DATABASE : {
 		unless(defined($this->DATABASE = $db_name)) {
@@ -115,6 +123,7 @@ object DatabaseCursor {
 		my $client = get_client($this->LOCAL, $this->USER_NAME, $this->PASSWORD);
 		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
 		my $cursor = $col->find($this->QUERY);
+		$cursor->immortal(1);
 #		print %{$cursor->explain};
 		$cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
 		$this->CURSOR = $cursor;
