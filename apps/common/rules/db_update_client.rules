@@ -60,11 +60,11 @@ user_function db_work_on_packages ({local => 0, username => $db_user, password =
 	my $options = shift;
 	my $client = get_client($options);
 	
-	while (my $next = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options), client => $client)-1) {
+	while (my $next = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options), client => $client)) {
 	
-		db_batch_update_smooth_reflexive($next, $options, client => $client);
+		db_batch_update_smooth_reflexive($next-1, $options, client => $client);
 		
-		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next, lup($options), client => $client);
+		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next-1, lup($options), client => $client);
 	}
 }
 
