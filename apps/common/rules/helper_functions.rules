@@ -22,13 +22,18 @@ function cursor2array {
 	my $cursor = shift;
 	my $t = shift;
 	
+	my $size = shift;
+	unless ($size > 0) {
+		$size = $cursor->count;
+	}
+	
 	my $app = $t->{'app'};
 	my $type = $t->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
 	my $arr_type = User::application($app)->eval_type("Array<$type>");
 
-	my $parray = $arr_type->construct->($cursor->count+0);
+	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
 	while (my $p = $cursor->next) {
 		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p);
@@ -84,7 +89,7 @@ function get_client {
 # returns the database entry with the type information for a given collection
 function get_type {
 	my ($client, $db_name, $collection) = @_;
-	return $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+	return $client->get_database($type_db)->get_collection("Types")->find_one({db => $db_name, col => $collection});
 }
 
 # returns a collection object

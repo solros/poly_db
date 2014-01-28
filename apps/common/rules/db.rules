@@ -54,10 +54,11 @@ custom $collection_name = "";
 # @option String db name of the database, see ...
 # @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option Int limit limit the number of objects that will be returned, set to -1 to disable TODO
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Array<Core::Object>
-user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}){
+user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => -1, username => $db_user, password => $db_pwd}){
 	my ($query, $options) = @_;
 
 	check_options($options);
@@ -66,11 +67,11 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 	my $type = get_type($client, $options->{db}, $options->{collection});
 	my $col = get_collection($client, $options->{db}, $options->{collection});	
 
-	my $output = $col->find($query);
+	my $output = $col->find($query)->limit($options->{limit});
 	unless ($output) {print "No such object.\n"; return;}
 	
 	undef $client;
-	return cursor2array($output, $type);
+	return cursor2array($output, $type, $options->{limit});
 }
 
 # @category Database
