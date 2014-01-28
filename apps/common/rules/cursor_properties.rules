@@ -76,8 +76,7 @@ object DatabaseCursor {
 	property SORT_BY : HASH;
 
 
-	# Skip the first elements.
+	# Skip the first elements, default 0.
 	property SKIP : Int;
-	# skip
 
 }

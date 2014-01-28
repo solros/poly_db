@@ -89,7 +89,7 @@ function get_client {
 # returns the database entry with the type information for a given collection
 function get_type {
 	my ($client, $db_name, $collection) = @_;
-	return $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+	return $client->get_database($type_db)->get_collection("Types")->find_one({db => $db_name, col => $collection});
 }
 
 # returns a collection object
