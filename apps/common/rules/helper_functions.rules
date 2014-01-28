@@ -36,7 +36,7 @@ function cursor2array {
 	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
 	while (my $p = $cursor->next) {
-		$parray->[$i] = $obj_type->construct->(%$p);
+		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p);
 		++$i;
 	}
 	return $parray;
@@ -53,7 +53,7 @@ function doc2object {
 	my $type = $t->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
-	return $obj_type->construct->(%$cursor);
+	return $obj_type->construct->($cursor->{'_id'}, %$cursor);
 }
 
 
