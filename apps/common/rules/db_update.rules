@@ -19,7 +19,7 @@
 CREDIT poly_db
 
 
-# @category Database
+# @category Database Admin
 # Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -88,7 +88,7 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 }
 
 
-# @category Database
+# @category Database Admin
 # Updates the object with a given [[_id]] in the collection //col// in the database //db// by matching its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -114,7 +114,7 @@ user_function db_update_id($, $, $, {local => 0, username => $db_user, password 
 }
 
 
-# @category Database
+# @category Database Admin
 # Updates an object //obj// in the collection //col// in the database //db//. Moreover, it matches its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.

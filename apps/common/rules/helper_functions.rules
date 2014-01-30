@@ -43,6 +43,25 @@ function cursor2array {
 
 }
 
+# This is a helper function that transforms a database cursor into an array of strings (IDs).
+function cursor2stringarray {
+	my $cursor = shift;
+	
+	my $size = shift;
+	unless ($size > 0) {
+		$size = $cursor->count;
+	}
+	my $parray = new Array<String>($size+0);
+	my $i = 0;
+	while (my $p = $cursor->next) {
+		$parray->[$i] = $p->{_id};
+		++$i;
+	}
+	return $parray;
+
+}
+
+
 
 # This is a helper function that transforms the database document into an object.
 function doc2object {

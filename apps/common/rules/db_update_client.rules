@@ -22,7 +22,7 @@ CREDIT poly_db
 use Sys::Hostname;
 use DateTime;
 
-# @category Database
+# @category Database Admin
 # Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection.
 # 
@@ -44,7 +44,7 @@ user_function db_do_package ({local => 0, username => $db_user, password => $db_
 	db_finish_package("LatticePolytopesR", "SmoothReflexive", $n, lup($options), client => $options->{client})	
 }
 
-# @category Database
+# @category Database Admin
 # Perpetually works on the database until it is killed.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -68,7 +68,7 @@ user_function db_work_on_packages ({local => 0, username => $db_user, password =
 	}
 }
 
-# @category Database
+# @category Database Admin
 # Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection.
 # 
@@ -127,7 +127,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, 
 }
 
 
-# @category Database
+# @category Database Admin
 # Finds a packages that is neither done nor active. Write to the database that this package is now active and record starttime and host.
 # @param String db
 # @param String col
@@ -186,7 +186,7 @@ function db_finish_package($, $, $, {local => 0, username => $db_user, password 
 	}
 }
 
-# @category Database
+# @category Database Admin
 # Subdivides all objects into packages that are to be updated. (E.g. by computing missing properties.)
 # 
 # Contained in extension ''poly_database''.
@@ -217,7 +217,7 @@ user_function create_packages ($, $, {local => 0, username => $db_user, password
 
 
 
-# @category Database
+# @category Database Admin
 # Prints all active packages in the collection //col// in database //db// with start time and host computer.
 # 
 # Contained in extension ''poly_database''.
@@ -264,7 +264,7 @@ user_function show_active_packages ($, $, {local => 0, username => $db_user, pas
 	undef $client;
 }
 
-# @category Database
+# @category Database Admin
 # Resets all active packages in the collection //col// in database //db//. Only use this if you are sure that they are no longer being processed.
 # 
 # Contained in extension ''poly_database''.

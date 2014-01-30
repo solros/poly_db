@@ -45,20 +45,19 @@ custom $db_name = "";
 custom $collection_name = "";
 
 
-
 # @category Database
 # Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
 # 
 # Contained in extension ''poly_db''.
 # @param Hash query
-# @option String db name of the database, see ...
+# @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] for available databases
 # @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option Int limit limit the number of objects that will be returned, set to -1 to disable TODO
+# @option Int limit limit the number of objects that will be returned, set to 0 to disable TODO
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Array<Core::Object>
-user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => -1, username => $db_user, password => $db_pwd}){
+user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd}){
 	my ($query, $options) = @_;
 
 	check_options($options);
@@ -74,12 +73,15 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 	return cursor2array($output, $type, $options->{limit});
 }
 
+
+
+
 # @category Database
 # Returns one object in the database //db// in //collection// that matches the //query//.
 # 
 # Contained in extension ''poly_db''.
 # @param Hash query
-# @option String db name of the database, see ...
+# @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] for available databases
 # @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username Some databases might have access control.
@@ -110,7 +112,7 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 # 
 # Contained in extension ''poly_db''.
 # @param Hash query
-# @option String db name of the database, see ...
+# @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] for available databases
 # @option String collection name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username Some databases might have access control.
@@ -128,6 +130,37 @@ user_function poly_db_count($, {db => $db_name, collection => $collection_name, 
 	undef $client;
 	return $col->count($query);
 }
+
+
+# @category Database
+# Returns the IDs of all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
+# 
+# Contained in extension ''poly_db''.
+# @param Hash query
+# @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] for available databases
+# @option String collection name of the collection
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option Int limit limit the number of objects that will be returned, set to -1 to disable TODO
+# @option String username Some databases might have access control.
+# @option String password Some databases might have access control.
+# @return Array<String>
+user_function poly_db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => -1, username => $db_user, password => $db_pwd}){
+	my ($query, $options) = @_;
+
+	check_options($options);
+
+	my $client = get_client($options);
+	my $type = get_type($client, $options->{db}, $options->{collection});
+	my $col = get_collection($client, $options->{db}, $options->{collection});	
+
+	my $output = $col->find($query)->fields({'_id'=>1})->limit($options->{limit});
+	unless ($output) {print "No such object.\n"; return;}
+	
+	undef $client;
+#	return $output;
+	return cursor2stringarray($output, $options->{limit});
+}
+
 
 
 sub check_options {
