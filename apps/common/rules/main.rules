@@ -32,6 +32,13 @@ use MongoDB::OID;
 declare object DatabaseCursor;
 
 
+# @topic functions/Database
+# Here you can find the functions to access the polymake database.
+
+# @topic functions/Database\ Admin
+# These are the functions to insert and update objects. You need write access to the database for these.
+
+
 
 
 INCLUDE

@@ -19,7 +19,7 @@
 CREDIT poly_db
 
 
-# @category Database
+# @category Database Admin
 # Sets the template object for the collection //col// of the database //db//.
 # 
 # Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
@@ -134,7 +134,7 @@ user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}
 
 
 
-# @category Database
+# @category Database Admin
 # Creates a new collection //col// in the database //db// for objects of type //app//://type//. You can optionally set the template object for this collection.
 # 
 # Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.

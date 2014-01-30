@@ -36,7 +36,7 @@ function get_credentials {
 	return ($u,$p);
 }
 
-# @category Database
+# @category Database\ Admin
 # Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -87,7 +87,7 @@ user_function db_insert ($, $, $, $, $, {local => 0, username => "", password =>
 }
 
 
-# @category Database
+# @category Database Admin
 # Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -123,7 +123,7 @@ user_function db_insert_from_file($, $, $, $, {local => 0, username => "", passw
 }
 
 
-# @category Database
+# @category Database Admin
 # Adds a list of objects from files to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.

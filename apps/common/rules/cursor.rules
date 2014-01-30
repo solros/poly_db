@@ -108,15 +108,4 @@ object DatabaseCursor {
 		return $this->CURSOR->has_next;
 	}
 	
-	# Reset the [[CURSOR]].
-#	user_method reset {
-#		my $this = shift;
-##		$this->CURSOR->reset->has_next;
-#		my $client = get_client($this->LOCAL);
-#		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
-#		my $cursor = $col->find($this->QUERY);
-#		$cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
-#		$this->CURSOR = $cursor;
-#	}
-	
 }
