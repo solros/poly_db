@@ -67,6 +67,53 @@ user_function get_db_info ({db => undef, collection => undef, local => 0, userna
 }
 
 
+# @category Database
+# Returns a list of available databases and collections (in the form db.collection.
+# @option String db name of the database, default: all available databases
+# @option String collection name of the collection, default: all available collections
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @return Array
+user_function get_db_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
+	my $options = shift;
+	
+	my $client = get_client($options);
+		
+	my $idb = $client->get_database($info_db);
+	my $icol = $idb->get_collection("Info");
+
+	my @ret = ();
+
+	my %query = ();
+	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"pm"}] );
+	$db_query{"col"} = "db_info";
+	if (defined($options->{db})) {
+		$db_query{"db"} = $options->{db};
+	}
+	if (defined($options->{collection})) {
+		$query{"col"} = $options->{collection};
+	}
+
+	my $dbs = $icol->find(\%db_query);
+
+	while (my $db_cursor = $dbs->next) {
+		my $current_db = $db_cursor->{db};
+		$query{"db"} = $current_db;
+		my $search = $icol->find(\%query);
+
+		if ($search->count == 0) {next;}
+				
+		while (my $col_cursor = $search->next) {
+			if ($col_cursor->{col} eq "db_info") {next;}
+			push @ret, $current_db.".".$col_cursor->{col};
+		}
+	}
+
+	undef $client;
+	
+	return \@ret;
+}
+
 
 
 # @category Database Admin
@@ -75,8 +122,8 @@ user_function get_db_info ({db => undef, collection => undef, local => 0, userna
 # @param String description
 # @option Array users usernames that have read access; if you do not specify this, the list will remain unchanged; for a new database the default is ["pm"] (read access for everyone)
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username Some databases might have access control.
-# @option String password Some databases might have access control.
+# @option String username
+# @option String password
 user_function set_db_info ($, $, {users => undef, local => 0, username => $db_user, password => $db_pwd}) {
 
 	my ($db, $desc, $options) = @_;
@@ -132,8 +179,8 @@ user_function set_db_info ($, $, {users => undef, local => 0, username => $db_us
 # @param String collection name of the collection
 # @param String description
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username Some databases might have access control.
-# @option String password Some databases might have access control.
+# @option String username
+# @option String password
 user_function set_col_info ($, $, $, {local => 0, username => $db_user, password => $db_pwd}) {
 
 	my ($db, $col, $desc, $options) = @_;
