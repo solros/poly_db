@@ -68,7 +68,7 @@ user_function get_db_info ({db => undef, collection => undef, local => 0, userna
 
 
 # @category Database
-# Returns a list of available databases and collections (in the form db.collection.
+# Returns a list of available databases and collections (in the form db.collection).
 # @option String db name of the database, default: all available databases
 # @option String collection name of the collection, default: all available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
