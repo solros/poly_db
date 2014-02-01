@@ -62,13 +62,13 @@ object DatabaseCursor {
 	# @category Basic
 	# The name of the database the cursor accesses. Needed for initialization.
 	# 
-	# See [[http://www.polymake.org/doku.php/data|here]] for available databases.
+	# See [[http://www.polymake.org/doku.php/data|here]] or [[get_db_info]] for available databases.
 	property DATABASE : String;
 	
 	# @category Basic
 	# The name of the collection the cursor accesses. Needed for initialization.
 	# 
-	# See [[http://www.polymake.org/doku.php/data|here]] for available databases.
+	# See [[http://www.polymake.org/doku.php/data|here]] or [[get_db_info]] for available databases.
 	property COLLECTION : String;
 
 
