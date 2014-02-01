@@ -18,6 +18,7 @@
 
 
 # @category Basic Types
+# Corresponds to the perl hash.
 # 
 # Contained in extension ''poly_db''.
 declare property_type HASH : c++ (special => 'perl::Hash');

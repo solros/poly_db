@@ -36,7 +36,7 @@ function get_credentials {
 	return ($u,$p);
 }
 
-# @category Database\ Admin
+# @category Database Admin
 # Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.

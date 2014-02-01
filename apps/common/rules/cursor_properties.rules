@@ -22,13 +22,13 @@ use MongoDB;
 use MongoDB::OID;
 
 
-# @topic objects/DatabaseCursor/properties/Basic
+# @topic category objects/DatabaseCursor/properties/Basic
 # These are basic properties of the DatabaseCursor. In this category you find everything you need to access to polymake database.
 
-# @topic objects/DatabaseCursor/properties/Advanced
+# @topic category objects/DatabaseCursor/properties/Advanced
 # These are properties of the DatabaseCursor that are needed if you want to access some other database server. (Note that some things may not be implemented yet.)
 
-# @topic objects/DatabaseCursor/properties/Internal
+# @topic category objects/DatabaseCursor/properties/Internal
 # These properties are computed automatically and only for internal use. You can safely ignore them.
 
 

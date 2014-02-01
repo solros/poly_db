@@ -21,7 +21,7 @@ CREDIT poly_db
 
 # @category Database
 # Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
-# (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
+# (This is just a quick and dirty solution for this until I make a fast and efficient one in c++ ;-).)
 # 
 # Contained in extension ''poly_db''.
 # @param Core::Object o
