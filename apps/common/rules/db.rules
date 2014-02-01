@@ -38,11 +38,15 @@ custom $auth_db = "admin";
 # poly_db: The name of the type database, default 'pm'
 custom $type_db = "pm";
 
+# poly_db: The name of the info database, default 'pm'
+custom $info_db = "pm";
+
 # poly_db: The name of the database you want to access. Set this if you want to access a certain database all (or most of) the time.
 custom $db_name = "";
 
 # poly_db: The name of the collection you want to access. Set this if you want to access a certain collection all (or most of) the time.
 custom $collection_name = "";
+
 
 
 # @category Database
