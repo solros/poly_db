@@ -34,9 +34,13 @@ declare object DatabaseCursor;
 
 # @topic category functions/Database
 # Here you can find the functions to access the polymake database.
+# 
+# Contained in extension ''poly_db''.
 
 # @topic category functions/Database Admin
 # These are the functions to insert and update objects. You need write access to the database for these.
+# 
+# Contained in extension ''poly_db''.
 
 
 
