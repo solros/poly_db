@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="52eddf8e"?>
+
+<data type="polytope::Array&lt;LatticePolytope&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <m>
+    <object name="F.7D.009999">
+      <property name="H_STAR_VECTOR">
+        <v>1 4147 121463 527683 527683 121463 4147 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.009999" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="4155" />
+      <property name="FACET_WIDTHS">
+        <v>3 3 7 4 7 4 7 3 4 8 7</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 0 -3 1 1 1 1</v>
+          <v>1 1 0 1 1 1 1 1</v>
+          <v>1 1 0 1 1 1 -3 1</v>
+          <v>1 1 0 -3 -2 1 1 1</v>
+          <v>1 1 0 1 -2 1 1 1</v>
+          <v>1 1 0 1 -2 1 -3 1</v>
+          <v>1 1 1 1 -1 1 -2 1</v>
+          <v>1 1 1 1 1 1 -2 1</v>
+          <v>1 1 1 1 -1 1 1 1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 -2 -1 1 1 1</v>
+          <v>1 1 1 -2 1 1 1 1</v>
+          <v>1 1 1 0 1 1 1 -1</v>
+          <v>1 1 1 1 1 1 1 -1</v>
+          <v>1 1 1 1 1 1 0 -1</v>
+          <v>1 0 1 0 1 1 1 -1</v>
+          <v>1 -1 1 1 1 1 1 -1</v>
+          <v>1 0 1 1 1 1 0 -1</v>
+          <v>1 1 0 0 1 1 1 -2</v>
+          <v>1 1 -1 1 1 1 1 -3</v>
+          <v>1 1 0 1 1 1 0 -2</v>
+          <v>1 1 1 0 1 0 1 -1</v>
+          <v>1 1 1 1 1 -1 1 -1</v>
+          <v>1 1 1 1 1 0 0 -1</v>
+          <v>1 -2 1 -2 1 1 1 1</v>
+          <v>1 -2 1 -2 -1 1 1 1</v>
+          <v>1 -5 1 1 1 1 1 1</v>
+          <v>1 -5 1 1 -1 1 1 1</v>
+          <v>1 -2 1 1 1 1 -2 1</v>
+          <v>1 -2 1 1 -1 1 -2 1</v>
+          <v>1 1 1 -2 1 -2 1 1</v>
+          <v>1 1 1 -2 -1 -2 1 1</v>
+          <v>1 1 1 1 1 -5 1 1</v>
+          <v>1 1 1 1 -1 -5 1 1</v>
+          <v>1 1 1 1 1 -2 -2 1</v>
+          <v>1 1 1 1 -1 -2 -2 1</v>
+          <v>1 1 -3 1 -2 1 -3 -2</v>
+          <v>1 1 -7 1 -2 1 1 -6</v>
+          <v>1 1 -3 -3 -2 1 1 -2</v>
+          <v>1 1 -3 1 1 1 -3 -2</v>
+          <v>1 1 -7 1 1 1 1 -6</v>
+          <v>1 1 -3 -3 1 1 1 -2</v>
+          <v>1 -2 0 1 -2 1 -3 1</v>
+          <v>1 -6 0 1 -2 1 1 1</v>
+          <v>1 -2 0 -3 -2 1 1 1</v>
+          <v>1 -2 0 1 1 1 -3 1</v>
+          <v>1 -6 0 1 1 1 1 1</v>
+          <v>1 -2 0 -3 1 1 1 1</v>
+          <v>1 1 0 1 -2 -2 -3 1</v>
+          <v>1 1 0 1 -2 -6 1 1</v>
+          <v>1 1 0 -3 -2 -2 1 1</v>
+          <v>1 1 0 1 1 -2 -3 1</v>
+          <v>1 1 0 1 1 -6 1 1</v>
+          <v>1 1 0 -3 1 -2 1 1</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 0 -1 0 1 0 0 1</v>
+          <v>1 0 1 0 0 0 0 -1</v>
+          <v>1 1 -1 1 0 1 1 2</v>
+          <v>1 0 -1 1 0 0 1 1</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -1545507/10452704 -6828585/10452704 24843/254944 -2356995/10452704 -1545507/10452704 24843/254944 -2114595/10452704</v>
+      </property>
+      <property name="N_VERTICES" value="54" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="1306588" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 617/35 22649/180 171593/360 75083/72 476813/360 326647/360 326647/1260</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="4154" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>54 189 297 270 153 54 11</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000000">
+      <property name="H_STAR_VECTOR">
+        <v>1 20279 650398 2898777 2898777 650398 20279 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000000" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="20287" />
+      <property name="FACET_WIDTHS">
+        <v>12 2 12 2 12 13 12 12 12 12</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 0 -1 1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 1 1 0 1</v>
+          <v>1 -6 1 1 1 1 0 1</v>
+          <v>1 0 1 1 1 1 1 1</v>
+          <v>1 1 -6 1 1 1 0 1</v>
+          <v>1 1 0 1 1 1 1 1</v>
+          <v>1 1 1 -6 1 1 0 1</v>
+          <v>1 1 1 0 1 1 1 1</v>
+          <v>1 1 1 1 -6 1 0 1</v>
+          <v>1 1 1 1 0 1 1 1</v>
+          <v>1 1 1 1 1 1 0 -6</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 1 1 1 1 0 1 1</v>
+          <v>1 1 1 1 1 -12 -1 1</v>
+          <v>1 -11 1 1 1 0 -1 1</v>
+          <v>1 1 -11 1 1 0 -1 1</v>
+          <v>1 1 1 -11 1 0 -1 1</v>
+          <v>1 1 1 1 -11 0 -1 1</v>
+          <v>1 1 1 1 1 0 -1 -11</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 1 1 1 1 1 -6 1</v>
+          <v>1 0 0 0 0 0 1 0</v>
+          <v>1 0 0 0 0 -1 1 0</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -28692899/57111280 -28692899/57111280 -28692899/57111280 -28692899/57111280 -17263779/14277820 -8040417/11422256 -28692899/57111280</v>
+      </property>
+      <property name="N_VERTICES" value="20" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="7138910" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 2872/105 24283/72 259741/144 697991/144 4965437/720 713891/144 713891/504</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="20286" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>20 70 126 140 98 42 10</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000001">
+      <property name="H_STAR_VECTOR">
+        <v>1 28847 947401 4252794 4252794 947401 28847 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000001" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="28855" />
+      <property name="FACET_WIDTHS">
+        <v>13 2 2 13 13 13 13 13 13</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 1 1 -1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 -12 1 1 1 1 1 1</v>
+          <v>1 1 -12 1 1 1 1 1</v>
+          <v>1 1 1 -12 1 1 1 1</v>
+          <v>1 1 1 1 -12 1 1 1</v>
+          <v>1 1 1 1 1 -12 1 1</v>
+          <v>1 1 1 1 1 1 -12 1</v>
+          <v>1 0 1 1 1 1 1 -1</v>
+          <v>1 1 0 1 1 1 1 -1</v>
+          <v>1 1 1 0 1 1 1 -1</v>
+          <v>1 1 1 1 0 1 1 -1</v>
+          <v>1 1 1 1 1 0 1 -1</v>
+          <v>1 1 1 1 1 1 0 -1</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 1 1 1 1 1 1 6</v>
+          <v>1 0 0 0 0 0 0 1</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -3268152/5229043 -3268152/5229043 -3268152/5229043 -3268152/5229043 -3268152/5229043 -3268152/5229043 3812844/5229043</v>
+      </property>
+      <property name="N_VERTICES" value="14" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="10458086" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 11887/420 71113/180 1695437/720 974645/144 7178333/720 5229043/720 5229043/2520</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="28854" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>14 49 91 105 77 35 9</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000002">
+      <property name="H_STAR_VECTOR">
+        <v>1 17408 557965 2487475 2487475 557965 17408 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000002" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="17416" />
+      <property name="FACET_WIDTHS">
+        <v>11 10 2 2 10 10 10 11 10 10</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 1 0 -1</v>
+          <v>1 1 1 1 0 1 1 -1</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 1 1 0 1 1 1 1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 -9 1 1 1 1 1 1</v>
+          <v>1 1 -9 1 1 1 1 1</v>
+          <v>1 1 1 1 -9 1 1 1</v>
+          <v>1 1 1 1 1 -9 1 1</v>
+          <v>1 1 1 1 1 1 -9 1</v>
+          <v>1 1 1 1 1 1 -1 -1</v>
+          <v>1 1 1 1 -1 1 1 -1</v>
+          <v>1 1 1 -10 -9 1 1 1</v>
+          <v>1 1 1 0 -1 1 1 -1</v>
+          <v>1 1 1 -10 1 1 -9 1</v>
+          <v>1 1 1 0 1 1 -1 -1</v>
+          <v>1 -9 1 0 1 1 1 1</v>
+          <v>1 -5 1 1 1 1 1 0</v>
+          <v>1 0 1 1 0 1 1 -1</v>
+          <v>1 0 1 1 1 1 0 -1</v>
+          <v>1 1 -9 0 1 1 1 1</v>
+          <v>1 1 -5 1 1 1 1 0</v>
+          <v>1 1 0 1 0 1 1 -1</v>
+          <v>1 1 0 1 1 1 0 -1</v>
+          <v>1 1 1 0 1 -9 1 1</v>
+          <v>1 1 1 1 1 -5 1 0</v>
+          <v>1 1 1 1 0 0 1 -1</v>
+          <v>1 1 1 1 1 0 0 -1</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 0 0 1 -1 0 -1 1</v>
+          <v>1 1 1 0 1 1 1 4</v>
+          <v>1 0 0 0 0 0 0 1</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -14748613/49005584 -14748613/49005584 -7131983/6125698 -19872623/24502792 -14748613/49005584 -19872623/24502792 8655309/12251396</v>
+      </property>
+      <property name="N_VERTICES" value="28" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="6125698" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 5617/210 107113/360 1116271/720 598321/144 4259491/720 3062849/720 3062849/2520</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="17415" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>28 98 166 170 110 44 10</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000003">
+      <property name="H_STAR_VECTOR">
+        <v>1 30475 976510 4350525 4350525 976510 30475 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000003" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="30483" />
+      <property name="FACET_WIDTHS">
+        <v>3 2 2 16 2 2 16 16 16 16 16</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 -1 1 -1</v>
+          <v>1 1 1 1 1 -1 1 1</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 1 0 1 -1</v>
+          <v>1 0 1 1 1 1 1 0</v>
+          <v>1 -5 1 1 1 1 1 1</v>
+          <v>1 1 0 1 1 1 1 0</v>
+          <v>1 1 -5 1 1 1 1 1</v>
+          <v>1 1 1 0 1 1 1 0</v>
+          <v>1 1 1 -5 1 1 1 1</v>
+          <v>1 1 1 1 0 1 1 0</v>
+          <v>1 1 1 1 -5 1 1 1</v>
+          <v>1 1 1 1 1 1 0 0</v>
+          <v>1 1 1 1 1 1 -5 1</v>
+          <v>1 0 1 1 1 0 1 -1</v>
+          <v>1 1 0 1 1 0 1 -1</v>
+          <v>1 1 1 0 1 0 1 -1</v>
+          <v>1 1 1 1 0 0 1 -1</v>
+          <v>1 1 1 1 1 0 0 -1</v>
+          <v>1 -15 1 1 1 -1 1 1</v>
+          <v>1 -5 1 1 1 -1 1 -1</v>
+          <v>1 1 -15 1 1 -1 1 1</v>
+          <v>1 1 -5 1 1 -1 1 -1</v>
+          <v>1 1 1 -15 1 -1 1 1</v>
+          <v>1 1 1 -5 1 -1 1 -1</v>
+          <v>1 1 1 1 -15 -1 1 1</v>
+          <v>1 1 1 1 -5 -1 1 -1</v>
+          <v>1 1 1 1 1 -1 -15 1</v>
+          <v>1 1 1 1 1 -1 -5 -1</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 0 0 0 0 -1 0 1</v>
+          <v>1 0 0 0 0 1 0 0</v>
+          <v>1 0 0 0 0 0 0 1</v>
+          <v>1 1 1 1 1 -5 1 5</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -85944145/85720176 -85944145/85720176 -85944145/85720176 -85944145/85720176 -17188829/28573392 -85944145/85720176 17188829/28573392</v>
+      </property>
+      <property name="N_VERTICES" value="30" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="10715022" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 4091/105 60769/120 217521/80 350045/48 2485927/240 595279/80 595279/280</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="30482" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>30 105 181 190 125 50 11</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000004">
+      <property name="H_STAR_VECTOR">
+        <v>1 10126 300653 1307858 1307858 300653 10126 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000004" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="10134" />
+      <property name="FACET_WIDTHS">
+        <v>2 2 2 2 11 2 2 11 11 11 11 11</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 -1 1 0</v>
+          <v>1 1 1 1 1 -1 1 -1</v>
+          <v>1 1 1 1 1 0 1 -1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 1 1 1 1 0 1 1</v>
+          <v>1 0 1 1 1 1 1 0</v>
+          <v>1 -5 1 1 1 1 1 1</v>
+          <v>1 1 0 1 1 1 1 0</v>
+          <v>1 1 -5 1 1 1 1 1</v>
+          <v>1 1 1 0 1 1 1 0</v>
+          <v>1 1 1 -5 1 1 1 1</v>
+          <v>1 1 1 1 0 1 1 0</v>
+          <v>1 1 1 1 -5 1 1 1</v>
+          <v>1 1 1 1 1 1 0 0</v>
+          <v>1 1 1 1 1 1 -5 1</v>
+          <v>1 0 1 1 1 0 1 -1</v>
+          <v>1 1 0 1 1 0 1 -1</v>
+          <v>1 1 1 0 1 0 1 -1</v>
+          <v>1 1 1 1 0 0 1 -1</v>
+          <v>1 1 1 1 1 0 0 -1</v>
+          <v>1 -10 1 1 1 0 1 1</v>
+          <v>1 1 -10 1 1 0 1 1</v>
+          <v>1 1 1 -10 1 0 1 1</v>
+          <v>1 1 1 1 -10 0 1 1</v>
+          <v>1 1 1 1 1 0 -10 1</v>
+          <v>1 -5 1 1 1 -1 1 -1</v>
+          <v>1 -10 1 1 1 -1 1 0</v>
+          <v>1 1 -5 1 1 -1 1 -1</v>
+          <v>1 1 -10 1 1 -1 1 0</v>
+          <v>1 1 1 -5 1 -1 1 -1</v>
+          <v>1 1 1 -10 1 -1 1 0</v>
+          <v>1 1 1 1 -5 -1 1 -1</v>
+          <v>1 1 1 1 -10 -1 1 0</v>
+          <v>1 1 1 1 1 -1 -5 -1</v>
+          <v>1 1 1 1 1 -1 -10 0</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 0 0 0 0 -1 0 1</v>
+          <v>1 0 0 0 0 0 0 1</v>
+          <v>1 0 0 0 0 1 0 0</v>
+          <v>1 0 0 0 0 1 0 -1</v>
+          <v>1 1 1 1 1 -5 1 5</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -2286875/4316368 -2286875/4316368 -2286875/4316368 -2286875/4316368 -1372125/4316368 -2286875/4316368 1372125/4316368</v>
+      </property>
+      <property name="N_VERTICES" value="36" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="3237276" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 1627/60 10589/40 135467/120 7658/3 130767/40 269773/120 38539/60</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="10133" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>36 126 216 225 146 57 12</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000005">
+      <property name="H_STAR_VECTOR">
+        <v>1 14494 453503 2006588 2006588 453503 14494 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000005" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="14502" />
+      <property name="FACET_WIDTHS">
+        <v>2 2 2 11 2 3 11 11 11 11 11</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 -2 1 -1</v>
+          <v>1 1 1 1 1 0 1 1</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 1 0 1 -1</v>
+          <v>1 0 1 1 1 1 1 0</v>
+          <v>1 -5 1 1 1 1 1 1</v>
+          <v>1 1 0 1 1 1 1 0</v>
+          <v>1 1 -5 1 1 1 1 1</v>
+          <v>1 1 1 0 1 1 1 0</v>
+          <v>1 1 1 -5 1 1 1 1</v>
+          <v>1 1 1 1 0 1 1 0</v>
+          <v>1 1 1 1 -5 1 1 1</v>
+          <v>1 1 1 1 1 1 0 0</v>
+          <v>1 1 1 1 1 1 -5 1</v>
+          <v>1 0 1 1 1 0 1 -1</v>
+          <v>1 1 0 1 1 0 1 -1</v>
+          <v>1 1 1 0 1 0 1 -1</v>
+          <v>1 1 1 1 0 0 1 -1</v>
+          <v>1 1 1 1 1 0 0 -1</v>
+          <v>1 -10 1 1 1 0 1 1</v>
+          <v>1 -10 1 1 1 -2 1 -1</v>
+          <v>1 1 -10 1 1 0 1 1</v>
+          <v>1 1 -10 1 1 -2 1 -1</v>
+          <v>1 1 1 -10 1 0 1 1</v>
+          <v>1 1 1 -10 1 -2 1 -1</v>
+          <v>1 1 1 1 -10 0 1 1</v>
+          <v>1 1 1 1 -10 -2 1 -1</v>
+          <v>1 1 1 1 1 0 -10 1</v>
+          <v>1 1 1 1 1 -2 -10 -1</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 0 0 0 0 -1 0 1</v>
+          <v>1 0 0 0 0 0 0 1</v>
+          <v>1 0 0 0 0 1 0 -1</v>
+          <v>1 1 1 1 1 -5 1 5</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -22698385/39593376 -22698385/39593376 -22698385/39593376 -22698385/39593376 -3034911/4399264 -22698385/39593376 -25379/13197792</v>
+      </property>
+      <property name="N_VERTICES" value="30" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="4949172" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 11419/420 34709/120 55843/40 10570/3 581551/120 137477/40 137477/140</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="14501" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>30 105 181 190 125 50 11</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000006">
+      <property name="H_STAR_VECTOR">
+        <v>1 13402 420923 1864993 1864993 420923 13402 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000006" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="13410" />
+      <property name="FACET_WIDTHS">
+        <v>10 2 3 10 10 2 3 11 10 10 10</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 0 -2 -1 1</v>
+          <v>1 1 1 1 1 0 1 1</v>
+          <v>1 1 1 1 1 -1 0 1</v>
+          <v>1 1 1 1 1 1 0 1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 0 1 -1 1</v>
+          <v>1 -5 1 1 1 1 0 1</v>
+          <v>1 0 1 1 1 1 1 1</v>
+          <v>1 1 -5 1 1 1 0 1</v>
+          <v>1 1 0 1 1 1 1 1</v>
+          <v>1 1 1 -5 1 1 0 1</v>
+          <v>1 1 1 0 1 1 1 1</v>
+          <v>1 1 1 1 1 1 0 -5</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 1 1 1 0 1 1 1</v>
+          <v>1 1 1 1 -10 1 -1 1</v>
+          <v>1 -9 1 1 0 1 -1 1</v>
+          <v>1 1 -9 1 0 1 -1 1</v>
+          <v>1 1 1 -9 0 1 -1 1</v>
+          <v>1 1 1 1 0 1 -1 -9</v>
+          <v>1 1 1 1 0 0 1 1</v>
+          <v>1 1 1 1 -10 -2 -1 1</v>
+          <v>1 -5 1 1 1 -1 0 1</v>
+          <v>1 0 1 1 1 0 1 1</v>
+          <v>1 -9 1 1 0 -2 -1 1</v>
+          <v>1 1 -5 1 1 -1 0 1</v>
+          <v>1 1 0 1 1 0 1 1</v>
+          <v>1 1 -9 1 0 -2 -1 1</v>
+          <v>1 1 1 -5 1 -1 0 1</v>
+          <v>1 1 1 0 1 0 1 1</v>
+          <v>1 1 1 -9 0 -2 -1 1</v>
+          <v>1 1 1 1 1 -1 0 -5</v>
+          <v>1 1 1 1 1 0 1 0</v>
+          <v>1 1 1 1 0 -2 -1 -9</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 1 1 1 1 0 -5 1</v>
+          <v>1 0 0 0 0 0 1 0</v>
+          <v>1 0 0 0 0 1 -1 0</v>
+          <v>1 0 0 0 -1 0 1 0</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -16774737/36789104 -16774737/36789104 -16774737/36789104 -42127185/36789104 -12600087/36789104 -12600087/18394552 -16774737/36789104</v>
+      </property>
+      <property name="N_VERTICES" value="34" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="4598638" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 892/35 94873/360 918361/720 467491/144 3234301/720 2299319/720 2299319/2520</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="13409" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>34 119 201 205 131 51 11</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000007">
+      <property name="H_STAR_VECTOR">
+        <v>1 18862 606353 2705318 2705318 606353 18862 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000007" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="18870" />
+      <property name="FACET_WIDTHS">
+        <v>2 3 11 2 3 11 11 11 11 11</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 0 1 -1</v>
+          <v>1 1 1 1 1 -2 1 1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 1 1 1 -1</v>
+          <v>1 -10 1 1 1 1 1 1</v>
+          <v>1 1 -10 1 1 1 1 1</v>
+          <v>1 1 1 -10 1 1 1 1</v>
+          <v>1 1 1 1 -10 1 1 1</v>
+          <v>1 1 1 1 1 1 -10 1</v>
+          <v>1 0 1 1 1 1 1 -1</v>
+          <v>1 1 0 1 1 1 1 -1</v>
+          <v>1 1 1 0 1 1 1 -1</v>
+          <v>1 1 1 1 0 1 1 -1</v>
+          <v>1 1 1 1 1 1 0 -1</v>
+          <v>1 -10 1 1 1 -2 1 1</v>
+          <v>1 0 1 1 1 0 1 -1</v>
+          <v>1 1 -10 1 1 -2 1 1</v>
+          <v>1 1 0 1 1 0 1 -1</v>
+          <v>1 1 1 -10 1 -2 1 1</v>
+          <v>1 1 1 0 1 0 1 -1</v>
+          <v>1 1 1 1 -10 -2 1 1</v>
+          <v>1 1 1 1 0 0 1 -1</v>
+          <v>1 1 1 1 1 -2 -10 1</v>
+          <v>1 1 1 1 1 0 0 -1</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 0 0 0 0 0 0 1</v>
+          <v>1 0 0 0 0 1 0 1</v>
+          <v>1 1 1 1 1 0 1 5</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -989860/1665267 -989860/1665267 -989860/1665267 -989860/1665267 -197972/555089 -989860/1665267 395944/555089</v>
+      </property>
+      <property name="N_VERTICES" value="24" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="6661068" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 11449/420 37651/120 199591/120 4494 770801/120 555089/120 555089/420</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="18869" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>24 84 146 155 104 43 10</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+    <object name="F.7D.000008">
+      <property name="H_STAR_VECTOR">
+        <v>1 30481 977296 4355331 4355331 977296 30481 1</v>
+      </property>
+      <property name="REFLEXIVE" value="true" />
+      <property name="CONE_DIM" value="8" />
+      <property name="date" value="2013-08-15" />
+      <property name="_id" value="F.7D.000008" />
+      <property name="LATTICE_CODEGREE" value="1" />
+      <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+      <property name="SMOOTH" value="true" />
+      <property name="N_LATTICE_POINTS" value="30489" />
+      <property name="FACET_WIDTHS">
+        <v>16 2 3 16 3 2 16 16 16 16</v>
+      </property>
+      <property name="VERTICES">
+        <m>
+          <v>1 1 1 1 1 -1 -2 1</v>
+          <v>1 1 1 1 1 -1 1 1</v>
+          <v>1 1 1 1 1 1 1 1</v>
+          <v>1 1 1 1 1 1 0 1</v>
+          <v>1 -5 1 1 1 1 0 1</v>
+          <v>1 0 1 1 1 1 1 1</v>
+          <v>1 1 -5 1 1 1 0 1</v>
+          <v>1 1 0 1 1 1 1 1</v>
+          <v>1 1 1 -5 1 1 0 1</v>
+          <v>1 1 1 0 1 1 1 1</v>
+          <v>1 1 1 1 -5 1 0 1</v>
+          <v>1 1 1 1 0 1 1 1</v>
+          <v>1 1 1 1 1 1 0 -5</v>
+          <v>1 1 1 1 1 1 1 0</v>
+          <v>1 0 1 1 1 -1 1 1</v>
+          <v>1 -15 1 1 1 -1 -2 1</v>
+          <v>1 1 0 1 1 -1 1 1</v>
+          <v>1 1 -15 1 1 -1 -2 1</v>
+          <v>1 1 1 0 1 -1 1 1</v>
+          <v>1 1 1 -15 1 -1 -2 1</v>
+          <v>1 1 1 1 0 -1 1 1</v>
+          <v>1 1 1 1 -15 -1 -2 1</v>
+          <v>1 1 1 1 1 -1 1 0</v>
+          <v>1 1 1 1 1 -1 -2 -15</v>
+        </m>
+      </property>
+      <property name="FACETS">
+        <m>
+          <v>1 1 1 1 1 0 -5 1</v>
+          <v>1 0 0 0 0 1 0 0</v>
+          <v>1 0 0 0 0 -1 1 0</v>
+          <v>1 0 0 0 0 0 0 -1</v>
+          <v>1 0 0 0 0 0 -1 0</v>
+          <v>1 0 0 0 0 -1 0 0</v>
+          <v>1 0 0 0 -1 0 0 0</v>
+          <v>1 0 0 -1 0 0 0 0</v>
+          <v>1 0 -1 0 0 0 0 0</v>
+          <v>1 -1 0 0 0 0 0 0</v>
+        </m>
+      </property>
+      <property name="CENTROID">
+        <v>1 -5370110/5363109 -5370110/5363109 -5370110/5363109 -5370110/5363109 -1075888/1787703 -2148044/1787703 -5370110/5363109</v>
+      </property>
+      <property name="N_VERTICES" value="24" />
+      <property name="contributor" value="'Andreas Paffenholz'" />
+      <property name="LATTICE_DEGREE" value="7" />
+      <property name="LATTICE_VOLUME" value="10726218" />
+      <property name="EHRHART_POLYNOMIAL_COEFF">
+        <v>1 8377/210 60841/120 217059/80 349787/48 2487277/240 595901/80 595901/280</v>
+      </property>
+      <property name="N_BOUNDARY_LATTICE_POINTS" value="30488" />
+      <property name="ESSENTIALLY_GENERIC" value="false" />
+      <property name="VERY_AMPLE" value="true" />
+      <property name="F_VECTOR">
+        <v>24 84 146 155 104 43 10</v>
+      </property>
+      <property name="GORENSTEIN" value="true" />
+      <property name="FEASIBLE" value="true" />
+      <property name="LINEALITY_SPACE">
+        <m />
+      </property>
+      <property name="AFFINE_HULL">
+        <m />
+      </property>
+    </object>
+  </m>
+</data>
