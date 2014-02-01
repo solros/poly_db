@@ -157,7 +157,7 @@ user_function poly_db_ids ($, {db => $db_name, collection => $collection_name, l
 	unless ($output) {print "No such object.\n"; return;}
 	
 	undef $client;
-	return cursor2stringarray($output);
+	return new Array<String>(cursor2stringarray($output));
 }
 
 
