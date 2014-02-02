@@ -19,7 +19,7 @@
 CREDIT poly_db
 
 
-# @category Database
+# @category Utilities
 # Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
 # (This is just a quick and dirty solution for this until I make a fast and efficient one in c++ ;-).)
 # 
@@ -28,7 +28,7 @@ CREDIT poly_db
 # @param Core::Object template
 # @option Core::RuleChain schedule
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-user_function copy_properties_db ($, $, {schedule => undef, nonew => 0, noschedule=>1}) {
+user_function copy_properties ($, $, {schedule => undef, nonew => 0, noschedule=>1}) {
 	my ($o, $t, $options) = @_;
 
 	my $sched = $options->{schedule};

@@ -146,7 +146,7 @@ function db_update_one($, $, $, {local => 0, username => $db_user, password => $
 		$contrib = $obj->contributor;	
 	}
 	
-	copy_properties_db($obj, $t, schedule => $options->{schedule}, noschedule => 1);
+	copy_properties($obj, $t, schedule => $options->{schedule}, noschedule => 1);
 	
 	my $client;
 	unless(defined($client = $options->{client})) {
