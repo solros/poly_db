@@ -8,9 +8,9 @@ do {
 	my $p2 = load("2_in.poly");
 	my $p3 = load("3_in.poly");
 	
-	copy_properties_db($p1, $t1);
-	copy_properties_db($p2, $t1);
-	copy_properties_db($p3, $t3);
+	copy_properties($p1, $t1);
+	copy_properties($p2, $t1);
+	copy_properties($p3, $t3);
 	
 	$p1->dont_save();
 	$p2->dont_save();
