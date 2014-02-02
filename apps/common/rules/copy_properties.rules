@@ -28,7 +28,7 @@ CREDIT poly_db
 # @param Core::Object template
 # @option Core::RuleChain schedule
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-user_function copy_properties_db ($, $, {schedule => undef, nonew => 0, noschedule=>0}) {
+user_function copy_properties_db ($, $, {schedule => undef, nonew => 0, noschedule=>1}) {
 	my ($o, $t, $options) = @_;
 
 	my $sched = $options->{schedule};
