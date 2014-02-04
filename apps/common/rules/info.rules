@@ -28,7 +28,7 @@ user_function get_db_info ({db => undef, collection => undef, local => 0, userna
 
 	my $options = shift;
 	
-	my $client = get_client($options);
+	my $client = get_client($options->{local},"","");
 		
 	my $idb = $client->get_database($info_db);
 	my $icol = $idb->get_collection("Info");
@@ -74,10 +74,10 @@ user_function get_db_info ({db => undef, collection => undef, local => 0, userna
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @return Array
-user_function get_db_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
+user_function get_db_col_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
 	my $options = shift;
 	
-	my $client = get_client($options);
+	my $client = get_client($options->{local},"","");
 		
 	my $idb = $client->get_database($info_db);
 	my $icol = $idb->get_collection("Info");
@@ -107,6 +107,67 @@ user_function get_db_list ({db => undef, collection => undef, local => 0, userna
 			if ($col_cursor->{col} eq "db_info") {next;}
 			push @ret, $current_db.".".$col_cursor->{col};
 		}
+	}
+
+	undef $client;
+	
+	return \@ret;
+}
+
+# @category Database
+# Returns a list of available databases.
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @return Array
+user_function get_db_list ({local => 0, username => $db_user}) {
+	my $options = shift;
+	
+	my $client = get_client($options->{local},"","");
+		
+	my $idb = $client->get_database($info_db);
+	my $icol = $idb->get_collection("Info");
+
+	my @ret = ();
+
+	my %query = ();
+	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"pm"}] );
+	$db_query{"col"} = "db_info";
+
+	my $dbs = $icol->find(\%db_query);
+
+	while (my $db_cursor = $dbs->next) {
+		push @ret, $db_cursor->{db};
+	}
+
+	undef $client;
+	
+	return \@ret;
+}
+
+# @category Database
+# Returns a list of all collections in the database //db//.
+# @param String db name of the database
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @return Array
+user_function get_col_list ($, {local => 0, username => $db_user}) {
+	my ($db, $options) = @_;
+	
+	my $client = get_client($options->{local},"","");
+		
+	my $idb = $client->get_database($info_db);
+	my $icol = $idb->get_collection("Info");
+
+	my @ret = ();
+
+	my %query = ();
+
+	$query{"db"} = $db;
+	my $search = $icol->find(\%query);
+			
+	while (my $col_cursor = $search->next) {
+		if ($col_cursor->{col} eq "db_info") {next;}
+		push @ret, $col_cursor->{col};
 	}
 
 	undef $client;
