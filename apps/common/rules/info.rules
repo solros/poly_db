@@ -43,12 +43,12 @@ user_function get_db_info ({db => undef, collection => undef, local => 0, userna
 		$query{"col"} = $options->{collection};
 	}
 
-	my $dbs = $icol->find(\%db_query);
+	my $dbs = $icol->find(\%db_query)->sort({"db"=>1});
 
 	while (my $db_cursor = $dbs->next) {
 		my $current_db = $db_cursor->{db};
 		$query{"db"} = $current_db;
-		my $search = $icol->find(\%query);
+		my $search = $icol->find(\%query)->sort({"col"=>1});
 
 		if ($search->count == 0) {next;}
 		
@@ -94,12 +94,12 @@ user_function get_db_col_list ({db => undef, collection => undef, local => 0, us
 		$query{"col"} = $options->{collection};
 	}
 
-	my $dbs = $icol->find(\%db_query);
+	my $dbs = $icol->find(\%db_query)->sort({"db"=>1});
 
 	while (my $db_cursor = $dbs->next) {
 		my $current_db = $db_cursor->{db};
 		$query{"db"} = $current_db;
-		my $search = $icol->find(\%query);
+		my $search = $icol->find(\%query)->sort({"col"=>1});
 
 		if ($search->count == 0) {next;}
 				
@@ -133,7 +133,7 @@ user_function get_db_list ({local => 0, username => $db_user}) {
 	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"pm"}] );
 	$db_query{"col"} = "db_info";
 
-	my $dbs = $icol->find(\%db_query);
+	my $dbs = $icol->find(\%db_query)->sort({"db"=>1});
 
 	while (my $db_cursor = $dbs->next) {
 		push @ret, $db_cursor->{db};
@@ -163,7 +163,7 @@ user_function get_col_list ($, {local => 0, username => $db_user}) {
 	my %query = ();
 
 	$query{"db"} = $db;
-	my $search = $icol->find(\%query);
+	my $search = $icol->find(\%query)->sort({"col"=>1});
 			
 	while (my $col_cursor = $search->next) {
 		if ($col_cursor->{col} eq "db_info") {next;}
