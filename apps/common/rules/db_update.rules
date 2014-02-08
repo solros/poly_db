@@ -1,29 +1,30 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+CREDIT polyDB
 
 
-
-# @category Database
-# Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
+# @category Database Admin
+# Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param Array obj_list either an Array<[[Core::Object]]> of polymake objects or an Array<String> of [[_id|IDs]]
 # @param String db database name
 # @param String col collection name
@@ -31,7 +32,7 @@
 # @option String username
 # @option String password
 # @option String contrib use this to update the [[contributor]]
-user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
+user_function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($obj_list, $db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
@@ -51,7 +52,7 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 	my $t = get_template_object($db_name, $col_name, local => $local);
 	my $fst;
 	if ($by_id) {
-		unless ($fst = poly_db_one($db_name, $col_name, {'_id' => $obj_list->[0]}, $options->{local})) {
+		unless ($fst = poly_db_one({'_id' => $obj_list->[0]}, lup($options), db => $db_name, collection => $col_name)) {
 			print "non-existent id: $obj_list->[0]\n";
 			return;
 		}
@@ -61,12 +62,14 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 
 	my $sched = $fst->get_schedule($t->list_properties);
 	
+	my $client = get_client($options);
+	
 	foreach my $curr (@$obj_list) {
 
 		my $id; my $obj;
 		if ($by_id) {
 			$id = $curr;
-			unless ($obj = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local})) {
+			unless ($obj = poly_db_one({'_id' => $id}, lup($options), client => $client, db => $db_name, collection => $col_name)) {
 				print "non-existent id: $obj_list->[0]\n";
 				return;
 			}
@@ -80,17 +83,17 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 			$contrib = $obj->contributor;	
 		}
 		
-		poly_db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t);
+		db_update_one($db_name, $col_name, $obj, local => $local, username => $u, password => $p, contrib => $contrib, schedule => $sched, template => $t, client => $client);
 	}
 }
 
 
-# @category Database
+# @category Database Admin
 # Updates the object with a given [[_id]] in the collection //col// in the database //db// by matching its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param String id
@@ -100,22 +103,23 @@ user_function poly_db_batch_update(Array, $, $, {local => 0, username => "", pas
 # @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
 # @return String
-user_function poly_db_update_id($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
+user_function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
-	unless (my $p = poly_db_one($db_name, $col_name, {'_id' => $id}, $options->{local})) {return;}
+	my $p;
+	unless ($p = poly_db_one({'_id' => $id}, lup($options), db => $db_name, collection => $col_name)) {croak("non-existent id: $id\n");}
 	
-	return poly_db_update_one($db_name, $col_name, $p, $options);
+	return db_update_one($db_name, $col_name, $p, $options);
 }
 
 
-# @category Database
+# @category Database Admin
 # Updates an object //obj// in the collection //col// in the database //db//. Moreover, it matches its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param Core::Object obj
@@ -125,8 +129,9 @@ user_function poly_db_update_id($, $, $, {local => 0, username => "", password =
 # @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
 # @option Core::Object template
+# @option MongoClient client
 # @return String
-user_function poly_db_update_one($, $, $, {local => 0, username => "", password => "", contrib => "", schedule => undef, template => undef}) {
+function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 
@@ -141,32 +146,13 @@ user_function poly_db_update_one($, $, $, {local => 0, username => "", password 
 		$contrib = $obj->contributor;	
 	}
 	
-	copy_properties_db($obj, $t, schedule => $options->{schedule});
+	copy_properties($obj, $t, schedule => $options->{schedule}, noschedule => 1);
 	
-	my $client = get_client($options->{local}, $options->{username}, $options->{password});	
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client = get_client($options);	
+	}
 	my $collection = get_collection($client, $db_name, $col_name);
 	
 	return $collection->save(pm2json($obj, $id, $contrib));
-}
-
-
-# @category Database
-# Updates objects matching //query// in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection. (This is more efficient then looping over the list.)
-# 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''poly_database''.
-# @param Hash query
-# @param String db database name
-# @param String col collection name
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @option String contrib use this to update the [[contributor]]
-user_function poly_db_query_update($, $, $, {local => 0, username => "", password => "", contrib => ""}) {
-	my ($query, $db_name, $col_name, $options) = @_;
-
-	unless (my $obj_list = poly_db($db_name, $col_name, $query, local => $options->{local})) {return;}
-
-	poly_db_batch_update($obj_list, $db_name, $col_name, $options);
 }

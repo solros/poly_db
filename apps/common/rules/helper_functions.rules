@@ -1,26 +1,31 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
 # This is a helper function that transforms a database cursor into an array of polymake objects.
 function cursor2array {
 	my $cursor = shift;
-	my $t = shift;
+	my $t = shift;	# type
+	my $db_name = shift;
+	my $col_name = shift;
+	
+	my $size = $cursor->count(1);
+
 	
 	my $app = $t->{'app'};
 	my $type = $t->{'type'};
@@ -28,27 +33,42 @@ function cursor2array {
 	my $obj_type = User::application($app)->eval_type($type);
 	my $arr_type = User::application($app)->eval_type("Array<$type>");
 
-	my $parray = $arr_type->construct->($cursor->count+0);
+	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
 	while (my $p = $cursor->next) {
-		$parray->[$i] = $obj_type->construct->(%$p);
+		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p, database=>$db_name, collection=>$col_name);
 		++$i;
 	}
 	return $parray;
 
 }
 
+# This is a helper function that transforms a database cursor into an array of strings (IDs).
+function cursor2stringarray {
+	my $cursor = shift;
+	
+	my @parray = ();
+	while (my $p = $cursor->next) {
+		push @parray, $p->{_id};
+	}
+	return @parray;
+
+}
+
+
 
 # This is a helper function that transforms the database document into an object.
 function doc2object {
 	my $cursor = shift;
 	my $t = shift;
+	my $db_name = shift;
+	my $col_name = shift;
 	
 	my $app = $t->{'app'};
 	my $type = $t->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
-	return $obj_type->construct->(%$cursor);
+	return $obj_type->construct->($cursor->{'_id'}, %$cursor, database=>$db_name, collection=>$col_name);
 }
 
 
@@ -59,7 +79,16 @@ function doc2object {
 # @param String password optional
 # @return MongoClient
 function get_client {
-	my ($local, $u, $p) = @_;
+	my @args = @_;
+	my ($local, $u, $p);
+	if (@args == 3) {
+		($local, $u, $p) = @args;
+	} else {
+		my $h = $args[0];
+		$local = $h->{local};
+		$u = $h->{username};
+		$p = $h->{password};
+	}
 
 	my $client;
 	if ($local) {
@@ -75,7 +104,7 @@ function get_client {
 # returns the database entry with the type information for a given collection
 function get_type {
 	my ($client, $db_name, $collection) = @_;
-	return $client->get_database($type_db)->get_collection("Types")->find({db => $db_name, col => $collection})->next;
+	return $client->get_database($type_db)->get_collection("Types")->find_one({db => $db_name, col => $collection});
 }
 
 # returns a collection object
@@ -109,4 +138,15 @@ function generate_id {
 	
 	croak("no rule to generate id for collection $col\n");
 	return;
+}
+
+
+# generates a hash containing local, username and password from a possible larger one
+function lup {
+	my $o = shift;
+	my $r = {};
+	$r->{local}=$o->{local};
+	$r->{username}=$o->{username};
+	$r->{password}=$o->{password};
+	return $r;
 }

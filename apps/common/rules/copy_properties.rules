@@ -1,36 +1,39 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+CREDIT polyDB
 
 
-# @category Database
+# @category Utilities
 # Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
-# (This is just a quick and dirty solution for this until Eugen makes a fast and efficient one ;-).)
+# (This is just a quick and dirty solution for this until I make a fast and efficient one in c++ ;-).)
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param Core::Object o
 # @param Core::Object template
 # @option Core::RuleChain schedule
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-user_function copy_properties_db ($, $, {schedule => undef, nonew => 0}) {
+user_function copy_properties ($, $, {schedule => undef, nonew => 0, noschedule=>1}) {
 	my ($o, $t, $options) = @_;
 
 	my $sched = $options->{schedule};
 	my $nonew = $options->{nonew};
+	my $nosched = $options->{noschedule};
 
 	# TODO: check that $o and $t are of compatible types
 
@@ -40,16 +43,25 @@ user_function copy_properties_db ($, $, {schedule => undef, nonew => 0}) {
 #	my @ap = $t->list_attachments;
 	
 	unless ($nonew) {
-		unless (defined($sched)) {
-			$sched = $o->get_schedule($t->list_properties);
+		if ($nosched) {
+			foreach($t->list_properties){
+#				print "$_ ";
+				my $s = $o->get_schedule($_);
+#				print ". ";
+				$s->apply($o);
+#				print ".  ";
+			}
+		} else {
+			unless (defined($sched)) {
+				$sched = $o->get_schedule($t->list_properties);
+			}
+			$sched->apply($o);
 		}
-	
-		$sched->apply($o);
 	}
 	
 	my @q = $o->list_properties;
 	
-	my $sp = new Set<String>(@p);
+	my $sp = new Set<String>(@p, "_id", "contributor", "date");
 	my $sq = new Set<String>(@q);
 	
 	my $s = $sq-$sp;

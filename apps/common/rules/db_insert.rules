@@ -1,25 +1,28 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+CREDIT polyDB
+
 
 use Term::ReadKey;
 
 
-user_function get_credentials {
+function get_credentials {
 	# TODO: cache, key chain??
 	print "user name: ";
 	my $u= <STDIN>;
@@ -33,12 +36,12 @@ user_function get_credentials {
 	return ($u,$p);
 }
 
-# @category Database
+# @category Database Admin
 # Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param Core::Object obj
 # @param String db database name
 # @param String col collection name
@@ -48,11 +51,11 @@ user_function get_credentials {
 # @option String username
 # @option String password
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @return String
-user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, schedule => undef, template => undef}){
+user_function db_insert ($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, schedule => undef, template => undef}){
 	my ($obj, $db, $col, $id, $contrib, $options) = @_;
  	
  	my $local = $options->{local};
@@ -68,15 +71,11 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 		$u = $cred[0];
 		$p = $cred[1];
 	}
-#	print $obj->list_properties; print "\n";
 	unless ($force) {
 		unless ($temp) {
 			$temp = get_template_object($db, $col, local=>$local);
-#			print $temp->list_properties();
-#			print "\n";
 		}
-		copy_properties_db($obj, $temp, nonew=>$nonew, schedule=>$sched);
-#		print $obj->list_properties;
+		copy_properties($obj, $temp, nonew=>$nonew, schedule=>$sched);
 	}
 	
 	my $client = get_client($local, $u, $p);	
@@ -88,12 +87,12 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 }
 
 
-# @category Database
+# @category Database Admin
 # Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param String file polymake object stored in a file
 # @param String db database name
 # @param String col collection name
@@ -103,11 +102,11 @@ user_function poly_db_insert ($, $, $, $, $, {local => 0, username => "", passwo
 # @option String password
 # @option String id unique identifier
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @return String
-user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", password => "", id => "", nonew => 0, force => 0, schedule => undef, template => undef}) {
+user_function db_insert_from_file($, $, $, $, {local => 0, username => "", password => "", id => "", nonew => 0, force => 0, schedule => undef, template => undef}) {
 	my ($file, $db, $col, $contrib, $options) = @_;
 
 	my $obj = User::load($file);
@@ -120,16 +119,16 @@ user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", 
 		}
 	}
 	
-	return poly_db_insert($obj, $db, $col, $id, $contrib, $options);
+	return db_insert($obj, $db, $col, $id, $contrib, $options);
 }
 
 
-# @category Database
+# @category Database Admin
 # Adds a list of objects from files to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param Array<String> files list of file names
 # @param String db database name
 # @param String col collection name
@@ -138,10 +137,10 @@ user_function poly_db_insert_from_file($, $, $, $, {local => 0, username => "", 
 # @option String username
 # @option String password
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 if to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose
-user_function poly_db_batch_insert ($, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, move_dir => ""}){
+user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, move_dir => ""}){
 	my ($files, $db_name, $collection, $contrib, $options) = @_;
 	my $local = $options->{local};
 	my $nonew = $options->{nonew};
@@ -160,18 +159,12 @@ user_function poly_db_batch_insert ($, $, $, $, {local => 0, username => "", pas
 	my $fst = User::load($files[0]);
 	
 	my $temp = get_template_object($db_name, $collection, local=>$local);
-#	print $temp; print "\n";
-	my $sched = undef;
-	unless ($nonew) {
-		$sched = $fst->get_schedule($temp->list_properties);
-	}
+
 	print "inserting ...\n";
 	foreach (@files) {
 		my $obj = User::load($_);
 		$obj->CONE_DIM;
-#		print $obj->name; print "\n";
-		copy_properties_db($obj, $temp, schedule=>$sched, nonew=>$nonew);
-#		print "copy_properties_db done\n";
+		copy_properties($obj, $temp, nonew=>$nonew);
 	}
 
 	my $client = get_client($local, $u, $p);	
@@ -201,5 +194,6 @@ user_function poly_db_batch_insert ($, $, $, $, {local => 0, username => "", pas
 			system("mv $file $md");
 		}
 	}
+	undef $client;
 	print "\n";
 }

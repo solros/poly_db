@@ -16,6 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
+use application 'polytope';
 
-INCLUDE
-	polytopes.rules
+select((select(STDOUT), $|=1)[0]);
+
+sub work {
+	prefer("libnormaliz");
+	
+	my $u = shift;
+	my $p = shift;
+	my $local = shift;
+		
+	db_work_on_packages(local=>$local, username=>$u, password=>$p);
+}
+
+work(@ARGV);

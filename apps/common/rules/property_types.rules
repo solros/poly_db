@@ -17,5 +17,8 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-INCLUDE
-	polytopes.rules
+# @category Basic Types
+# Corresponds to the perl hash.
+# 
+# Contained in extension ''polyDB''.
+declare property_type HASH : c++ (special => 'perl::Hash');

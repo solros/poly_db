@@ -1,0 +1,111 @@
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
+# 
+# This file is part of the polymake extension polyDB.
+# 
+# polyDB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# polyDB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+CREDIT polyDB
+
+use MongoDB;
+use MongoDB::OID;
+
+
+object DatabaseCursor {
+
+	rule initial : DATABASE : {
+		unless(defined($this->DATABASE = $db_name)) {
+			croak("\nillegal input: to define a DatabaseCursor you have to specify a DATABASE and COLLECTION");
+		}
+	}
+
+	rule initial : COLLECTION : {
+		unless(defined($this->COLLECTION = $collection_name)) {
+			croak("\nillegal input: to define a DatabaseCursor you have to specify a DATABASE and COLLECTION");
+		}
+	}
+
+	rule initial : QUERY : {
+		$this->QUERY = {};
+	}
+	
+	rule initial : LOCAL : {
+		$this->LOCAL = 0;
+	}
+
+	rule initial : USER_NAME : {
+		$this->USER_NAME = $db_user;
+	}
+	
+	rule initial : PASSWORD : {
+		$this->PASSWORD = $db_pwd;
+	}
+	
+	rule initial : HOST : {
+		$this->HOST = $db_host;
+	}
+
+	rule initial : SKIP : {
+		$this->SKIP = 0;
+	}
+	
+	rule initial : SORT_BY : {
+		$this->SORT_BY = {};
+	}
+
+	rule initial : TYPE, APP : {
+		my $client = get_client($this->LOCAL, $this->USER_NAME, $this->PASSWORD);
+		my $type = get_type($client, $this->DATABASE, $this->COLLECTION);
+		my $app = $type->{'app'};
+		my $type = $type->{'type'};
+		$this->APP = $app;
+		$this->TYPE = $type;
+	}
+
+
+	
+	rule CURSOR : DATABASE, COLLECTION, QUERY, LOCAL {
+		my $client = get_client($this->LOCAL, $this->USER_NAME, $this->PASSWORD);
+		print "connection established as user ".$this->USER_NAME."\n";
+		my $col = $client->get_database($this->DATABASE)->get_collection($this->COLLECTION);
+		my $cursor = $col->find($this->QUERY)->sort($this->SORT_BY)->skip($this->SKIP);
+		$cursor->immortal(1);
+		$cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
+		$this->CURSOR = $cursor;
+	}
+
+
+	rule COUNT : CURSOR {
+		$this->COUNT = $this->CURSOR->count;
+	}
+
+
+	# Returns the next object.
+	# @return Core::Object
+	user_method next {
+		my $this = shift;
+		my $type = User::application($this->APP)->eval_type($this->TYPE);
+		my $p = $this->CURSOR->next;
+		unless ($p) {print "no such object"; return;}
+		return $type->construct->($p->{'_id'}, %$p);
+	}
+
+	# Returns true if there is another object to fetch.
+	# @return Bool
+	user_method has_next {
+		my $this = shift;
+		return $this->CURSOR->has_next;
+	}
+	
+}

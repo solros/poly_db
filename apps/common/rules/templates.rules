@@ -1,36 +1,39 @@
-# Copyright (c) 2013 Silke Horn
-# http://solros.de/polymake/poly_database
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_database.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_database is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_database is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_database.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+CREDIT polyDB
 
 
-# @category Database
+# @category Database Admin
 # Sets the template object for the collection //col// of the database //db//.
 # 
 # Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param Core::Object obj
 # @param String db database name
 # @param String col collection name
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool replace_type set to 1 if you want to replace type information for this collection
-user_function set_template_object($, $, $, {local => 0, username => "", password => ""}) {
+# @option Bool replace_type set to 1 if you want to replace type information for this collection, default 0
+# @option Bool tiny, default 0
+user_function set_template_object($, $, $, {local => 0, username => "", password => "", replace_type=>0, tiny=>0}) {
 	my ($obj, $db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
@@ -43,7 +46,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 		$p = $cred[1];
 	}
 
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($options);
 
 	my $t = get_type($client, $db, $col);
 
@@ -51,53 +54,78 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	my $app = $obj->type->application->name;
 	my $objtype = $obj->type->full_name;
 
+	unless ($t->{'app'}) {
+		croak("no type info set for $db.$col; use the function set_type_info instead\n");
+	}
+
 	unless ($r) {
 		unless ($t->{'app'} eq $app) {
-			croak("application $app of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");
+			croak("application $app of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");
 		}
 		unless ($t->{'type'} eq $objtype) {
-			croak("type $obj of given object does not match type information for collection $col (requires object of type $t->{'app'}:$t->{'type'})");		
+			croak("type $obj of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");		
 		}
 	}
-		
+	
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
 	my $output;
+	
+	my $temptype;
+	if ($options->{tiny}){
+		$temptype="tinytemplate";
+	} else {
+		$temptype="template";
+	}
+	
 	if ($r) {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, 'template' => pm2json($obj,"","",1)} });
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, $temptype => pm2json($obj,"","",1)} });
 		
 	} else {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'template' => pm2json($obj,"","",1)} });
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {$temptype => pm2json($obj,"","",1)} });
 	}
 
 	if ($output->{ok}) {
-		print "successfully set template object for collection $col in database $db\n"
+		print "successfully set template object for collection $col in database $db (object of type $app:$objtype)\n"
 	} else {
 		print "an error occurred when trying to set the template object for collection $col in database $db\n";
 	}
+	
+	undef $client;
 }
 
 
 # @category Database
 # Returns the template object for the collection //col// of the database //db//.
 # 
-# Contained in extension ''poly_database''.
-# @param String db database name
-# @param String col collection name
+# Contained in extension ''polyDB''.
+# @param String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[get_db_info]] for available databases
+# @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[get_db_info]] for available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option Bool tiny, default 0
 # @return Core::Object
-user_function get_template_object($, $, {local => 0}) {
+user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	
-	my $client = get_client($local);
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client	= get_client($local, "", "");
+	}
 		
 	my $tcol = $client->get_database($type_db)->get_collection("Types");
 
 	my $doc = $tcol->find({db => $db, col => $col})->next;
 	
-	my $r = doc2object($doc->{'template'}, $doc);
+	unless ($doc) {croak("no template data for collection $col in database $db");}
+	
+	my $r;
+	if ($options->{tiny}) {
+		$r = doc2object($doc->{'tinytemplate'}, $doc);
+	} else {
+			$r = doc2object($doc->{'template'}, $doc);
+	}
 	
 	return $r;
 }
@@ -106,12 +134,12 @@ user_function get_template_object($, $, {local => 0}) {
 
 
 
-# @category Database
+# @category Database Admin
 # Creates a new collection //col// in the database //db// for objects of type //app//://type//. You can optionally set the template object for this collection.
 # 
 # Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_database''.
+# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param String app application name for the objects
@@ -120,7 +148,8 @@ user_function get_template_object($, $, {local => 0}) {
 # @option String username
 # @option String password
 # @option Core::Object template
-user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, version => ""}) {
+# @option Core::Object tinytemplate template object with minimal set of properties
+user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => ""}) {
 	my ($db, $col, $app, $type, $options) = @_;
 	my $local = $options->{local};
 	my $u = $options->{username};
@@ -140,12 +169,17 @@ user_function set_type_info($, $, $, $, {local => 0, username => "", password =>
 	my $output	= $tcol->save({'db'=>$db, 'col'=>$col, 'app'=>$app, 'type'=>$type});
 
 	if ($output->{ok}) {
-		print "successfully saved type information for collection $col in database $db\n"
+		print "successfully saved type information for $db.$col\n"
 	} else {
-		print "an error occurred when trying to create collection $col in database $db\n";
+		print "an error occurred when trying to save type information for $db.$col\n";
 	}
 	
 	if (defined($options->{template})) {
 		set_template_object($options->{template}, $db, $col, local=>$options->{local}, username=>$u, password=>$p);
 	}
+	if (defined($options->{tinytemplate})) {
+		set_template_object($options->{tinytemplate}, $db, $col, local=>$options->{local}, username=>$u, password=>$p, tiny=>1);
+	}
+	
+	undef $client;
 }
