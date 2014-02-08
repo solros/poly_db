@@ -20,20 +20,20 @@ CREDIT polyDB
 
 
 # @category Utilities
-# Takes an [[Core::Object|Object]] //o// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
+# Takes an [[Core::Object|Object]] //obj// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
 # (This is just a quick and dirty solution for this until I make a fast and efficient one in c++ ;-).)
 # 
+# There might be some problems since polymake does not allow deletion of non-redundant properties. This in particular poses a problem if //obj// was retrieved from a database.
+# 
 # Contained in extension ''polyDB''.
-# @param Core::Object o
+# @param Core::Object obj
 # @param Core::Object template
-# @option Core::RuleChain schedule
 # @option Bool nonew set to 1 if you don't want to compute missing properties
-user_function copy_properties ($, $, {schedule => undef, nonew => 0, noschedule=>1}) {
+user_function copy_properties ($, $, {nonew => 0}) {
 	my ($o, $t, $options) = @_;
 
-	my $sched = $options->{schedule};
 	my $nonew = $options->{nonew};
-	my $nosched = $options->{noschedule};
+	my $nosched = 1;
 
 	# TODO: check that $o and $t are of compatible types
 

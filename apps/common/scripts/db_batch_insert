@@ -18,6 +18,13 @@
 
 use application 'polytope';
 
+# This script inserts a large number of polytope files. It has been written for the insertion of Andreas' LatticePolytope files and hence may not be perfectly fitted for other purposes.
+
+
+# make stdout hot so that print output is not buffered
+#select((select(STDOUT), $|=1)[0]);
+
+
 sub batch_insert {
 	my $db_name = shift;
 	my $collection = shift;
@@ -32,7 +39,7 @@ sub batch_insert {
 
 	print "db_name: $db_name\ncollection: $collection\ncontrib: $contrib\nmove_dir: $md\nfiles:\n".join(' ',@files)."\n";
 	
-	db_batch_insert(\@files, $db_name, $collection, $contrib, local=>$local, nonew=>$nonew, username=>$u, password=>$p, move_dir => $md);
+	db_batch_insert(\@files, $db_name, $collection, contrib => $contrib, local => $local, use_template => 1, nonew => $nonew, username => $u, password => $p, move_dir => $md);
 }
 
 batch_insert(@ARGV);

@@ -29,13 +29,16 @@ sub pm2json {
 		
 	foreach my $pv (@$c) {
 		if (defined($pv)) {
+			if ($pv->property->qual_name == "database" || $pv->property->qual_name == "collection") {next;}	# skip database and collection property
 			my $x = to_json($pv->value, $pv->property->type->mangled_name); 
 			$r->{$pv->property->qual_name} = $x;
 		}
 	}
 
 	unless ($temp) {
-		$r->{'_id'} = $id;
+		if ($id) {
+			$r->{'_id'} = $id;
+		}
 		$r->{'contributor'} = $contrib;
 		$r->{'date'} = get_date();
 	}
@@ -46,6 +49,7 @@ sub pm2json {
 
 
 # converts a polymake property to json
+# TODO: take care of subobjects...
 sub to_json {
 	my $p = shift;
 	my $mtype = shift;

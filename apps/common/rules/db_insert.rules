@@ -33,11 +33,20 @@ function get_credentials {
 	print "\n";
 	chomp($u);
 	chomp($p);
+	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
+	my $answer = <STDIN>;
+	chomp($answer);
+	print "\n";
+	if ($answer == "yes") {
+		set_custom $db_user = $u;
+		set_custom $db_pwd = $p;
+	}
+	print "Successfully saved user settings for $u.\n"
 	return ($u,$p);
 }
 
 # @category Database Admin
-# Adds an object //obj// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
+# Adds an object //obj// to the collection //col// in the database //db//.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
@@ -45,43 +54,48 @@ function get_credentials {
 # @param Core::Object obj
 # @param String db database name
 # @param String col collection name
-# @param String id unique identifier
-# @param String contrib
+# @option String id unique identifier
+# @option String contrib set the contributor
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
-# @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
+# @option Bool use_template set to 1 to match properties with a template object. 
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, schedule => undef, template => undef}){
-	my ($obj, $db, $col, $id, $contrib, $options) = @_;
+user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => "", password => "", nonew => 0, use_template => 0, template => undef, client => undef}){
+	my ($obj, $db, $col, $options) = @_;
  	
  	my $local = $options->{local};
  	my $u = $options->{username};
  	my $p = $options->{password};
 	my $nonew = $options->{nonew};
-	my $force = $options->{force};
-	my $sched = $options->{schedule};
-	my $temp = $options->{template};
 		
 	unless ($u || $local) {
 		my @cred = get_credentials;
 		$u = $cred[0];
 		$p = $cred[1];
 	}
-	unless ($force) {
-		unless ($temp) {
-			$temp = get_template_object($db, $col, local=>$local);
+
+	# get client if not given by the options
+	my $client;
+	unless (defined($client $options->{client})) {
+		$client = get_client($local, $u, $p);
+	}
+
+	# get template object if not given by the options
+	my $temp;
+	if ($options->{use_template}) {
+		unless (defined($temp  = $options->{template}) {
+			$temp = get_template_object($db, $col, local => $local, client => $client);
 		}
-		copy_properties($obj, $temp, nonew=>$nonew, schedule=>$sched);
+		copy_properties($obj, $temp, nonew=>$nonew);
 	}
 	
-	my $client = get_client($local, $u, $p);	
 	my $collection = get_collection($client, $db, $col);
-	
-	my $json = pm2json($obj, $id, $contrib);
+		
+	my $json = pm2json($obj, $options->{id}, $options->{contrib});
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -96,35 +110,37 @@ user_function db_insert ($, $, $, $, $, {local => 0, username => "", password =>
 # @param String file polymake object stored in a file
 # @param String db database name
 # @param String col collection name
-# @param String contrib
+# @option String id unique identifier, if you don't specify one, polyDB will try to create one from the object name or file name, if this does not work out one will be created automatically
+# @option String contrib set the contributor
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option String id unique identifier
-# @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
-# @option Core::RuleChain schedule can be precomputed for better performance when applying to multiple objects
+# @option Bool use_template set to 1 to match properties with a template object. 
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @option MongoClient client
 # @return String
-user_function db_insert_from_file($, $, $, $, {local => 0, username => "", password => "", id => "", nonew => 0, force => 0, schedule => undef, template => undef}) {
-	my ($file, $db, $col, $contrib, $options) = @_;
+user_function db_insert_from_file($, $, $, {local => 0, username => "", password => "", id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef}) {
+	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
 	
 	my $id = $options->{id};
 	
 	unless ($id) {
-		unless ($id = generate_id($file, $db, $col)) {
-			return;
+		if ($id = generate_id($file, $db, $col)) {
+			$options->{id} => $id;
 		}
 	}
 	
-	return db_insert($obj, $db, $col, $id, $contrib, $options);
+	return db_insert($obj, $db, $col, $options);
 }
 
 
 # @category Database Admin
-# Adds a list of objects from files to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
+# Adds a list of objects from files to the collection //col// in the database //db//. It assumes that the objects names can be used to generate unique ids. Objects with ids that are already contained in the database will be skipped (and moved to //move_dir// if indicated).
+# 
+# TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
@@ -132,16 +148,17 @@ user_function db_insert_from_file($, $, $, $, {local => 0, username => "", passw
 # @param Array<String> files list of file names
 # @param String db database name
 # @param String col collection name
-# @param String contrib
+# @option String contrib
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool nonew set to 1 if you don't want to compute missing properties
-# @option Bool force set to 1 to prevent matching properties with a template object. Only use this if you absolutely know what you're doing!!!
+# @option Bool use_template set to 1 to match properties with a template object. 
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
 # @option String move_dir directory in which processed files are moved
-# @option Bool verbose
-user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password => "", nonew => 0, force => 0, move_dir => ""}){
-	my ($files, $db_name, $collection, $contrib, $options) = @_;
+# @option Bool verbose print database output
+# @option MongoClient client
+user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => "", password => "", nonew => 0, use_template => 0, move_dir => "", client => undef}){
+	my ($files, $db_name, $collection, $options) = @_;
 	my $local = $options->{local};
 	my $nonew = $options->{nonew};
 	my $u = $options->{username};
@@ -156,18 +173,30 @@ user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password
 		$p = $c[1];
 	}
 
-	my $fst = User::load($files[0]);
-	
-	my $temp = get_template_object($db_name, $collection, local=>$local);
+	# get client if not given by the options
+	my $client;
+	unless (defined($client $options->{client})) {
+		$client = get_client($local, $u, $p);
+	}
 
+	# get template object if needed
+	if ($options->{use_template}){
+		my $temp = get_template_object($db_name, $collection, local => $local, client => $client);
+	}
+
+
+	# get first object
+	my $fst = User::load($files[0]);
+		
 	print "inserting ...\n";
 	foreach (@files) {
 		my $obj = User::load($_);
 		$obj->CONE_DIM;
-		copy_properties($obj, $temp, nonew=>$nonew);
+		if ($options->{use_template}) {
+			copy_properties($obj, $temp, nonew=>$nonew);
+		}
 	}
 
-	my $client = get_client($local, $u, $p);	
 	my $col = get_collection($client, $db_name, $collection);
 	
 	my $md = $options->{move_dir};
@@ -194,6 +223,9 @@ user_function db_batch_insert ($, $, $, $, {local => 0, username => "", password
 			system("mv $file $md");
 		}
 	}
-	undef $client;
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
 	print "\n";
 }
