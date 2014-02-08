@@ -35,4 +35,17 @@ object LatticePolytope {
 	# 
 	# Contained in extension ''poly_db''.
 	property date : String;
+
+	# @category Database
+	# The database the polytope came from. (This is not saved in the database.)
+	# 
+	# Contained in extension ''poly_db''.
+	property database : String;
+
+	# @category Database
+	# The collection the polytope came from. (This is not saved in the database.)
+	# 
+	# Contained in extension ''poly_db''.
+	property collection : String;
+
 }

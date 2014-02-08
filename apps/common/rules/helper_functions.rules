@@ -20,12 +20,12 @@
 # This is a helper function that transforms a database cursor into an array of polymake objects.
 function cursor2array {
 	my $cursor = shift;
-	my $t = shift;
+	my $t = shift;	# type
+	my $db_name = shift;
+	my $col_name = shift;
 	
-	my $size = shift;
-	unless ($size > 0) {
-		$size = $cursor->count;
-	}
+	my $size = $cursor->count(1);
+
 	
 	my $app = $t->{'app'};
 	my $type = $t->{'type'};
@@ -36,7 +36,7 @@ function cursor2array {
 	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
 	while (my $p = $cursor->next) {
-		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p);
+		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p, database=>$db_name, collection=>$col_name);
 		++$i;
 	}
 	return $parray;
@@ -61,12 +61,14 @@ function cursor2stringarray {
 function doc2object {
 	my $cursor = shift;
 	my $t = shift;
+	my $db_name = shift;
+	my $col_name = shift;
 	
 	my $app = $t->{'app'};
 	my $type = $t->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
-	return $obj_type->construct->($cursor->{'_id'}, %$cursor);
+	return $obj_type->construct->($cursor->{'_id'}, %$cursor, database=>$db_name, collection=>$col_name);
 }
 
 

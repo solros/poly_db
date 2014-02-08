@@ -77,7 +77,7 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 	unless ($output) {print "No such object.\n"; return;}
 	
 	undef $client;
-	return cursor2array($output, $type, $options->{limit});
+	return cursor2array($output, $type, $options->{db}, $options->{collection});
 }
 
 
@@ -110,7 +110,7 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 	my $output = $col->find_one($query);
 	
 	unless ($output) { croak("No such object.\n"); }
-	return doc2object($output, $type);
+	return doc2object($output, $type, $options->{db}, $options->{collection});
 }
 
 
