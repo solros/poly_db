@@ -3,3 +3,5 @@ mongo-cxx-driver-v2.2/
 xml2json/
 test.xml
 *.fail
+objects
+code
