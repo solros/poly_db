@@ -71,7 +71,7 @@ declare object DatabaseCursor;
 
 
 # @topic category functions/Database Write Access
-# These are the functions to insert and update objects. You need write access to the database for these.
+# These are the functions to insert and update objects. You need write access to the database for these. This category also contains that I want to hide from the public because the not yet completely presentable.
 # 
 # Contained in extension ''polyDB''.
 

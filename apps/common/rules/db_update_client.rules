@@ -22,7 +22,7 @@ CREDIT polyDB
 use Sys::Hostname;
 use DateTime;
 
-# @category Database Write Access
+# @category Database Admin
 # Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection.
 # 
