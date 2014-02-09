@@ -25,7 +25,7 @@ CREDIT polyDB
 # @option String collection name of the collection, default: all available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username Some databases might have access control.
-user_function get_db_info ({db => undef, collection => undef, local => 0, username => $db_user}) {
+user_function db_info ({db => undef, collection => undef, local => 0, username => $db_user}) {
 
 	my $options = shift;
 	
@@ -231,7 +231,6 @@ user_function set_db_info ($, $, {users => undef, local => 0, username => $db_us
 
 	
 	undef $client;
-
 }
 
 
@@ -276,6 +275,42 @@ user_function set_col_info ($, $, $, {local => 0, username => $db_user, password
 	}
 	
 	undef $client;
-
 }
+
+
+# @category Database Admin
+# Returns the description of //db//.
+# @param String db name of the database
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @return String
+user_function get_db_info {
+	my ($db, $options) = @_;
+	return get_col_info($db, "db_info", $options);
+}
+
+# @category Database Admin
+# Returns the description of collection //col// in //db//.
+# @param String db name of the database
+# @param String col name of the collection
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @return String
+user_function get_col_info {
+	my ($db, $col, $options) = @_;
+
+	my $client = get_client($options->{local},"","");
+		
+	my $idb = $client->get_database($info_db);
+	my $icol = $idb->get_collection("Info");
+
+	my %db_query = ();
+	$db_query{"col"} = $col;
+	$db_query{"db"} = $db;
+
+	my $doc = $icol->find_one(\%db_query);
+
+	undef $client;
+
+	return $doc->{description};
+}
+
 
