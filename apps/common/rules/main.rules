@@ -65,6 +65,12 @@ declare object DatabaseCursor;
 # Contained in extension ''polyDB''.
 
 # @topic category functions/Database Admin
+# These are administrative functions. You need admin access to the database for these.
+# 
+# Contained in extension ''polyDB''.
+
+
+# @topic category functions/Database Write Access
 # These are the functions to insert and update objects. You need write access to the database for these.
 # 
 # Contained in extension ''polyDB''.
