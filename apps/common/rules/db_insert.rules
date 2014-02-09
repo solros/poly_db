@@ -41,7 +41,7 @@ function get_credentials {
 		set_custom $db_user = $u;
 		set_custom $db_pwd = $p;
 	}
-	print "Successfully saved user settings for $u.\n"
+	print "Successfully saved user settings for $u.\n";
 	return ($u,$p);
 }
 
@@ -80,14 +80,14 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 
 	# get client if not given by the options
 	my $client;
-	unless (defined($client $options->{client})) {
+	unless (defined($client = $options->{client})) {
 		$client = get_client($local, $u, $p);
 	}
 
 	# get template object if not given by the options
 	my $temp;
 	if ($options->{use_template}) {
-		unless (defined($temp  = $options->{template}) {
+		unless (defined($temp  = $options->{template})) {
 			$temp = get_template_object($db, $col, local => $local, client => $client);
 		}
 		copy_properties($obj, $temp, nonew=>$nonew);
@@ -129,7 +129,7 @@ user_function db_insert_from_file($, $, $, {local => 0, username => "", password
 	
 	unless ($id) {
 		if ($id = generate_id($file, $db, $col)) {
-			$options->{id} => $id;
+			$options->{"id"} = $id;
 		}
 	}
 	
@@ -175,7 +175,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 
 	# get client if not given by the options
 	my $client;
-	unless (defined($client $options->{client})) {
+	unless (defined($client = $options->{client})) {
 		$client = get_client($local, $u, $p);
 	}
 
@@ -183,7 +183,6 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	if ($options->{use_template}){
 		my $temp = get_template_object($db_name, $collection, local => $local, client => $client);
 	}
-
 
 	# get first object
 	my $fst = User::load($files[0]);
