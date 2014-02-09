@@ -96,7 +96,7 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 }
 
 
-# @category Database
+# @category Database Write Access
 # Returns the template object for the collection //col// of the database //db//.
 # 
 # Contained in extension ''polyDB''.
