@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="52ed5b5b"?>
+<?pm chk="52ffb197"?>
 
 <object name="F.8D.000000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="LINEALITY_SPACE">
@@ -57,4 +57,6 @@
   <property name="FEASIBLE" value="true" />
   <property name="N_VERTICES" value="23" />
   <property name="contributor" value="'Andreas Paffenholz'" />
+  <property name="database" value="LatticePolytopes" />
+  <property name="collection" value="SmoothReflexive" />
 </object>
