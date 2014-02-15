@@ -46,6 +46,9 @@ sub ret {
 	$string =~ s/}\,\s*}/}}/g;
 	$string =~ s/\,\s*}/}/g;
 	$string =~ s/\,\s*\]/]/g;
+	
+	$string =~ s/true/1/g;
+	$string =~ s/false/0/g;
 	return $string;
 }
 
@@ -73,20 +76,20 @@ sub new {
 			my %atts = @_;
 			$output->print("{" );
 			if (defined($atts{name})) {
-				$output->print("name: \"" . $atts{name} . "\", ");
+				$output->print("name : \"" . $atts{name} . "\", ");
 			}
 			if (defined($atts{version})) {
-				$output->print("version: \"" . $atts{version} . "\", ");
+				$output->print("version : \"" . $atts{version} . "\", ");
 			}
 			if (defined($atts{type})) {
-				$output->print("type: \"" . $atts{type} . "\", ");
+				$output->print("type : \"" . $atts{type} . "\", ");
 			}
 		}
 		
 		elsif ($name eq "property") {
 			push @elementstack, "property";
 			my %atts = @_;
-			$output->print($atts{name} . ": ");
+			$output->print($atts{name} . " : ");
 		}
 		
 		elsif ($name eq "v" or $name eq "m") {	# vector or matrix
@@ -102,12 +105,12 @@ sub new {
 		elsif ($name eq "e") {
 			push @elementstack, $name;
 			my %atts = @_;
-			$output->print($atts{i} . ": ");
+			$output->print("[" . $atts{i} . ", ");
 		}
 
 		else {
 			push @elementstack, $name;
-			$output->print($name . ": ");
+			$output->print($name . " : ");
 		}
 	};
 	
@@ -115,7 +118,7 @@ sub new {
 		my $name = shift;
 		if ($name eq "property") {
 			my %atts = @_;
-			$output->print($atts{name} . ": " . $atts{value});
+			$output->print($atts{name} . " : " . $atts{value});
 		} 
 		elsif ($name eq "v" or $name eq "m") {
 			$output->print("[]");
@@ -131,7 +134,7 @@ sub new {
 		}
 		
 		elsif ($name eq "e") {
-			;
+			$output->print("]");
 		}
 		
 		elsif ($name eq "object") {
@@ -220,7 +223,6 @@ sub string {
 	my $self = shift;
 	&{$self->{STRING}};
 }
-
 
 
 1;
