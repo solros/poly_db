@@ -39,7 +39,14 @@ sub print {
 
 sub ret {
 	my $self = shift;
-	return $self->[0];
+	my $string = $self->[0];
+	# some cosmetic changes -> TODO: not very elegant
+	$string =~ s/\,\s*\,/, /g;
+	$string =~ s/\]\,\s*\]/]]/g;
+	$string =~ s/}\,\s*}/}}/g;
+	$string =~ s/\,\s*}/}/g;
+	$string =~ s/\,\s*\]/]/g;
+	return $string;
 }
 
 
@@ -60,41 +67,71 @@ sub new {
 
 	my $startTag = sub {
 		my $name = shift;
-		if ($name eq "property") {
+		
+		if ($name eq "object" ) {
+			push @elementstack, "object";
 			my %atts = @_;
-			$output->print("{" . $atts{name} . ":");
-			return;
+			$output->print("{" );
+			if (defined($atts{name})) {
+				$output->print("name:" . $atts{name} . ", ");
+			}
+			if (defined($atts{version})) {
+				$output->print("version:" . $atts{version} . ", ");
+			}
 		}
 		
-		if ($name eq "v" or $name eq "m") {	# vector or matrix
+		elsif ($name eq "property") {
+			push @elementstack, "property";
+			my %atts = @_;
+			$output->print($atts{name} . ": ");
+		}
+		
+		elsif ($name eq "v" or $name eq "m") {	# vector or matrix
+			push @elementstack, $name;
 			$output->print("[");
 			return;
 		}
 		
-		$output->print("{" . $name . ":");
+		else {
+			push @elementstack, $name;
+			$output->print($name . ": ");
+		}
 	};
 	
 	my $emptyTag = sub {
 		my $name = shift;
 		if ($name eq "property") {
 			my %atts = @_;
-			$output->print("{" . $atts{name} . ":" . $atts{value} . "}");
-		} elsif ($name eq "v" or $name eq "m") {
+			$output->print($atts{name} . ": " . $atts{value});
+		} 
+		elsif ($name eq "v" or $name eq "m") {
 			$output->print("[]");
 		}
+		$output->print(", ");
 	};
 	
 	my $endTag = sub {
 		my $name = shift;
+		pop @elementstack;
 		if ($name eq "m" or $name eq "v") {
 			$output->print("]");
-		} else {
+		}
+			
+		elsif ($name eq "object") {
 			$output->print("}");
 		}
+		
+		$output->print(", ");		
 	};
 
 	my $characters = sub {
-		$output->print(shift);
+		my $chars = shift;
+		my $type = $elementstack[-1];
+		if ($type eq "v") {
+			$output->print(join(", ", split(/ /, $chars)));		
+		} else {
+			$output->print($chars);
+		}
 	};
 	
 	my $string = sub {
@@ -105,12 +142,17 @@ sub new {
              	'EMPTYTAG' => $emptyTag,
              	'ENDTAG' => $endTag,
              	'CHARACTERS' => $characters,
-#             	'CDATA' => $cdata,
+             	'CDATA' => $characters,
              	'STRING' => $string
             };
 
 	return bless $self, $class;
 }
+
+
+
+##### public methods ######
+
 
 sub startTag {
 	my $self = shift;
@@ -132,15 +174,26 @@ sub characters {
 	&{$self->{CHARACTERS}};
 }
 
-sub dataElement {
+sub cdata {
 	my $self = shift;
-	my $name = shift;
-	my $data = shift;
-	my %atts = @_;
+	&{$self->{CDATA}};	
+}
 
-	$self->startTag($name, %atts);
+sub dataElement {
+	my ($self, $name, $data, @atts) = @_;
+
+	$self->startTag($name, @atts);
 	$self->characters($data);
 	$self->endTag($name);
+}
+
+sub cdataElement {
+	my ($self, @args) = @_;
+	
+	$self->dataElement(@args);
+}
+
+sub setDataMode {
 	return 1;
 }
 

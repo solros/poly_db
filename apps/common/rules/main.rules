@@ -23,6 +23,10 @@ CREDIT polyDB
   http://solros.de/polymake/poly_db
 
 
+# TODO: relative path...
+use lib "/Volumes/Polaris/poly_database/perllib";
+use PolyDB;
+
 #use lib "/Users/silke/.cpan/build/MongoDB-0.701.4-7VQ1aD/lib";
 
 #use lib "/Users/silke/.cpan/build/boolean-0.30-hRbUto/lib";
@@ -31,20 +35,6 @@ CREDIT polyDB
 
 #use lib "/Library/Perl/5.12/darwin-thread-multi-2level";
 
-
-#my $poly_db_mongo_lib = "/Users/silke/.cpan/build/MongoDB-0.701.4-7VQ1aD/lib";
-
-#my $poly_db_boolean_lib = "/Users/silke/.cpan/build/boolean-0.30-hRbUto/lib";
-
-#my $poly_db_tieixhash_lib = "/Users/silke/.cpan/build/Tie-IxHash-1.23-xw6ZmS/lib";
-
-#my $poly_db_perl = "/sw/lib/perl5/5.12.3/darwin-thread-multi-2level";
-
-
-#use lib $poly_db_mongo_lib;
-#use lib $poly_db_boolean_lib;
-#use lib $poly_db_tieixhash_lib;
-#use lib $poly_db_perl;
 
 use MongoDB;
 use MongoDB::OID;
@@ -84,6 +74,7 @@ INCLUDE
 	property_types.rules
 	copy_properties.rules
 	helper_functions.rules
+	writejson.rules
 	templates.rules
 	json.rules
 	db.rules
