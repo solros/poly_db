@@ -64,7 +64,7 @@ function get_credentials {
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => "", password => "", nonew => 0, use_template => 0, template => undef, client => undef}){
+user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef}){
 	my ($obj, $db, $col, $options) = @_;
  	
  	my $local = $options->{local};
@@ -95,7 +95,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	
 	my $collection = get_collection($client, $db, $col);
 		
-	my $json = pm2json($obj, $options->{id}, $options->{contrib});
+	my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}});
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -120,7 +120,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @option MongoClient client
 # @return String
-user_function db_insert_from_file($, $, $, {local => 0, username => "", password => "", id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef}) {
+user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
@@ -157,7 +157,7 @@ user_function db_insert_from_file($, $, $, {local => 0, username => "", password
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose print database output
 # @option MongoClient client
-user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => "", password => "", nonew => 0, use_template => 0, move_dir => "", client => undef}){
+user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef}){
 	my ($files, $db_name, $collection, $options) = @_;
 	my $local = $options->{local};
 	my $nonew = $options->{nonew};
@@ -214,7 +214,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, $id, $contrib);
+		my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}});
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
 

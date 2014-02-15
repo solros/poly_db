@@ -153,6 +153,5 @@ function db_update_one($, $, $, {local => 0, username => $db_user, password => $
 		$client = get_client($options);	
 	}
 	my $collection = get_collection($client, $db_name, $col_name);
-	
-	return $collection->save(pm2json($obj, $id, $contrib));
+	return $collection->save(pm2json($obj, $id, 0, {contributor => $contrib}));
 }

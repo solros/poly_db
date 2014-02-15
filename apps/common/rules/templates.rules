@@ -80,10 +80,10 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	}
 	
 	if ($r) {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, $temptype => pm2json($obj,"","",1)} });
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, $temptype => pm2json($obj,"", 1)} });
 		
 	} else {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {$temptype => pm2json($obj,"","",1)} });
+		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {$temptype => pm2json($obj,"", 1)} });
 	}
 
 	if ($output->{ok}) {

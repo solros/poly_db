@@ -38,6 +38,22 @@ sub write_json {
 	return $writer->string;
 }
 
+sub pm2json {
+	my ($object, $id, $temp, $db_props) = @_; 
+	my $json = write_json($object);
+	$json =~ s/\s\:\s/ => /g;
+	my $r = eval($json);
+		
+	unless ($temp) {
+		$r->{_id} = $id;
+		$r->{date} = get_date();
+		foreach (keys %$db_props) {
+			$r->{$_} = $db_props->{$_};
+		}
+	}
+	
+	return $r;
+}
 
 # Polymake::Core::XMLwriter::type_attr produces the type attribute needed for some properties (e.g. type => SparseMatrix, etc)
 
