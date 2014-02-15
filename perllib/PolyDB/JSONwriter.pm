@@ -73,10 +73,13 @@ sub new {
 			my %atts = @_;
 			$output->print("{" );
 			if (defined($atts{name})) {
-				$output->print("name:" . $atts{name} . ", ");
+				$output->print("name: \"" . $atts{name} . "\", ");
 			}
 			if (defined($atts{version})) {
-				$output->print("version:" . $atts{version} . ", ");
+				$output->print("version: \"" . $atts{version} . "\", ");
+			}
+			if (defined($atts{type})) {
+				$output->print("type: \"" . $atts{type} . "\", ");
 			}
 		}
 		
@@ -99,7 +102,7 @@ sub new {
 		elsif ($name eq "e") {
 			push @elementstack, $name;
 			my %atts = @_;
-			$output->print("[" . $atts{i} . ": ");
+			$output->print($atts{i} . ": ");
 		}
 
 		else {
@@ -123,10 +126,14 @@ sub new {
 	my $endTag = sub {
 		my $name = shift;
 		pop @elementstack;
-		if ($name eq "m" or $name eq "v" or $name eq "e") {
+		if ($name eq "m" or $name eq "v") {
 			$output->print("]");
 		}
-			
+		
+		elsif ($name eq "e") {
+			;
+		}
+		
 		elsif ($name eq "object") {
 			$output->print("}");
 		}
@@ -198,9 +205,11 @@ sub dataElement {
 }
 
 sub cdataElement {
-	my ($self, @args) = @_;
-	
-	$self->dataElement(@args);
+	my ($self, $name, $data, @atts) = @_;
+
+	$self->startTag($name, @atts);
+	$self->characters("\"" . $data . "\"");
+	$self->endTag($name);
 }
 
 sub setDataMode {
