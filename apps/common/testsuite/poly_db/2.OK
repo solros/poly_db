@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="52edf25d"?>
+<?pm chk="52ff3d4f"?>
 
 <data type="polytope::Array&lt;LatticePolytope&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <m>
@@ -98,6 +98,8 @@
         <v>44 154 250 240 144 53 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -201,6 +203,8 @@
         <v>44 154 250 240 144 53 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -293,6 +297,8 @@
         <v>34 119 195 190 117 45 10</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -382,6 +388,8 @@
         <v>30 105 181 190 125 50 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -478,6 +486,8 @@
         <v>36 126 216 225 146 57 12</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -567,6 +577,8 @@
         <v>30 105 181 190 125 50 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -660,6 +672,8 @@
         <v>34 119 201 205 131 51 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -749,6 +763,8 @@
         <v>30 105 181 190 125 50 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -831,6 +847,8 @@
         <v>24 84 146 155 104 43 10</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
@@ -924,6 +942,8 @@
         <v>34 119 201 205 131 51 11</v>
       </property>
       <property name="GORENSTEIN" value="true" />
+      <property name="database" value="LatticePolytopes" />
+      <property name="collection" value="SmoothReflexive" />
       <property name="FEASIBLE" value="true" />
       <property name="LINEALITY_SPACE">
         <m />
