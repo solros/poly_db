@@ -82,7 +82,8 @@ sub new {
 				$output->print("version : \"" . $atts{version} . "\", ");
 			}
 			if (defined($atts{type})) {
-				$output->print("type : \"" . $atts{type} . "\", ");
+				my @t = split('::', $atts{type});
+				$output->print("type : \"" . $t[1] . "\", app : \"" . $t[0] . "\", ");
 			}
 		}
 		

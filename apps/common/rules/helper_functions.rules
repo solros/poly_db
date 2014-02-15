@@ -26,9 +26,8 @@ function cursor2array {
 	
 	my $size = $cursor->count(1);
 
-	
-	my $app = $t->{'app'};
-	my $type = $t->{'type'};
+	my $app = defined($t) ? $t->{'app'}:$cursor->[0]->{'app'};
+	my $type = defined($t) ? $t->{'type'}:$cursor->[0]->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
 	my $arr_type = User::application($app)->eval_type("Array<$type>");
@@ -36,6 +35,12 @@ function cursor2array {
 	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
 	while (my $p = $cursor->next) {
+		delete $p->{'app'};
+		delete $p->{'type'};
+		delete $p->{'name'};
+		delete $p->{'version'};
+		delete $p->{'description'};
+		
 		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p, database=>$db_name, collection=>$col_name);
 		++$i;
 	}
@@ -64,8 +69,14 @@ function doc2object {
 	my $db_name = shift;
 	my $col_name = shift;
 	
-	my $app = $t->{'app'};
-	my $type = $t->{'type'};
+	my $app = defined($t) ? $t->{'app'}:$cursor->{'app'};
+	my $type = defined($t) ? $t->{'type'}:$cursor->{'type'};
+
+	delete $cursor->{'app'};
+	delete $cursor->{'type'};
+	delete $cursor->{'name'};
+	delete $cursor->{'version'};
+	delete $cursor->{'description'};
 
 	my $obj_type = User::application($app)->eval_type($type);
 	return $obj_type->construct->($cursor->{'_id'}, %$cursor, database=>$db_name, collection=>$col_name);
