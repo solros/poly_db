@@ -89,9 +89,19 @@ sub new {
 		elsif ($name eq "v" or $name eq "m") {	# vector or matrix
 			push @elementstack, $name;
 			$output->print("[");
+			my %atts = @_;
+			if (defined($atts{cols})) {
+				$output->print($atts{cols} . ", ");
+			}
 			return;
 		}
 		
+		elsif ($name eq "e") {
+			push @elementstack, $name;
+			my %atts = @_;
+			$output->print("[" . $atts{i} . ": ");
+		}
+
 		else {
 			push @elementstack, $name;
 			$output->print($name . ": ");
@@ -113,7 +123,7 @@ sub new {
 	my $endTag = sub {
 		my $name = shift;
 		pop @elementstack;
-		if ($name eq "m" or $name eq "v") {
+		if ($name eq "m" or $name eq "v" or $name eq "e") {
 			$output->print("]");
 		}
 			
