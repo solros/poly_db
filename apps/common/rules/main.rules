@@ -76,7 +76,6 @@ INCLUDE
 	helper_functions.rules
 	writejson.rules
 	templates.rules
-	#json.rules
 	db.rules
 	info.rules
 	cursor_properties.rules

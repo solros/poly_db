@@ -48,18 +48,16 @@ sub pm2json {
 	$json =~ s/\s\:\s/ => /g;
 	my $r = eval($json);
 		
-	unless ($temp) {
-		$r->{_id} = $id;
-		$r->{date} = get_date();
-	}
-	
 	foreach (keys %$add_props) {
 		$r->{$_} = $add_props->{$_};
 	}
 	foreach (@$rem_props) {
 		delete $r->{$_};
 	}
-	
+	unless ($temp) {
+		$r->{_id} = $id;
+		$r->{date} = get_date();
+	}
 	return $r;
 }
 

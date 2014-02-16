@@ -77,7 +77,6 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	unless (defined($rem_props = $options->{rem_props})) {
 		$rem_props = ["database","collection"];
 		if (my $type = get_type($client, $db, $col)) {
-			#push @$rem_props, ("version", "contributor", "type", "app");
 			push @$rem_props, keys %$type;
 		}
 	}
@@ -91,9 +90,8 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	}
 	
 	my $collection = get_collection($client, $db, $col);
-		
+
 	my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
-	
 	my $output = $collection->insert($json);
 	return $output;
 }

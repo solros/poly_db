@@ -46,10 +46,7 @@ sub ret {
 	$string =~ s/}\,\s*}/}}/g;
 	$string =~ s/\,\s*}/}/g;
 	$string =~ s/\,\s*\]/]/g;
-	
-	$string =~ s/true/1/g;
-	$string =~ s/false/0/g;
-	
+		
 	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{\1}@gx;
 	return $string;
 }
@@ -60,6 +57,8 @@ sub ret {
 #
 
 package PolyDB::JSONwriter;
+use Scalar::Util qw(looks_like_number);
+
 
 sub new {
 	my ($class, %params) = @_;
@@ -128,8 +127,8 @@ sub new {
 		}
 
 		else {
-			push @elementstack, $name;
-			$output->print($name . " : ");
+			push @elementstack, "quoted-".$name;
+			$output->print($name . " : \"");
 		}
 	};
 	
@@ -137,7 +136,8 @@ sub new {
 		my $name = shift;
 		if ($name eq "property") {
 			my %atts = @_;
-			$output->print($atts{name} . " : " . $atts{value});
+			my $val = value($atts{value});
+			$output->print($atts{name} . " : " . $val);
 		} 
 		elsif ($name eq "v" or $name eq "m") {
 			$output->print("[]");
@@ -164,6 +164,9 @@ sub new {
 		if ($curr eq "property-with-type") {
 			$output->print("}");
 		}
+		elsif ($curr =~ m/quoted-/) {
+			$output->print("\"");
+		}
 		
 		$output->print(", ");		
 	};
@@ -175,9 +178,9 @@ sub new {
 			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} 
 		elsif ($type eq "t") {
-			$output->print("[\"" . join("\", \"", split(/ /, $chars)) . "\"]");		
+			$output->print("[" . join(", ", map { qq/"$_"/ } split(/ /, $chars)) . "]");		
 		} else {
-			$output->print($chars);
+			$output->print(value($chars));
 		}
 	};
 	
@@ -196,6 +199,16 @@ sub new {
 	return bless $self, $class;
 }
 
+sub value {
+	my $val = shift;
+	$val =~ s/true/1/g;
+	$val =~ s/false/0/g;
+
+	if (!looks_like_number($val)) {
+		$val = "\"" . $val . "\"";
+	}
+	return $val;
+}
 
 
 ##### public methods ######
