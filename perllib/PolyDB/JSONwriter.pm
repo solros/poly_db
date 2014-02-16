@@ -49,6 +49,8 @@ sub ret {
 	
 	$string =~ s/true/1/g;
 	$string =~ s/false/0/g;
+	
+	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{\1}@gx;
 	return $string;
 }
 
@@ -88,25 +90,41 @@ sub new {
 		}
 		
 		elsif ($name eq "property") {
-			push @elementstack, "property";
 			my %atts = @_;
 			$output->print($atts{name} . " : ");
+			if (my $t = defined($atts{type})) {
+				push @elementstack, "property-with-type";
+				$output->print("{");
+				$output->print("type : \"" . $atts{type} . "\", ");
+			} else {
+				push @elementstack, "property";
+			}
 		}
 		
 		elsif ($name eq "v" or $name eq "m") {	# vector or matrix
-			push @elementstack, $name;
-			$output->print("[");
 			my %atts = @_;
-			if (defined($atts{cols})) {
-				$output->print($atts{cols} . ", ");
-			}
-			return;
+			if ($elementstack[-1] eq "property-with-type") {
+				if (defined($atts{cols})) {
+					$output->print("cols : " . $atts{cols} . ", ");
+				}
+				$output->print("value : ");
+				push @elementstack, $name;
+			} else {
+				push @elementstack, $name;
+			}		
+			$output->print("[");
 		}
 		
 		elsif ($name eq "e") {
 			push @elementstack, $name;
 			my %atts = @_;
-			$output->print("[" . $atts{i} . ", ");
+			$output->print($atts{i} . " : ");
+		}
+
+		elsif ($name eq "t") {
+			push @elementstack, $name;
+			my %atts = @_;
+			$output->print($atts{i} . " : ");
 		}
 
 		else {
@@ -129,16 +147,20 @@ sub new {
 	
 	my $endTag = sub {
 		my $name = shift;
-		pop @elementstack;
+		my $curr = pop @elementstack;
 		if ($name eq "m" or $name eq "v") {
 			$output->print("]");
 		}
 		
-		elsif ($name eq "e") {
-			$output->print("]");
+		elsif ($name eq "e" or $name eq "t") {
+			$output->print("");
+		}
+				
+		elsif ($name eq "object") {
+			$output->print("}");
 		}
 		
-		elsif ($name eq "object") {
+		if ($curr eq "property-with-type") {
 			$output->print("}");
 		}
 		
@@ -150,6 +172,9 @@ sub new {
 		my $type = $elementstack[-1];
 		if ($type eq "v") {
 			$output->print(join(", ", split(/ /, $chars)));		
+		} 
+		elsif ($type eq "t") {
+			$output->print("[" . join(", ", split(/ /, $chars)) . "]");		
 		} else {
 			$output->print($chars);
 		}
