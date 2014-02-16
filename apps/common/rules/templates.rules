@@ -119,12 +119,12 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 
 	
 	if ($update) {
-		my $output = $tcol->update($search, $h);
+		my $output = $tcol->update({'db'=>$db, 'col'=>$col}, $h);
 
 		if ($output->{ok}) {
 			print "successfully updated type information for $db.$col\n"
 		} else {
-			print "an error occurred when trying to update type information for $db.$col\n";
+			print "an error occurred when trying to update type information for $db.$col:\n$output\n";
 		}
 	
 	} else {
@@ -133,7 +133,7 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 		if ($output->{ok}) {
 			print "successfully saved type information for $db.$col\n";
 		} else {
-			print "an error occurred when trying to save type information for $db.$col\n";
+			print "an error occurred when trying to save type information for $db.$col:\n$output\n";
 		}
 	}
 		
