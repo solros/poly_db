@@ -38,12 +38,6 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 	my $p = $options->{password};
 	my $local = $options->{local};
 	
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-
 	my $by_id;
 	if ($obj_list->type->full_name eq "Array<String>") {
 		$by_id = 1;

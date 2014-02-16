@@ -71,13 +71,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
  	my $u = $options->{username};
  	my $p = $options->{password};
 	my $nonew = $options->{nonew};
-		
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-
+	
 	# get client if not given by the options
 	my $client;
 	unless (defined($client = $options->{client})) {
@@ -166,13 +160,6 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	
 	my @files = @$files;
 	
-	my @c;
-	unless ($u || $local) {
-		@c = get_credentials();
-		$u = $c[0];
-		$p = $c[1];
-	}
-
 	# get client if not given by the options
 	my $client;
 	unless (defined($client = $options->{client})) {

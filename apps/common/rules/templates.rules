@@ -40,12 +40,6 @@ user_function set_template_object($, $, $, {local => 0, username => "", password
 	my $p = $options->{password};
 	my $r = $options->{replace_type};
 
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-
 	my $client = get_client($options);
 
 	my $t = get_type($client, $db, $col);
@@ -154,12 +148,6 @@ user_function set_type_info($, $, $, $, {local => 0, username => "", password =>
 	my $local = $options->{local};
 	my $u = $options->{username};
 	my $p = $options->{password};
-
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
 
 	my $client = get_client($local, $u, $p);
 		
