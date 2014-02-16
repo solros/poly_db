@@ -19,79 +19,8 @@
 CREDIT polyDB
 
 
-# @category Database Admin
-# Sets the template object for the collection //col// of the database //db//.
-# 
-# Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''polyDB''.
-# @param Core::Object obj
-# @param String db database name
-# @param String col collection name
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @option Bool replace_type set to 1 if you want to replace type information for this collection, default 0
-# @option Bool tiny, default 0
-user_function set_template_object($, $, $, {local => 0, username => "", password => "", replace_type=>0, tiny=>0}) {
-	my ($obj, $db, $col, $options) = @_;
-	my $local = $options->{local};
-	my $u = $options->{username};
-	my $p = $options->{password};
-	my $r = $options->{replace_type};
-
-	my $client = get_client($options);
-
-	my $t = get_type($client, $db, $col);
-
-
-	my $app = $obj->type->application->name;
-	my $objtype = $obj->type->full_name;
-
-	unless ($t->{'app'}) {
-		croak("no type info set for $db.$col; use the function set_type_info instead\n");
-	}
-
-	unless ($r) {
-		unless ($t->{'app'} eq $app) {
-			croak("application $app of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");
-		}
-		unless ($t->{'type'} eq $objtype) {
-			croak("type $obj of given object does not match type information for collection $db.$col (requires object of type $t->{'app'}:$t->{'type'})");		
-		}
-	}
-	
-	my $tdb = $client->get_database($type_db);
-	my $tcol = $tdb->get_collection("Types");
-
-	my $output;
-	
-	my $temptype;
-	if ($options->{tiny}){
-		$temptype="tinytemplate";
-	} else {
-		$temptype="template";
-	}
-	
-	if ($r) {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {'app' => $app, 'type' => $objtype, $temptype => pm2json($obj,"", 1)} });
-		
-	} else {
-		$output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => {$temptype => pm2json($obj,"", 1)} });
-	}
-
-	if ($output->{ok}) {
-		print "successfully set template object for collection $col in database $db (object of type $app:$objtype)\n"
-	} else {
-		print "an error occurred when trying to set the template object for collection $col in database $db\n";
-	}
-	
-	undef $client;
-}
-
-
 # @category Database Write Access
-# Returns the template object for the collection //col// of the database //db//.
+# Returns the template object for the collection //col// of the database //db// (if this is set).
 # 
 # Contained in extension ''polyDB''.
 # @param String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
@@ -118,7 +47,7 @@ user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}
 	if ($options->{tiny}) {
 		$r = doc2object($doc->{'tinytemplate'}, $doc);
 	} else {
-			$r = doc2object($doc->{'template'}, $doc);
+		$r = doc2object($doc->{'template'}, $doc);
 	}
 	
 	return $r;
@@ -129,45 +58,84 @@ user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}
 
 
 # @category Database Admin
-# Creates a new collection //col// in the database //db// for objects of type //app//://type//. You can optionally set the template object for this collection.
+# Set or update type (and template) information for collection //col// in the database //db//.
 # 
-# Note that you need write access to the type database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the type database for this.
 # 
 # Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
-# @param String app application name for the objects
-# @param String type type name for the objects
+# @option String app application name for the objects
+# @option String type type name for the objects
+# @option String version polymake version, will be set to the current version by default
+# @option String contributor
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
 # @option Core::Object template
 # @option Core::Object tinytemplate template object with minimal set of properties
-user_function set_type_info($, $, $, $, {local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => ""}) {
-	my ($db, $col, $app, $type, $options) = @_;
-	my $local = $options->{local};
-	my $u = $options->{username};
-	my $p = $options->{password};
+user_function set_type_info($, $, {app => "", type => "", version => "", contributor => "", local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => ""}) {
+	my ($db, $col, $options) = @_;
 
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($options);
 		
 	my $tdb = $client->get_database($type_db);
 	my $tcol = $tdb->get_collection("Types");
 
-	my $output	= $tcol->save({'db'=>$db, 'col'=>$col, 'app'=>$app, 'type'=>$type});
-
-	if ($output->{ok}) {
-		print "successfully saved type information for $db.$col\n"
+	my $update = 0;
+	my $h = {};
+	if ($tcol->find({'db'=>$db, 'col'=>$col})->next) {
+		$update = 1;
 	} else {
-		print "an error occurred when trying to save type information for $db.$col\n";
+		$h = {'db'=>$db, 'col'=>$col};
 	}
+
+	if ($options->{app}) {
+		# TODO: check whether old template object matches type and app
+		$h->{app} = $options->{app};
+	}
+	if ($options->{type}) {
+		$h->{type} = $options->{type};
+	}
+	if ($options->{version}) {
+		$h->{version} = $options->{version};
+	} elsif (!$update) {
+		$h->{version} = $Version;
+	}
+	if ($options->{contributor}) {
+		$h->{contributor} = $options->{contributor};
+	}
+
+	if (defined(my $obj = $options->{template})) {
+		my @t = split('::', $obj->type->full_name);
+		$h->{template} = pm2json($obj, "", 1);
+		$h->{app} = $t[0];
+		$h->{type} = $t[1];
+	}
+	if (defined(my $obj = $options->{tinytemplate})) {
+		$h->{tinytemplate} = pm2json($obj, "", 1);
+		# TODO: app and type
+	}
+
 	
-	if (defined($options->{template})) {
-		set_template_object($options->{template}, $db, $col, local=>$options->{local}, username=>$u, password=>$p);
-	}
-	if (defined($options->{tinytemplate})) {
-		set_template_object($options->{tinytemplate}, $db, $col, local=>$options->{local}, username=>$u, password=>$p, tiny=>1);
-	}
+	if ($update) {
+		my $output = $tcol->update($search, $h);
+
+		if ($output->{ok}) {
+			print "successfully updated type information for $db.$col\n"
+		} else {
+			print "an error occurred when trying to update type information for $db.$col\n";
+		}
 	
+	} else {
+		my $output = $tcol->save($h);
+
+		if ($output->{ok}) {
+			print "successfully saved type information for $db.$col\n";
+		} else {
+			print "an error occurred when trying to save type information for $db.$col\n";
+		}
+	}
+		
 	undef $client;
 }
