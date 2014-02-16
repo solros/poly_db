@@ -48,7 +48,7 @@ function get_credentials {
 # @category Database Write Access
 # Adds an object //obj// to the collection //col// in the database //db//.
 # 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this.
 # 
 # Contained in extension ''polyDB''.
 # @param Core::Object obj
@@ -59,8 +59,8 @@ function get_credentials {
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template set to 1 to match properties with a template object. 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (implies use_template => 1)
+# @option Bool use_template set to 1 to match properties with a template object (implies use_template => 1) 
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @option MongoClient client
 # @return String
@@ -94,7 +94,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @category Database Write Access
 # Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this.
 # 
 # Contained in extension ''polyDB''.
 # @param String file polymake object stored in a file
@@ -107,7 +107,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @option String password
 # @option Bool use_template set to 1 to match properties with a template object. 
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
-# @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
 user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
@@ -143,7 +143,7 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option String username
 # @option String password
 # @option Bool use_template set to 1 to match properties with a template object. 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose print database output
 # @option MongoClient client
