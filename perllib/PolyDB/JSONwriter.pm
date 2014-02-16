@@ -40,14 +40,17 @@ sub print {
 sub ret {
 	my $self = shift;
 	my $string = $self->[0];
+	
 	# some cosmetic changes -> TODO: not very elegant
-	$string =~ s/\,\s*\,/, /g;
-	$string =~ s/\]\,\s*\]/]]/g;
-	$string =~ s/}\,\s*}/}}/g;
-	$string =~ s/\,\s*}/}/g;
-	$string =~ s/\,\s*\]/]/g;
-		
+	$string =~ s/\,\s*\,/, /g; 		# remove double commas (, , -> ,)
+	$string =~ s/\]\,\s*\]/]]/g;	# remove commas at the end (], ] -> ]])
+	$string =~ s/}\,\s*}/}}/g;		# s. a. (}, } -> }})
+	$string =~ s/\,\s*}/}/g;		# s. a. (, } -> })
+	$string =~ s/\,\s*\]/]/g;		# s. a. (, ] -> ])
+	
+	# make arrays with ":" into subobjects - (they occur for sparse types) 
 	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{\1}@gx;
+	
 	return $string;
 }
 
@@ -127,8 +130,8 @@ sub new {
 		}
 
 		else {
-			push @elementstack, "quoted-".$name;
-			$output->print($name . " : \"");
+			push @elementstack, $name;
+			$output->print($name . " : ");
 		}
 	};
 	
@@ -154,7 +157,6 @@ sub new {
 		
 		elsif ($name eq "e" or $name eq "t") {
 			;
-			#$output->print("");
 		}
 				
 		elsif ($name eq "object") {
@@ -164,17 +166,14 @@ sub new {
 		if ($curr eq "property-with-type") {
 			$output->print("}");
 		}
-		elsif ($curr =~ m/quoted-/) {
-			$output->print("\"");
-		}
-		
+
 		$output->print(", ");		
 	};
 
 	my $characters = sub {
 		my $chars = shift;
 		my $type = $elementstack[-1];
-		if ($type eq "v") {
+		if ($type eq "v") { # quote all entries (this works also for rationals)
 			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} 
 		elsif ($type eq "t") {
@@ -199,6 +198,10 @@ sub new {
 	return bless $self, $class;
 }
 
+# utility function that takes some value and brings it into the correct form for db insertion:
+# true/false -> 0/1
+# string -> "string"
+# number -> number
 sub value {
 	my $val = shift;
 	$val =~ s/true/1/g;
