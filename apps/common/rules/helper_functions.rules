@@ -152,7 +152,7 @@ function generate_id {
 }
 
 
-# generates a hash containing local, username and password from a possible larger one
+# generates a hash containing local, username and password from a possibly larger one
 function lup {
 	my $o = shift;
 	my $r = {};

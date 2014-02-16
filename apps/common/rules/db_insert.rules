@@ -60,36 +60,40 @@ function get_credentials {
 # @option String username
 # @option String password
 # @option Bool use_template set to 1 to match properties with a template object. 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (implies use_template => 1)
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef}){
+user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}){
 	my ($obj, $db, $col, $options) = @_;
- 	
- 	my $local = $options->{local};
- 	my $u = $options->{username};
- 	my $p = $options->{password};
-	my $nonew = $options->{nonew};
-	
+ 		
 	# get client if not given by the options
 	my $client;
 	unless (defined($client = $options->{client})) {
-		$client = get_client($local, $u, $p);
+		$client = get_client($options);
+	}
+	
+	my $rem_props;
+	unless (defined($rem_props = $options->{rem_props})) {
+		$rem_props = ["database","collection"];
+		if (my $type = get_type($client, $db, $col)) {
+			#push @$rem_props, ("version", "contributor", "type", "app");
+			push @$rem_props, keys %$type;
+		}
 	}
 
 	# get template object if not given by the options
-	my $temp;
-	if ($options->{use_template}) {
-		unless (defined($temp  = $options->{template})) {
-			$temp = get_template_object($db, $col, local => $local, client => $client);
+	if ($options->{use_template} or defined(my $temp = $options->{template})) {
+		unless (defined($temp)) {
+			$temp = get_template_object($db, $col, local => $options->{local}, client => $client);
 		}
-		copy_properties($obj, $temp, nonew=>$nonew);
+		copy_properties($obj, $temp, nonew => $options->{nonew});
 	}
 	
 	my $collection = get_collection($client, $db, $col);
 		
-	my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}});
+	my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
+	
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -114,7 +118,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects
 # @option MongoClient client
 # @return String
-user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef}) {
+user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
@@ -151,25 +155,31 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose print database output
 # @option MongoClient client
-user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef}){
+user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
 	my ($files, $db_name, $collection, $options) = @_;
-	my $local = $options->{local};
-	my $nonew = $options->{nonew};
-	my $u = $options->{username};
-	my $p = $options->{password};
 	
 	my @files = @$files;
 	
 	# get client if not given by the options
 	my $client;
 	unless (defined($client = $options->{client})) {
-		$client = get_client($local, $u, $p);
+		$client = get_client($options);
 	}
 
 	# get template object if needed
 	if ($options->{use_template}){
-		my $temp = get_template_object($db_name, $collection, local => $local, client => $client);
+		my $temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
 	}
+
+	my $rem_props;
+	unless (defined($rem_props = $options->{rem_props})) {
+		$rem_props = ["database","collection"];
+		if (my $type = get_type($client, $db, $col)) {
+			#push @$rem_props, ("version", "contributor", "type", "app");
+			push @$rem_props, keys %$type;
+		}
+	}
+
 
 	# get first object
 	my $fst = User::load($files[0]);
@@ -179,7 +189,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 		my $obj = User::load($_);
 		$obj->CONE_DIM;
 		if ($options->{use_template}) {
-			copy_properties($obj, $temp, nonew=>$nonew);
+			copy_properties($obj, $temp, nonew => $options->{nonew});
 		}
 	}
 
@@ -201,7 +211,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}});
+		my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
 
