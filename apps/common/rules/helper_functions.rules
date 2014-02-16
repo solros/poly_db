@@ -75,7 +75,7 @@ sub doc2object_internal {
 	delete $doc->{'version'};
 	delete $doc->{'description'};
 	
-	return $obj_type->construct->($cursor->{'_id'}, %$cursor, database=>$db_name, collection=>$col_name);
+	return $obj_type->construct->($doc->{'_id'}, %$doc, database=>$db_name, collection=>$col_name);
 
 }
 
