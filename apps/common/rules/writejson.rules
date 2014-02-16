@@ -39,7 +39,11 @@ sub write_json {
 }
 
 sub pm2json {
-	my ($object, $id, $temp, $db_props) = @_; 
+	my ($object, $id, $temp, $add_props, $rem_props) = @_;
+	# add_props contains database properties
+	# rem_props contains properties that are stored collection wide in the type db and are not written to the database
+	# temp should be set to 1 for a template object
+	
 	my $json = write_json($object);
 	$json =~ s/\s\:\s/ => /g;
 	my $r = eval($json);
@@ -47,9 +51,13 @@ sub pm2json {
 	unless ($temp) {
 		$r->{_id} = $id;
 		$r->{date} = get_date();
-		foreach (keys %$db_props) {
-			$r->{$_} = $db_props->{$_};
-		}
+	}
+	
+	foreach (keys %$add_props) {
+		$r->{$_} = $add_props->{$_};
+	}
+	foreach (@$rem_props) {
+		delete $r->{$_};
 	}
 	
 	return $r;
