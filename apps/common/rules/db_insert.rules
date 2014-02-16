@@ -217,3 +217,34 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	}
 	print "\n";
 }
+
+
+
+# @category Database Write Access
+# Removes the object with a given //id// from the collection //col// in the database //db//.
+# 
+# Note that you need write access to the database for this.
+# 
+# Contained in extension ''polyDB''.
+# @param String id
+# @param String db database name
+# @param String col collection name
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option MongoClient client
+# @return String
+user_function db_remove ($, $, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
+	my ($id, $db_name, $col_name, $options) = @_;
+
+	# get client if not given by the options
+	my $client;
+	unless (defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+
+	my $col = get_collection($client, $db_name, $col_name);
+	
+	return $col->remove({'_id' => $id});
+}
+
