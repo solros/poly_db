@@ -21,7 +21,7 @@ CREDIT polyDB
 
 # @category Utilities
 # Takes an [[Core::Object|Object]] //obj// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
-# (This is just a quick and dirty solution for this until I make a fast and efficient one in c++ ;-).)
+# (This is just a quick and dirty solution for this until I make a fast and efficient one.)
 # 
 # There might be some problems since polymake does not allow deletion of non-redundant properties. This in particular poses a problem if //obj// was retrieved from a database.
 # 
@@ -33,7 +33,6 @@ user_function copy_properties ($, $, {nonew => 0}) {
 	my ($o, $t, $options) = @_;
 
 	my $nonew = $options->{nonew};
-	my $nosched = 1;
 
 	# TODO: check that $o and $t are of compatible types
 
@@ -43,28 +42,20 @@ user_function copy_properties ($, $, {nonew => 0}) {
 #	my @ap = $t->list_attachments;
 	
 	unless ($nonew) {
-		if ($nosched) {
-			foreach($t->list_properties){
-#				print "$_ ";
-				my $s = $o->get_schedule($_);
-#				print ". ";
-				$s->apply($o);
-#				print ".  ";
-			}
-		} else {
-			unless (defined($sched)) {
-				$sched = $o->get_schedule($t->list_properties);
-			}
-			$sched->apply($o);
-		}
+		# compute missing properties (one by one)
+		foreach($t->list_properties){
+			my $s = $o->get_schedule($_);
+			$s->apply($o);
+			# TODO: subobjects!
 	}
+	
 	
 	my @q = $o->list_properties;
 	
-	my $sp = new Set<String>(@p, "_id", "contributor", "date");
-	my $sq = new Set<String>(@q);
+	my $sp = new Set<String>(@p, "_id", "contributor", "date", "database", "collection", "version");		# properties of temp + db properties
+	my $sq = new Set<String>(@q); 	# properties of o
 	
-	my $s = $sq-$sp;
+	my $s = $sq-$sp;	# surplus properties that are to be removed
 	
 	foreach (@$s) {
 		$o->remove($_, 1);
