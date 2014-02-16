@@ -52,6 +52,7 @@ sub pm2json {
 		$r->{$_} = $add_props->{$_};
 	}
 	foreach (@$rem_props) {
+		next if $_ eq "_id";
 		delete $r->{$_};
 	}
 	unless ($temp) {
