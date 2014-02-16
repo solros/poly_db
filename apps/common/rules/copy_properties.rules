@@ -47,6 +47,7 @@ user_function copy_properties ($, $, {nonew => 0}) {
 			my $s = $o->get_schedule($_);
 			$s->apply($o);
 			# TODO: subobjects!
+		}
 	}
 	
 	
