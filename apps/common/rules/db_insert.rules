@@ -73,13 +73,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 		$client = get_client($options);
 	}
 	
-	my $rem_props;
-	unless (defined($rem_props = $options->{rem_props})) {
-		$rem_props = ["database","collection"];
-		if (my $type = get_type($client, $db, $col)) {
-			push @$rem_props, keys %$type;
-		}
-	}
+	my $rem_props = remove_props($db, $col, $client, $options);
 
 	# get template object if not given by the options
 	if ($options->{use_template} or defined(my $temp = $options->{template})) {
