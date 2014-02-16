@@ -1,52 +1,55 @@
 # Copyright (c) 2013-2014 Silke Horn
 # http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_db.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_db is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_db is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
 
 # converts a polymake object to json (for db insertion)
-# if temp is set db properties such as _id, date, contributor are not added
+# if temp (for template) is set to 1 db properties such as _id, date, contributor are not added
 sub pm2json {
 	my ($p, $id, $contrib, $temp) = @_;
 	
 	my $c = $p->contents;
 	my $r = {};
-	
-	unless ($temp) {
-		$r->{'_id'} = $id;
-		$r->{'contributor'} = $contrib;
-		$r->{'date'} = get_date();
-	}
-	
+		
 	foreach my $pv (@$c) {
 		if (defined($pv)) {
-#			print $pv->property->qual_name."\n";
-#			print $pv->value."\n";
+			if ($pv->property->qual_name == "database" || $pv->property->qual_name == "collection") {next;}	# skip database and collection property
 			my $x = to_json($pv->value, $pv->property->type->mangled_name); 
 			$r->{$pv->property->qual_name} = $x;
 		}
 	}
+
+	unless ($temp) {
+		if ($id) {
+			$r->{'_id'} = $id;
+		}
+		$r->{'contributor'} = $contrib;
+		$r->{'date'} = get_date();
+	}
+
 	return $r;
 }
 
 
 
 # converts a polymake property to json
+# TODO: take care of subobjects...
 sub to_json {
 	my $p = shift;
 	my $mtype = shift;

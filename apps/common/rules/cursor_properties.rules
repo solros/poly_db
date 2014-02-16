@@ -1,0 +1,115 @@
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
+# 
+# This file is part of the polymake extension polyDB.
+# 
+# polyDB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# polyDB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+CREDIT polyDB
+
+use MongoDB;
+use MongoDB::OID;
+
+
+# @topic category objects/DatabaseCursor/properties/Basic
+# These are basic properties of the DatabaseCursor. In this category you find everything you need to access the polymake database.
+
+# @topic category objects/DatabaseCursor/properties/Advanced
+# These are properties of the DatabaseCursor that are needed if you want to access some other database server. (Note that some things may not be implemented yet.)
+
+# @topic category objects/DatabaseCursor/properties/Internal
+# These properties are computed automatically and only for internal use. You can safely ignore them.
+
+
+object DatabaseCursor {
+
+	# @category Advanced
+	# The hostname of the database, default 'polymake.org'. (Functionality not implemented yet.)
+	property HOST : String;
+	
+	
+	# @category Advanced
+	# The port of the database, default 27017.  (Functionality not implemented yet.)
+	property PORT : Int;
+	
+	# @category Advanced
+	# The name of the authentication database, default 'admin'.  (Functionality not implemented yet.)
+	property AUTH_DB : String;
+
+	# @category Advanced
+	# The name of the type database, default 'pm'.  (Functionality not implemented yet.)
+	property TYPE_DB : String;
+
+	# @category Basic
+	# Your user name, default 'polymake'.
+	property USER_NAME : String;
+
+	# @category Basic
+	# Your password, default 'database'.
+	property PASSWORD : String;
+
+	# @category Basic
+	# The name of the database the cursor accesses. Needed for initialization.
+	# 
+	# See [[http://www.polymake.org/doku.php/data|here]] or [[get_db_info]] for available databases.
+	property DATABASE : String;
+	
+	# @category Basic
+	# The name of the collection the cursor accesses. Needed for initialization.
+	# 
+	# See [[http://www.polymake.org/doku.php/data|here]] or [[get_db_info]] for available databases.
+	property COLLECTION : String;
+
+
+	# @category Basic
+	# The query. 
+	# 
+	# See [[http://www.polymake.org/doku.php/tutorial/poly_db_tutorial|here]] for an introduction.
+	property QUERY : HASH;
+
+
+	# @category Internal
+	# The type of the objects in the [[COLLECTION]]. Will be created automatically.
+	property TYPE : String;
+	
+	# @category Internal
+	# The application of the objects in the [[COLLECTION]]. Will be created automatically.
+	property APP : String;
+
+	# @category Basic
+	# The number of objects matching [[QUERY]].
+	property COUNT : Int;
+
+	# @category Advanced
+	# Set this to 1 if you want to access a local database server. (Functionality not implemented yet.)
+	property LOCAL : Bool;
+
+
+	# @category Internal
+	# The actual MongoCursor. The "heart" of this object. Will be created automatically.
+	property CURSOR : SCALAR;
+
+
+	# @category Basic
+	# Specify how you want to sort the objects. Use 1 for ascending and -1 for descending order.
+	# 
+	# E.g. if you want to sort ascending by [[_id]] do SORT_BY => {"_id"=> 1}, if you want to sort descending by number of vertices do SORT_BY => {"N_VERTICES" => -1}.
+	property SORT_BY : HASH;
+
+
+	# @category Basic
+	# Skip the first elements, default 0.
+	property SKIP : Int;
+
+}

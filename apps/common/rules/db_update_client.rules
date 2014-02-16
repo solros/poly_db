@@ -1,28 +1,28 @@
 # Copyright (c) 2013-2014 Silke Horn
 # http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_db.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_db is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_db is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-CREDIT poly_db
+CREDIT polyDB
 
 
 use Sys::Hostname;
 use DateTime;
 
-# @category Database
+# @category Database Admin
 # Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection.
 # 
@@ -44,7 +44,7 @@ user_function db_do_package ({local => 0, username => $db_user, password => $db_
 	db_finish_package("LatticePolytopesR", "SmoothReflexive", $n, lup($options), client => $options->{client})	
 }
 
-# @category Database
+# @category Database Admin
 # Perpetually works on the database until it is killed.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
@@ -68,13 +68,13 @@ user_function db_work_on_packages ({local => 0, username => $db_user, password =
 	}
 }
 
-# @category Database
+# @category Database Admin
 # Updates a pack of objects in the collection SmoothReflexive in the database LatticePolytopesR. 
 # Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_db''.
+# Contained in extension ''polyDB''.
 # @param Int package
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
@@ -127,7 +127,7 @@ function db_batch_update_smooth_reflexive($, {local => 0, username => $db_user, 
 }
 
 
-# @category Database
+# @category Database Admin
 # Finds a packages that is neither done nor active. Write to the database that this package is now active and record starttime and host.
 # @param String db
 # @param String col
@@ -187,7 +187,7 @@ function db_finish_package($, $, $, {local => 0, username => $db_user, password 
 	}
 }
 
-# @category Database
+# @category Database Admin
 # Subdivides all objects into packages that are to be updated. (E.g. by computing missing properties.)
 # 
 # Contained in extension ''poly_database''.
@@ -218,7 +218,7 @@ user_function create_packages ($, $, {local => 0, username => $db_user, password
 
 
 
-# @category Database
+# @category Database Admin
 # Prints all active packages in the collection //col// in database //db// with start time and host computer.
 # 
 # Contained in extension ''poly_database''.
@@ -265,7 +265,7 @@ user_function show_active_packages ($, $, {local => 0, username => $db_user, pas
 	undef $client;
 }
 
-# @category Database
+# @category Database Admin
 # Resets all active packages in the collection //col// in database //db//. Only use this if you are sure that they are no longer being processed.
 # 
 # Contained in extension ''poly_database''.

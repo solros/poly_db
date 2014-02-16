@@ -1,4 +1,4 @@
-poly_db
+polyDB
 =======
 
 This is an extension for polymake that allows access to the online polymake polytope database on the polymake server. (See polymake.org or solros.de/polymake/poly_db for more details.)

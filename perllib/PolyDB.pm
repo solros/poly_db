@@ -17,8 +17,6 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# @category Basic Types
-# Corresponds to the perl hash.
-# 
-# Contained in extension ''polyDB''.
-declare property_type HASH : c++ (special => 'perl::Hash');
+require PolyDB::JSONwriter;
+
+1;

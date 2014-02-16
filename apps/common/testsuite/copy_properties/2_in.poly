@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="52ed85c6"?>
+
+<object name="F.4D.0000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="CONE_DIM" value="5" />
+  <property name="VERTICES">
+    <m>
+      <v>1 1 0 -1 1</v>
+      <v>1 1 1 1 1</v>
+      <v>1 1 1 0 1</v>
+      <v>1 -3 1 0 1</v>
+      <v>1 0 1 1 1</v>
+      <v>1 1 1 0 -3</v>
+      <v>1 1 1 1 0</v>
+      <v>1 1 0 1 1</v>
+      <v>1 1 -6 -1 1</v>
+      <v>1 -5 0 -1 1</v>
+      <v>1 1 0 -1 -5</v>
+    </m>
+  </property>
+  <property name="N_VERTICES" value="11" />
+  <property name="FEASIBLE" value="true" />
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+</object>

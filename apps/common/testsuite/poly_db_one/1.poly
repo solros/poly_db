@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="52ffbff3"?>
+
+<object name="F.6D.0000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="H_STAR_VECTOR">
+    <v>1 3464 56204 128329 56204 3464 1</v>
+  </property>
+  <property name="REFLEXIVE" value="true" />
+  <property name="CONE_DIM" value="7" />
+  <property name="date" value="2013-08-14" />
+  <property name="_id" value="F.6D.0000" />
+  <property name="LATTICE_CODEGREE" value="1" />
+  <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+  <property name="SMOOTH" value="true" />
+  <property name="N_LATTICE_POINTS" value="3471" />
+  <property name="FACET_WIDTHS">
+    <v>10 11 10 10 2 10 10 2 10</v>
+  </property>
+  <property name="VERTICES">
+    <m>
+      <v>1 1 1 1 0 -1 1</v>
+      <v>1 1 1 1 1 1 1</v>
+      <v>1 1 1 1 1 0 1</v>
+      <v>1 -5 1 1 1 0 1</v>
+      <v>1 0 1 1 1 1 1</v>
+      <v>1 1 -5 1 1 0 1</v>
+      <v>1 1 0 1 1 1 1</v>
+      <v>1 1 1 -5 1 0 1</v>
+      <v>1 1 1 0 1 1 1</v>
+      <v>1 1 1 1 1 0 -5</v>
+      <v>1 1 1 1 1 1 0</v>
+      <v>1 1 1 1 0 1 1</v>
+      <v>1 1 1 1 -10 -1 1</v>
+      <v>1 -9 1 1 0 -1 1</v>
+      <v>1 1 -9 1 0 -1 1</v>
+      <v>1 1 1 -9 0 -1 1</v>
+      <v>1 1 1 1 0 -1 -9</v>
+    </m>
+  </property>
+  <property name="FACETS">
+    <m>
+      <v>1 0 0 0 -1 1 0</v>
+      <v>1 0 0 0 -1 0 0</v>
+      <v>1 0 -1 0 0 0 0</v>
+      <v>1 -1 0 0 0 0 0</v>
+      <v>1 0 0 0 0 1 0</v>
+      <v>1 0 0 -1 0 0 0</v>
+      <v>1 0 0 0 0 0 -1</v>
+      <v>1 0 0 0 0 -1 0</v>
+      <v>1 1 1 1 1 -5 1</v>
+    </m>
+  </property>
+  <property name="CENTROID">
+    <v>1 -752334/1733669 -752334/1733669 -752334/1733669 -38670/35381 -1131300/1733669 -752334/1733669</v>
+  </property>
+  <property name="N_VERTICES" value="17" />
+  <property name="contributor" value="'Andreas Paffenholz'" />
+  <property name="LATTICE_DEGREE" value="6" />
+  <property name="LATTICE_VOLUME" value="247667" />
+  <property name="EHRHART_POLYNOMIAL_COEFF">
+    <v>1 237/10 68899/360 32609/48 172747/144 247667/240 247667/720</v>
+  </property>
+  <property name="N_BOUNDARY_LATTICE_POINTS" value="3470" />
+  <property name="ESSENTIALLY_GENERIC" value="false" />
+  <property name="VERY_AMPLE" value="true" />
+  <property name="F_VECTOR">
+    <v>17 51 75 65 33 9</v>
+  </property>
+  <property name="GORENSTEIN" value="true" />
+  <property name="database" value="LatticePolytopes" />
+  <property name="collection" value="SmoothReflexive" />
+  <property name="FEASIBLE" value="true" />
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="AFFINE_HULL">
+    <m />
+  </property>
+</object>

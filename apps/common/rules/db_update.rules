@@ -1,30 +1,30 @@
 # Copyright (c) 2013-2014 Silke Horn
 # http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_db.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_db is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_db is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-CREDIT poly_db
+CREDIT polyDB
 
 
-# @category Database
+# @category Database Write Access
 # Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_db''.
+# Contained in extension ''polyDB''.
 # @param Array obj_list either an Array<[[Core::Object]]> of polymake objects or an Array<String> of [[_id|IDs]]
 # @param String db database name
 # @param String col collection name
@@ -38,12 +38,6 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 	my $p = $options->{password};
 	my $local = $options->{local};
 	
-	unless ($u || $local) {
-		my @cred = get_credentials;
-		$u = $cred[0];
-		$p = $cred[1];
-	}
-
 	my $by_id;
 	if ($obj_list->type->full_name eq "Array<String>") {
 		$by_id = 1;
@@ -88,12 +82,12 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 }
 
 
-# @category Database
+# @category Database Write Access
 # Updates the object with a given [[_id]] in the collection //col// in the database //db// by matching its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_db''.
+# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param String id
@@ -114,12 +108,12 @@ user_function db_update_id($, $, $, {local => 0, username => $db_user, password 
 }
 
 
-# @category Database
+# @category Database Write Access
 # Updates an object //obj// in the collection //col// in the database //db//. Moreover, it matches its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
 # 
-# Contained in extension ''poly_db''.
+# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param Core::Object obj
@@ -146,13 +140,12 @@ function db_update_one($, $, $, {local => 0, username => $db_user, password => $
 		$contrib = $obj->contributor;	
 	}
 	
-	copy_properties_db($obj, $t, schedule => $options->{schedule}, noschedule => 1);
+	copy_properties($obj, $t, schedule => $options->{schedule}, noschedule => 1);
 	
 	my $client;
 	unless(defined($client = $options->{client})) {
 		$client = get_client($options);	
 	}
 	my $collection = get_collection($client, $db_name, $col_name);
-	
-	return $collection->save(pm2json($obj, $id, $contrib));
+	return $collection->save(pm2json($obj, $id, 0, {contributor => $contrib}));
 }

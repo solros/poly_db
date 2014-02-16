@@ -1,35 +1,71 @@
 # Copyright (c) 2013-2014 Silke Horn
 # http://solros.de/polymake/poly_db
 # 
-# This file is part of the polymake extension poly_db.
+# This file is part of the polymake extension polyDB.
 # 
-# poly_db is free software: you can redistribute it and/or modify
+# polyDB is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# poly_db is distributed in the hope that it will be useful,
+# polyDB is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with poly_db.  If not, see <http://www.gnu.org/licenses/>.
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CREDIT poly_db
+CREDIT polyDB
   Access to the polymake polytope database.
   Copyright by Silke Horn.
   http://solros.de/polymake/poly_db
+
+
+# TODO: relative path...
+use lib "/Volumes/Polaris/poly_database/perllib";
+use PolyDB;
+
+#use lib "/Users/silke/.cpan/build/MongoDB-0.701.4-7VQ1aD/lib";
+
+#use lib "/Users/silke/.cpan/build/boolean-0.30-hRbUto/lib";
+
+#use lib "/Users/silke/.cpan/build/Tie-IxHash-1.23-xw6ZmS/lib";
+
+#use lib "/Library/Perl/5.12/darwin-thread-multi-2level";
+
 
 use MongoDB;
 use MongoDB::OID;
 
 
+
+
+
 # A database cursor. Initialize it with a [[DATABASE]] name, a [[COLLECTION]] name and a [[QUERY]]. You can then iterate over the objects matching the [[QUERY]] with [[next]]. It lazily fetches more objects from the database server. (Note that you have to create a new cursor if you want to start from the beginning.)
 # 
-# Contained in extension ''poly_db''.
+# Contained in extension ''polyDB''.
 declare object DatabaseCursor;
+
+
+# @topic category functions/Database
+# Here you can find the functions to access the polymake database.
+# 
+# Contained in extension ''polyDB''.
+
+# @topic category functions/Database Admin
+# These are administrative functions. You need admin access to the database for these.
+# 
+# This category also contains functions that I want to hide from the public because they are not yet completely presentable.
+# 
+# Contained in extension ''polyDB''.
+
+
+# @topic category functions/Database Write Access
+# These are the functions to insert and update objects. You need write access to the database for these. 
+# 
+# Contained in extension ''polyDB''.
 
 
 
@@ -38,10 +74,12 @@ INCLUDE
 	property_types.rules
 	copy_properties.rules
 	helper_functions.rules
+	writejson.rules
 	templates.rules
-	json.rules
 	db.rules
+	info.rules
+	cursor_properties.rules
+	cursor.rules
 	db_insert.rules
 	db_update.rules
 	db_update_client.rules
-	cursor.rules
