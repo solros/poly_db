@@ -19,11 +19,7 @@
 
 # This is a helper function that transforms a database cursor into an array of polymake objects.
 function cursor2array {
-	my $cursor = shift;
-	my $t = shift;	# type
-	my $db_name = shift;
-	my $col_name = shift;
-	
+	my ($cursor, $t, $db_name, $col_name) = @_;
 	my $size = $cursor->count(1);
 
 	my $app = defined($t) ? $t->{'app'}:$cursor->[0]->{'app'};
@@ -34,14 +30,8 @@ function cursor2array {
 
 	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
-	while (my $p = $cursor->next) {
-		delete $p->{'app'};
-		delete $p->{'type'};
-		delete $p->{'name'};
-		delete $p->{'version'};
-		delete $p->{'description'};
-		
-		$parray->[$i] = $obj_type->construct->($p->{'_id'}, %$p, database=>$db_name, collection=>$col_name);
+	while (my $p = $cursor->next) {		
+		$parray->[$i] = doc2object_internal($p, $db_name, $col_name, $obj_type);
 		++$i;
 	}
 	return $parray;
@@ -62,24 +52,31 @@ function cursor2stringarray {
 
 
 
-# This is a helper function that transforms the database document into an object.
+# This is a helper function that transforms a database document into an object.
 function doc2object {
-	my $cursor = shift;
+	my $doc = shift;
 	my $t = shift;
 	my $db_name = shift;
 	my $col_name = shift;
 	
-	my $app = defined($t) ? $t->{'app'}:$cursor->{'app'};
-	my $type = defined($t) ? $t->{'type'}:$cursor->{'type'};
-
-	delete $cursor->{'app'};
-	delete $cursor->{'type'};
-	delete $cursor->{'name'};
-	delete $cursor->{'version'};
-	delete $cursor->{'description'};
+	my $app = defined($doc->{'app'}) ? $doc->{'app'}:$t->{'app'};
+	my $type = defined($doc->{'type'}) ? $doc->{'type'}:$t->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
+	return doc2object_internal($doc, $db_name, $col_name, $obj_type);
+}
+
+sub doc2object_internal {
+	my ($doc, $db_name, $col_name, $obj_type) = @_; 
+
+	delete $doc->{'app'};
+	delete $doc->{'type'};
+	delete $doc->{'name'};
+	delete $doc->{'version'};
+	delete $doc->{'description'};
+	
 	return $obj_type->construct->($cursor->{'_id'}, %$cursor, database=>$db_name, collection=>$col_name);
+
 }
 
 
