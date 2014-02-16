@@ -49,7 +49,7 @@ sub ret {
 	$string =~ s/\,\s*\]/]/g;		# s. a. (, ] -> ])
 	
 	# make arrays with ":" into subobjects - (they occur for sparse types) 
-	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{\1}@gx;
+	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{$1}@gx;
 	
 	return $string;
 }

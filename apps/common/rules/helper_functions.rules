@@ -158,3 +158,17 @@ function lup {
 	$r->{password}=$o->{password};
 	return $r;
 }
+
+
+
+sub remove_props {
+	my ($db, $col, $client, $options) = @_;
+	my $rem_props;
+	unless (defined($rem_props = $options->{rem_props})) {
+		$rem_props = ["database","collection"];
+		if (my $type = get_type($client, $db, $col)) {
+			push @$rem_props, keys %$type;
+		}
+	}
+	return $rem_props;
+}
