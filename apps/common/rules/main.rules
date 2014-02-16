@@ -23,8 +23,6 @@ CREDIT polyDB
   http://solros.de/polymake/poly_db
 
 
-# TODO: relative path...
-use lib "/Volumes/Polaris/poly_database/perllib";
 use PolyDB;
 
 #use lib "/Users/silke/.cpan/build/MongoDB-0.701.4-7VQ1aD/lib";
