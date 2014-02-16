@@ -153,7 +153,8 @@ sub new {
 		}
 		
 		elsif ($name eq "e" or $name eq "t") {
-			$output->print("");
+			;
+			#$output->print("");
 		}
 				
 		elsif ($name eq "object") {
@@ -171,10 +172,10 @@ sub new {
 		my $chars = shift;
 		my $type = $elementstack[-1];
 		if ($type eq "v") {
-			$output->print(join(", ", split(/ /, $chars)));		
+			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} 
 		elsif ($type eq "t") {
-			$output->print("[" . join(", ", split(/ /, $chars)) . "]");		
+			$output->print("[\"" . join("\", \"", split(/ /, $chars)) . "\"]");		
 		} else {
 			$output->print($chars);
 		}
