@@ -125,7 +125,7 @@ user_function db_update_id($, $, $, {local => 0, username => $db_user, password 
 # @option Core::Object template
 # @option MongoClient client
 # @return String
-function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef}) {
+function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef, rem_props => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 
@@ -139,13 +139,15 @@ function db_update_one($, $, $, {local => 0, username => $db_user, password => $
 	unless ($contrib = $options->{contrib}) {
 		$contrib = $obj->contributor;	
 	}
+
+	my $rem_props = remove_props($db_name, $col_name, $client, $options);
 	
-	copy_properties($obj, $t, schedule => $options->{schedule}, noschedule => 1);
+	copy_properties($obj, $t);
 	
 	my $client;
 	unless(defined($client = $options->{client})) {
 		$client = get_client($options);	
 	}
 	my $collection = get_collection($client, $db_name, $col_name);
-	return $collection->save(pm2json($obj, $id, 0, {contributor => $contrib}));
+	return $collection->save(pm2json($obj, $id, 0, {contributor => $contrib}, $rem_props));
 }

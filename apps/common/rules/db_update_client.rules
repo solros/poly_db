@@ -62,9 +62,9 @@ user_function db_work_on_packages ({local => 0, username => $db_user, password =
 	
 	while (my $next = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options), client => $client)) {
 	
-		db_batch_update_smooth_reflexive($next, $options, client => $client);
+		db_batch_update_smooth_reflexive($next-1, $options, client => $client);
 		
-		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next, lup($options), client => $client);
+		db_finish_package("LatticePolytopesR", "SmoothReflexive", $next-1, lup($options), client => $client);
 	}
 }
 
@@ -146,6 +146,7 @@ function db_get_package($, $, {local => 0, username => $db_user, password => $db
 	my $col = get_collection($client, $db_name, $col_name."_status");
 	
 	my $package = $col->find_one({'done'=>0, 'active'=>0});
+	unless ($package) { croak("nothing to be done\n");}
 	my $id = $package->{_id};
 
 	$col->update({'_id' => $id},{'$set' => {'active'=>1} });
@@ -155,7 +156,7 @@ function db_get_package($, $, {local => 0, username => $db_user, password => $db
 	
 	print hostname() . " started working on package $id at " . DateTime->now . "\n";
 	
-	return $id;
+	return $id+1;
 }
 
 # Writes to the database that package //id// is finished and records end time.
@@ -251,9 +252,9 @@ user_function show_active_packages ($, $, {local => 0, username => $db_user, pas
 				if ($options->{print_reset_code}) { 
 					print "reset with\ndb_finish_package('$db_name','$col_name',".$p->{_id}.",username=>'".$options->{username}."',password=>'".$options->{password}."',reset=>1);"."\n\n";
 				}
+				print "\n";
 			}
 		}
-		print "\n";
 	}
 	print "\nnumber of active processes: ".$active->count."\n";
 	print "\npackages by host: \n";
