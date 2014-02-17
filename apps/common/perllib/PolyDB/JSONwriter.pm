@@ -89,6 +89,10 @@ sub new {
 				my @t = split('::', $atts{type});
 				$output->print("type : \"" . $t[1] . "\", app : \"" . $t[0] . "\", ");
 			}
+			if (defined($atts{ext})) {
+				$output->print("ext : \"" . $atts{ext} . "\", ");
+			}
+			
 		}
 		
 		elsif ($name eq "property") {
