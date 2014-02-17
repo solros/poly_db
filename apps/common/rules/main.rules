@@ -17,10 +17,6 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CREDIT polyDB
-  Access to the polymake polytope database.
-  Copyright by Silke Horn.
-  http://solros.de/polymake/poly_db
 
 
 use PolyDB;

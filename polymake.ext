@@ -3,6 +3,7 @@
 URI http://solros.de/polymake/poly_db#0.1
 
 
-#CREDIT polyDB
-#Access to the polymake polytope database.
-#Copyright by Silke Horn.
+CREDIT
+  Access to the polymake polytope database.
+  (c) 2013-14 Silke Horn
+#  http://solros.de/polymake/poly_db
