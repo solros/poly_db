@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-
-require PolyDB::JSONwriter;
+use PolyDB::Client;
+use PolyDB::JSON;
+use PolyDB::JSONwriter;
+use PolyDB::Polymake_JSON_Conversion;
 
 1;

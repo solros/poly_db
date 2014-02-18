@@ -18,8 +18,15 @@ do {
 	save($out2, "2out.poly");
 
 
+	db_insert_from_file("3.poly", "Test", $col_name, id => "cube", contrib => "test");
+	my $o3 = poly_db_one({"_id" => "cube"}, db => "Test", collection => $col_name);
+
+	my $count3i = poly_db_count({}, db => "Test", collection => $col_name);
+
+
 	db_remove("test1", "Test", $col_name);
 	db_remove("test2", "Test", $col_name);
+	db_remove("cube", "Test", $col_name);
 	my $count1r = poly_db_count({}, db => "Test", collection => $col_name);
 
 	$p1->dont_save;
@@ -30,6 +37,10 @@ do {
 	compare_object( '1out.poly', $o1, ignore => ["date", "collection"] )
 		and
 	compare_object( '2out.poly', $o2 )
+		and
+	compare_object( '3out.poly', $o3, ignore => ["date", "collection"] )
+		and
+	compare_values( '3-insert', 3, $count3i )
 		and
 	compare_values( 'remove', 0, $count1r );
 }

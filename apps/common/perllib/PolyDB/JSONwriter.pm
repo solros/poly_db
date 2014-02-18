@@ -42,11 +42,11 @@ sub ret {
 	my $string = $self->[0];
 	
 	# some cosmetic changes -> TODO: not very elegant
-	$string =~ s/\,\s*\,/, /g; 		# remove double commas (, , -> ,)
-	$string =~ s/\]\,\s*\]/]]/g;	# remove commas at the end (], ] -> ]])
-	$string =~ s/}\,\s*}/}}/g;		# s. a. (}, } -> }})
-	$string =~ s/\,\s*}/}/g;		# s. a. (, } -> })
-	$string =~ s/\,\s*\]/]/g;		# s. a. (, ] -> ])
+	$string =~ s/\,\s*\,/, /g; 		# remove double commas: , , -> ,
+	$string =~ s/\]\,\s*\]/]]/g;	# remove commas at the end: ], ] -> ]]
+	$string =~ s/}\,\s*}/}}/g;		# s. a.: }, } -> }}
+	$string =~ s/\,\s*}/}/g;		# s. a.: , } -> }
+	$string =~ s/\,\s*\]/]/g;		# s. a.: , ] -> ]
 	
 	# make arrays with ":" into subobjects - (they occur for sparse types) 
 	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{$1}@gx;
@@ -130,7 +130,10 @@ sub new {
 		elsif ($name eq "t") {
 			push @elementstack, $name;
 			my %atts = @_;
-			$output->print($atts{i} . " : ");
+			if (defined($atts{i})) {
+				$output->print($atts{i} . " : ");
+			}
+			$output->print("[");
 		}
 
 		else {
@@ -141,12 +144,18 @@ sub new {
 	
 	my $emptyTag = sub {
 		my $name = shift;
+		my %atts = @_;
 		if ($name eq "property") {
-			my %atts = @_;
 			my $val = value($atts{value});
 			$output->print($atts{name} . " : " . $val);
 		} 
 		elsif ($name eq "v" or $name eq "m") {
+			if ($elementstack[-1] eq "property-with-type") {
+				if (defined($atts{cols})) {
+					$output->print("cols : " . $atts{cols} . ", ");
+				}
+				$output->print("value : ");
+			}
 			$output->print("[]");
 		}
 		$output->print(", ");
@@ -159,10 +168,14 @@ sub new {
 			$output->print("]");
 		}
 		
-		elsif ($name eq "e" or $name eq "t") {
+		elsif ($name eq "e") {
 			;
 		}
 				
+		elsif ($name eq "t") {
+			$output->print("]");
+		}
+
 		elsif ($name eq "object") {
 			$output->print("}");
 		}
@@ -181,7 +194,7 @@ sub new {
 			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} 
 		elsif ($type eq "t") {
-			$output->print("[" . join(", ", map { qq/"$_"/ } split(/ /, $chars)) . "]");		
+			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} else {
 			$output->print(value($chars));
 		}
@@ -211,7 +224,7 @@ sub value {
 	$val =~ s/true/1/g;
 	$val =~ s/false/0/g;
 
-	if (!looks_like_number($val)) {
+	if (!looks_like_number($val) && !$val =~ m/^".*"$/) {
 		$val = "\"" . $val . "\"";
 	}
 	return $val;
