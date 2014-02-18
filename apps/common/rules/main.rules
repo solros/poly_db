@@ -67,9 +67,6 @@ declare object DatabaseCursor;
 INCLUDE
 	property_types.rules
 	copy_properties.rules
-	helper_functions.rules
-	writejson.rules
-	json2pm.rules
 	templates.rules
 	db.rules
 	info.rules

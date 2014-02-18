@@ -16,8 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
+
+package PolyDB::JSON;
+
 use PolyDB::JSONwriter;
 
+require Exporter;
+use vars qw(@ISA @EXPORT @EXPORT_OK);
+
+@ISA = qw(Exporter);
+@EXPORT = qw(write_json);
+
+
+# This functions transforms a given object into json code.
+# (It follows the lead of Polymake::Core::XMLwriter::save.)
 sub write_json {
 	my ($object)=@_;
 	my $writer=new PolyDB::JSONwriter;
@@ -39,9 +51,9 @@ sub write_json {
 }
 
 
-# Polymake::Core::XMLwriter::type_attr produces the type attribute needed for some properties (e.g. type => SparseMatrix, etc)
 
-
+# This functions writes the json code for a subobject.
+# (It follows the lead of Polymake::Core::XMLwriter::write_subobject.)
 sub write_subobject {
 	my ($writer, $object, $parent, $expected_type)=@_;
 	my $type=$object->type;
@@ -58,3 +70,10 @@ sub write_subobject {
    Polymake::Core::XMLwriter::write_object_contents($writer,$object);
    $writer->endTag("object");
 }
+
+
+# Polymake::Core::XMLwriter::type_attr produces the type attribute needed for some properties (e.g. type => SparseMatrix, etc)
+
+
+1;
+

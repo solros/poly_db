@@ -17,6 +17,17 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
+package PolyDB::Polymake_JSON_Conversion;
+use PolyDB::JSON;
+
+require Exporter;
+use vars qw(@ISA @EXPORT @EXPORT_OK);
+
+@ISA = qw(Exporter);
+@EXPORT = qw(doc2object cursor2array cursor2stringarray pm2json);
+@EXPORT_OK = qw(json2object);
+
+
 # This function takes a json hash and returns one that can be fed into a polymake object.
 sub json2pm {
 	my %j = @_;
@@ -24,6 +35,8 @@ sub json2pm {
 	return %r;
 }
 
+
+# This function converts one entry ($key => $val).
 sub entry2prop {
 	my ($key, $val) = @_;
 #	print "key: $key\n";
@@ -45,7 +58,7 @@ sub entry2prop {
 	return $key => $val;
 }
 
-
+# This function creates a sparse matrix or vector from json.
 sub json2sparse {
 	my ($val, $prop_type) = @_;
 	my $value = $val->{value};
@@ -123,3 +136,64 @@ sub pm2json {
 	}
 	return $r;
 }
+
+
+# This is a helper function that transforms a database cursor into an array of polymake objects.
+sub cursor2array {
+	my ($cursor, $t, $db_name, $col_name) = @_;
+	my $size = $cursor->count(1);
+
+	my $app = defined($t) ? $t->{'app'}:$cursor->[0]->{'app'};
+	my $type = defined($t) ? $t->{'type'}:$cursor->[0]->{'type'};
+
+	my $obj_type = User::application($app)->eval_type($type);
+	my $arr_type = User::application($app)->eval_type("Array<$type>");
+
+	my $parray = $arr_type->construct->($size+0);
+	my $i = 0;
+	
+	# TODO: add other properties from type entry
+	my $addprops = {"database" => $db_name, "collection" => $col_name};
+	while (my $p = $cursor->next) {		
+		$parray->[$i] = json2object($p, $obj_type, $addprops);
+		++$i;
+	}
+	return $parray;
+
+}
+
+# This is a helper function that transforms a database cursor into an array of strings (IDs).
+sub cursor2stringarray {
+	my $cursor = shift;
+	
+	my @parray = ();
+	while (my $p = $cursor->next) {
+		push @parray, $p->{_id};
+	}
+	return @parray;
+
+}
+
+
+# This is a helper function that transforms a database document into an object.
+sub doc2object {
+	my $doc = shift;
+	my $t = shift;
+	my $db_name = shift;
+	my $col_name = shift;
+	
+	my $app = defined($doc->{'app'}) ? $doc->{'app'}:$t->{'app'};
+	my $type = defined($doc->{'type'}) ? $doc->{'type'}:$t->{'type'};
+
+	# TODO: add other properties from type entry
+	my $addprops = {"database" => $db_name, "collection" => $col_name};
+	
+	my $obj_type = User::application($app)->eval_type($type);
+	
+	return json2object($doc, $obj_type, $addprops);
+}
+
+
+
+
+1;
