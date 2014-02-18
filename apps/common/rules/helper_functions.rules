@@ -30,8 +30,11 @@ function cursor2array {
 
 	my $parray = $arr_type->construct->($size+0);
 	my $i = 0;
+	
+	# TODO: add other properties from type entry
+	my $addprops = {"database" => $db_name, "collection" => $col_name};
 	while (my $p = $cursor->next) {		
-		$parray->[$i] = doc2object_internal($p, $db_name, $col_name, $obj_type);
+		$parray->[$i] = json2object($p, $obj_type, $addprops);
 		++$i;
 	}
 	return $parray;
@@ -62,22 +65,12 @@ function doc2object {
 	my $app = defined($doc->{'app'}) ? $doc->{'app'}:$t->{'app'};
 	my $type = defined($doc->{'type'}) ? $doc->{'type'}:$t->{'type'};
 
-	my $obj_type = User::application($app)->eval_type($type);
-	return doc2object_internal($doc, $db_name, $col_name, $obj_type);
-}
-
-sub doc2object_internal {
-	my ($doc, $db_name, $col_name, $obj_type) = @_; 
-
-	delete $doc->{'app'};
-	delete $doc->{'type'};
-	delete $doc->{'name'};
-	delete $doc->{'version'};
-	delete $doc->{'ext'};
-	delete $doc->{'description'};
+	# TODO: add other properties from type entry
+	my $addprops = {"database" => $db_name, "collection" => $col_name};
 	
-	return $obj_type->construct->($doc->{'_id'}, %$doc, database=>$db_name, collection=>$col_name);
-
+	my $obj_type = User::application($app)->eval_type($type);
+	
+	return json2object($doc, $obj_type, $addprops);
 }
 
 
@@ -162,7 +155,7 @@ function lup {
 
 
 
-sub remove_props {
+sub remove_props_insert {
 	my ($db, $col, $client, $options) = @_;
 	my $rem_props;
 	unless (defined($rem_props = $options->{rem_props})) {

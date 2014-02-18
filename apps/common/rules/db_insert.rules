@@ -72,7 +72,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 		$client = get_client($options);
 	}
 	
-	my $rem_props = remove_props($db, $col, $client, $options);
+	my $rem_props = remove_props_insert($db, $col, $client, $options);
 
 	# get template object if not given by the options
 	if ($options->{use_template} or defined(my $temp = $options->{template})) {
@@ -84,7 +84,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	
 	my $collection = get_collection($client, $db, $col);
 
-	my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
+	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0);
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -202,7 +202,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
+		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
 

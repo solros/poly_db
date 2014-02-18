@@ -130,7 +130,10 @@ sub new {
 		elsif ($name eq "t") {
 			push @elementstack, $name;
 			my %atts = @_;
-			$output->print($atts{i} . " : ");
+			if (defined($atts{i})) {
+				$output->print($atts{i} . " : ");
+			}
+			$output->print("[");
 		}
 
 		else {
@@ -159,10 +162,14 @@ sub new {
 			$output->print("]");
 		}
 		
-		elsif ($name eq "e" or $name eq "t") {
+		elsif ($name eq "e") {
 			;
 		}
 				
+		elsif ($name eq "t") {
+			$output->print("]");
+		}
+
 		elsif ($name eq "object") {
 			$output->print("}");
 		}
@@ -181,7 +188,7 @@ sub new {
 			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} 
 		elsif ($type eq "t") {
-			$output->print("[" . join(", ", map { qq/"$_"/ } split(/ /, $chars)) . "]");		
+			$output->print(join(", ", map { qq/"$_"/ } split(/ /, $chars)));		
 		} else {
 			$output->print(value($chars));
 		}
@@ -211,7 +218,7 @@ sub value {
 	$val =~ s/true/1/g;
 	$val =~ s/false/0/g;
 
-	if (!looks_like_number($val)) {
+	if (!looks_like_number($val) && !$val =~ m/^".*"$/) {
 		$val = "\"" . $val . "\"";
 	}
 	return $val;
