@@ -18,32 +18,6 @@
 
 
 
-use Term::ReadKey;
-
-
-function get_credentials {
-	# TODO: cache, key chain??
-	print "user name: ";
-	my $u= <STDIN>;
-	ReadMode 2;
-	print "password: ";
-	my $p= <STDIN>;
-	ReadMode 0;
-	print "\n";
-	chomp($u);
-	chomp($p);
-	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
-	my $answer = <STDIN>;
-	chomp($answer);
-	print "\n";
-	if ($answer == "yes") {
-		set_custom $db_user = $u;
-		set_custom $db_pwd = $p;
-	}
-	print "Successfully saved user settings for $u.\n";
-	return ($u,$p);
-}
-
 # @category Database Write Access
 # Adds an object //obj// to the collection //col// in the database //db//.
 # 

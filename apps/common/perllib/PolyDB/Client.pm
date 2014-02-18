@@ -24,6 +24,8 @@ use vars qw(@ISA @EXPORT);
 @ISA = qw(Exporter);
 @EXPORT = qw(get_client get_type get_collection get_date generate_id remove_props_insert);
 
+use Term::ReadKey;
+
 
 # @category Database
 # Takes local and (optionally) username and password and returns a mongo client.
@@ -118,5 +120,32 @@ sub remove_props_insert {
 	}
 	return $rem_props;
 }
+
+
+
+
+sub get_credentials {
+	# TODO: cache, key chain??
+	print "user name: ";
+	my $u= <STDIN>;
+	ReadMode 2;
+	print "password: ";
+	my $p= <STDIN>;
+	ReadMode 0;
+	print "\n";
+	chomp($u);
+	chomp($p);
+	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
+	my $answer = <STDIN>;
+	chomp($answer);
+	print "\n";
+	if ($answer == "yes") {
+		set_custom $db_user = $u;
+		set_custom $db_pwd = $p;
+	}
+	print "Successfully saved user settings for $u.\n";
+	return ($u,$p);
+}
+
 
 1;
