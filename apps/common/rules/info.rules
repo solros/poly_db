@@ -74,7 +74,7 @@ user_function db_info ({db => undef, collection => undef, local => 0, username =
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @return Array
-user_function get_db_col_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
+function get_db_col_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
 	my $options = shift;
 	
 	my $client = get_client($options->{local},"","");
@@ -282,7 +282,7 @@ user_function set_col_info ($, $, $, {local => 0, username => $db_user, password
 # @param String db name of the database
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @return String
-user_function get_db_info {
+function get_db_info {
 	my ($db, $options) = @_;
 	return get_col_info($db, "db_info", $options);
 }
@@ -293,7 +293,7 @@ user_function get_db_info {
 # @param String col name of the collection
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @return String
-user_function get_col_info {
+function get_col_info {
 	my ($db, $col, $options) = @_;
 
 	my $client = get_client($options->{local},"","");
