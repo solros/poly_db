@@ -42,11 +42,11 @@ sub ret {
 	my $string = $self->[0];
 	
 	# some cosmetic changes -> TODO: not very elegant
-	$string =~ s/\,\s*\,/, /g; 		# remove double commas (, , -> ,)
-	$string =~ s/\]\,\s*\]/]]/g;	# remove commas at the end (], ] -> ]])
-	$string =~ s/}\,\s*}/}}/g;		# s. a. (}, } -> }})
-	$string =~ s/\,\s*}/}/g;		# s. a. (, } -> })
-	$string =~ s/\,\s*\]/]/g;		# s. a. (, ] -> ])
+	$string =~ s/\,\s*\,/, /g; 		# remove double commas: , , -> ,
+	$string =~ s/\]\,\s*\]/]]/g;	# remove commas at the end: ], ] -> ]]
+	$string =~ s/}\,\s*}/}}/g;		# s. a.: }, } -> }}
+	$string =~ s/\,\s*}/}/g;		# s. a.: , } -> }
+	$string =~ s/\,\s*\]/]/g;		# s. a.: , ] -> ]
 	
 	# make arrays with ":" into subobjects - (they occur for sparse types) 
 	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{$1}@gx;
@@ -144,12 +144,18 @@ sub new {
 	
 	my $emptyTag = sub {
 		my $name = shift;
+		my %atts = @_;
 		if ($name eq "property") {
-			my %atts = @_;
 			my $val = value($atts{value});
 			$output->print($atts{name} . " : " . $val);
 		} 
 		elsif ($name eq "v" or $name eq "m") {
+			if ($elementstack[-1] eq "property-with-type") {
+				if (defined($atts{cols})) {
+					$output->print("cols : " . $atts{cols} . ", ");
+				}
+				$output->print("value : ");
+			}
 			$output->print("[]");
 		}
 		$output->print(", ");

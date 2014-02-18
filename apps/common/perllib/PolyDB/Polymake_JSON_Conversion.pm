@@ -45,8 +45,13 @@ sub entry2prop {
 		if (defined(my $type = $val->{type})){
 			my $app = defined($val->{app}) ? User::application($val->{app}) : User::application();
 			my $prop_type = $app->eval_type($type);
+#			print "type: ".$type."\n";
 			if (defined($val->{value})) {
-				return $key => json2sparse($val, $prop_type);
+				if (!@{$val->{value}}) {	# empty property
+					return $key => $val->{value};
+				} else {
+					return $key => json2sparse($val, $prop_type);
+				}
 			} else {
 				return $key => json2object($val, $prop_type);
 			}
@@ -75,7 +80,7 @@ sub json2sparse {
 		my $rows = @$value;
 		my $r = $prop_type->construct->($rows, $val->{cols});	
 		my $etype = $r->[0]->[0]->type;
-		print "type ".$etype->full_name."\n";
+#		print "type ".$etype->full_name."\n";
 		for (my $i=0; $i<$rows; ++$i) {
 			foreach (keys %{$value->[$i]}) {
 #				my @entry = @{$value->[$i]->{$_}};
