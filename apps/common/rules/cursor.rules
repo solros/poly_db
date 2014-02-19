@@ -86,10 +86,6 @@ object DatabaseCursor {
 	}
 
 
-	rule COUNT : CURSOR {
-		$this->COUNT = $this->CURSOR->count;
-	}
-
 
 	# Returns the next object.
 	# @return Core::Object
@@ -107,5 +103,12 @@ object DatabaseCursor {
 		my $this = shift;
 		return $this->CURSOR->has_next;
 	}
+
+	# The number of objects matching [[QUERY]].
+	# @return Int
+	user_method COUNT {
+		my $this = shift;
+		return $this->CURSOR->count;
+	};
 	
 }

@@ -86,9 +86,6 @@ object DatabaseCursor {
 	# The application of the objects in the [[COLLECTION]]. Will be created automatically.
 	property APP : String;
 
-	# @category Basic
-	# The number of objects matching [[QUERY]].
-	property COUNT : Int;
 
 	# @category Advanced
 	# Set this to 1 if you want to access a local database server. (Functionality not implemented yet.)
