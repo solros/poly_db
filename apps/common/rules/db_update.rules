@@ -31,7 +31,7 @@
 # @option String username
 # @option String password
 # @option String contrib use this to update the [[contributor]]
-user_function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
+function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($obj_list, $db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
@@ -96,7 +96,7 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 # @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
 # @return String
-user_function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
+function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
@@ -124,7 +124,7 @@ user_function db_update_id($, $, $, {local => 0, username => $db_user, password 
 # @option Core::Object template
 # @option MongoClient client
 # @return String
-function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef, rem_props => undef}) {
+user_function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef, rem_props => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 

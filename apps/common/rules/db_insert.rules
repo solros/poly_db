@@ -32,9 +32,9 @@
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template set to 1 to match properties with a template object (implies use_template => 1) 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
-# @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @option Bool use_template set to 1 to match properties with a template object  
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
 user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}){

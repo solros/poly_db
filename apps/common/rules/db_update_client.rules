@@ -33,7 +33,7 @@ use DateTime;
 # @option String password
 # @option Int package_size default 100
 # @option String contrib use this to update the [[contributor]]
-user_function db_do_package ({local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100, client => undef}){
+function db_do_package ({local => 0, username => $db_user, password => $db_pwd, contrib => "", package_size => 100, client => undef}){
 	my $options = shift;
 	
 	my $n = db_get_package("LatticePolytopesR", "SmoothReflexive", lup($options), client => $options->{client});
