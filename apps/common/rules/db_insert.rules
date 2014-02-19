@@ -221,14 +221,15 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 	}
 
 	# get template object if needed
+	my $temp;
 	if ($options->{use_template}){
-		my $temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+		 $temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
 	}
 
 	my $rem_props;
 	unless (defined($rem_props = $options->{rem_props})) {
 		$rem_props = ["database","collection"];
-		if (my $type = get_type($client, $db, $col)) {
+		if (my $type = get_type($client, $db_name, $collection)) {
 			push @$rem_props, keys %$type;
 		}
 	}
