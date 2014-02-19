@@ -48,4 +48,9 @@ object Polytope {
 	# Contained in extension ''polyDB''.
 	property collection : String;
 
+
+
+	rule N_INTERIOR_LATTICE_POINTS : { $this->N_INTERIOR_LATTICE_POINTS = 1; }
+	precondition : REFLEXIVE;
+	weight 0.10;
 }
