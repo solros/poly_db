@@ -49,3 +49,10 @@ object Polytope {
 	property collection : String;
 
 }
+
+object LatticePolytope {
+
+	rule N_INTERIOR_LATTICE_POINTS : { $this->N_INTERIOR_LATTICE_POINTS = 1; }
+	precondition : REFLEXIVE;
+	weight 0.10;
+}
