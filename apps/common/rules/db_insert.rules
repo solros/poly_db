@@ -105,7 +105,7 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # 
 # TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
 # 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this.
 # 
 # Contained in extension ''polyDB''.
 # @param Array<String> files list of file names
@@ -190,6 +190,8 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	}
 	print "\n";
 }
+
+
 
 
 
