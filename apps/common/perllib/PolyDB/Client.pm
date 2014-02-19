@@ -99,9 +99,9 @@ sub generate_id {
 			return;
 		}		
 	}
-	
-	croak("no rule to generate id for collection $col\n");
-	return;
+	return $name;
+	#croak("no rule to generate id for collection $col\n");
+	#return;
 }
 
 
