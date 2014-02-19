@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="5303faa8"?>
+
+<object name="F.4D.0021" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="H_STAR_VECTOR">
+    <v>1 61 181 61 1</v>
+  </property>
+  <property name="REFLEXIVE" value="true" />
+  <property name="CONE_DIM" value="5" />
+  <property name="date" value="2013-08-14" />
+  <property name="_id" value="F.4D.0021" />
+  <property name="LATTICE_CODEGREE" value="1" />
+  <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+  <property name="SMOOTH" value="true" />
+  <property name="N_LATTICE_POINTS" value="66" />
+  <property name="FACET_WIDTHS">
+    <v>2 2 2 2 4 2 2 4 3</v>
+  </property>
+  <property name="VERTICES">
+    <m>
+      <v>1 1 -1 -1 0</v>
+      <v>1 1 -1 1 0</v>
+      <v>1 1 -1 1 -1</v>
+      <v>1 1 -1 -1 -1</v>
+      <v>1 1 1 -1 -1</v>
+      <v>1 1 1 -1 1</v>
+      <v>1 1 1 1 1</v>
+      <v>1 1 0 1 1</v>
+      <v>1 1 0 -1 1</v>
+      <v>1 0 1 1 1</v>
+      <v>1 1 1 1 0</v>
+      <v>1 1 1 0 -1</v>
+      <v>1 -2 1 -1 1</v>
+      <v>1 0 1 -1 -1</v>
+      <v>1 -1 0 1 1</v>
+      <v>1 -3 0 -1 1</v>
+      <v>1 1 0 1 -1</v>
+      <v>1 -2 -1 -1 -1</v>
+      <v>1 0 -1 1 -1</v>
+      <v>1 -1 -1 1 0</v>
+      <v>1 -3 -1 -1 0</v>
+    </m>
+  </property>
+  <property name="FACETS">
+    <m>
+      <v>1 0 0 -1 0</v>
+      <v>1 0 0 1 0</v>
+      <v>1 0 0 0 1</v>
+      <v>1 0 -1 0 0</v>
+      <v>1 -1 0 0 0</v>
+      <v>1 0 0 0 -1</v>
+      <v>1 0 1 0 0</v>
+      <v>1 1 -1 -1 1</v>
+      <v>1 0 1 0 -1</v>
+    </m>
+  </property>
+  <property name="CENTROID">
+    <v>1 -184/1525 -46/1525 -276/1525 46/1525</v>
+  </property>
+  <property name="N_VERTICES" value="21" />
+  <property name="contributor" value="'Andreas Paffenholz'" />
+  <property name="LATTICE_DEGREE" value="4" />
+  <property name="LATTICE_VOLUME" value="305" />
+  <property name="EHRHART_POLYNOMIAL_COEFF">
+    <v>1 85/12 475/24 305/12 305/24</v>
+  </property>
+  <property name="N_BOUNDARY_LATTICE_POINTS" value="65" />
+  <property name="ESSENTIALLY_GENERIC" value="false" />
+  <property name="VERY_AMPLE" value="true" />
+  <property name="F_VECTOR">
+    <v>21 42 30 9</v>
+  </property>
+  <property name="GORENSTEIN" value="true" />
+  <property name="FEASIBLE" value="true" />
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="AFFINE_HULL">
+    <m />
+  </property>
+</object>
