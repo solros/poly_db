@@ -224,7 +224,7 @@ sub value {
 	$val =~ s/true/1/g;
 	$val =~ s/false/0/g;
 
-	if (!looks_like_number($val) && !$val =~ m/^".*"$/) {
+	if (!looks_like_number($val) && !($val =~ m/^".*"$/)) {
 		$val = "\"" . $val . "\"";
 	}
 	return $val;
@@ -271,7 +271,7 @@ sub cdataElement {
 	my ($self, $name, $data, @atts) = @_;
 
 	$self->startTag($name, @atts);
-	$self->characters("\"" . $data . "\"");
+	$self->characters($data);
 	$self->endTag($name);
 }
 
