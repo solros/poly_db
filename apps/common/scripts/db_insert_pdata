@@ -1,0 +1,46 @@
+# Copyright (c) 2013-2014 Silke Horn
+# http://solros.de/polymake/poly_db
+# 
+# This file is part of the polymake extension polyDB.
+# 
+# polyDB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# polyDB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+use application 'polytope';
+
+# This script inserts a large number of polytope files. It has been written for the insertion of Andreas' LatticePolytope files and hence may not be perfectly fitted for other purposes.
+
+# make stdout hot so that print output is not buffered
+select((select(STDOUT), $|=1)[0]);
+
+
+sub insert_pdata {
+	my $db_name = shift;
+	my $collection = shift;
+	my $local = shift;
+	my $nonew = shift;
+	my $u = shift;
+	my $p = shift;
+	
+	my @files = @_;
+
+	print "db_name: $db_name\ncollection: $collection\nfiles:\n".join(' ',@files)."\n";
+	
+	my $client = get_client($local, $u, $p);
+	
+	foreach (@files) {
+		db_insert_pdata($_, $db_name, $collection, local => $local, use_template => 1, nonew => $nonew, username => $u, password => $p, client => $client);
+	}
+}
+
+insert_pdata(@ARGV);
