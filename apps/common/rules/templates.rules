@@ -83,7 +83,7 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 
 	my $update = 0;
 	my $h = {};
-	if ($tcol->find({'db'=>$db, 'col'=>$col})->next) {
+	if ($tcol->find_one({'db'=>$db, 'col'=>$col})) {
 		$update = 1;
 	} else {
 		$h = {'db'=>$db, 'col'=>$col};
@@ -106,19 +106,19 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 	}
 
 	if (defined(my $obj = $options->{template})) {
-		my @t = split('::', $obj->type->full_name);
-		$h->{template} = pm2json($obj, "", 1);
-		$h->{app} = $t[0];
-		$h->{type} = $t[1];
+		my $json = pm2json($obj, undef, undef, undef, 1);
+		$h->{template} = $json;
+		$h->{app} = $json->{app};
+		$h->{type} = $json->{type};
 	}
 	if (defined(my $obj = $options->{tinytemplate})) {
-		$h->{tinytemplate} = pm2json($obj, "", 1);
+		$h->{tinytemplate} = pm2json($obj, undef, undef, undef, 1);
 		# TODO: app and type
 	}
 
 	
 	if ($update) {
-		my $output = $tcol->update({'db'=>$db, 'col'=>$col}, $h);
+		my $output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => $h});
 
 		if ($output->{ok}) {
 			print "successfully updated type information for $db.$col\n"
