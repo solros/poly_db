@@ -176,7 +176,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0);
+		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
 
@@ -192,6 +192,74 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 }
 
 
+# @category Database Write Access
+# Adds a list of objects from a pdata file to the collection //col// in the database //db//. It assumes that the objects names can be used to generate unique ids. Objects with ids that are already contained in the database will be skipped.
+# 
+# TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
+# 
+# Note that you need write access to the database for this.
+# 
+# Contained in extension ''polyDB''.
+# @param String file pdata file (created with [[save_data]])
+# @param String db database name
+# @param String col collection name
+# @option String contrib
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option Bool use_template set to 1 to match properties with a template object. 
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
+# @option Bool verbose print database output
+# @option MongoClient client
+user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
+	my ($file, $db_name, $collection, $options) = @_;
+	
+	# get client if not given by the options
+	my $client;
+	unless (defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+
+	# get template object if needed
+	if ($options->{use_template}){
+		my $temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+	}
+
+	my $rem_props;
+	unless (defined($rem_props = $options->{rem_props})) {
+		$rem_props = ["database","collection"];
+		if (my $type = get_type($client, $db, $col)) {
+			push @$rem_props, keys %$type;
+		}
+	}
+
+	my $objects = User::load_data($file);
+
+	my $col = get_collection($client, $db_name, $collection);
+		
+	print "inserting ...\n";
+	foreach my $obj (@$objects) {
+		$obj->CONE_DIM;
+		$obj->N_FACETS;
+		if ($options->{use_template}) {
+			copy_properties($obj, $temp, nonew => $options->{nonew});
+		}
+
+		my $id = generate_id($obj->name, $db_name, $collection);
+		
+		if ($col->find_one({'_id'=>$id})) {	next; }
+
+		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0);
+		my $output = $col->insert($json);
+		if ($options->{verbose}) { print "$output "; }
+
+	}
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
+	print "\n";
+}
 
 
 
