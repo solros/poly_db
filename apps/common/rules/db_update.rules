@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-CREDIT polyDB
 
 
 # @category Database Write Access
@@ -32,7 +31,7 @@ CREDIT polyDB
 # @option String username
 # @option String password
 # @option String contrib use this to update the [[contributor]]
-user_function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
+function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
 	my ($obj_list, $db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
@@ -97,7 +96,7 @@ user_function db_batch_update(Array, $, $, {local => 0, username => "", password
 # @option String contrib use this to update the [[contributor]]
 # @option Core::ChainRule schedule
 # @return String
-user_function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
+function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
 	
@@ -125,7 +124,7 @@ user_function db_update_id($, $, $, {local => 0, username => $db_user, password 
 # @option Core::Object template
 # @option MongoClient client
 # @return String
-function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef, rem_props => undef}) {
+user_function db_update_one($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef, client => undef, rem_props => undef}) {
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 
@@ -149,5 +148,5 @@ function db_update_one($, $, $, {local => 0, username => $db_user, password => $
 		$client = get_client($options);	
 	}
 	my $collection = get_collection($client, $db_name, $col_name);
-	return $collection->save(pm2json($obj, $id, 0, {contributor => $contrib}, $rem_props));
+	return $collection->save(pm2json($obj, {contributor => $contrib}, $rem_props, $id, 0));
 }

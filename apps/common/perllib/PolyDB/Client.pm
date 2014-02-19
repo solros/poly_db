@@ -17,67 +17,14 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# This is a helper function that transforms a database cursor into an array of polymake objects.
-function cursor2array {
-	my ($cursor, $t, $db_name, $col_name) = @_;
-	my $size = $cursor->count(1);
+package PolyDB::Client;
+require Exporter;
+use vars qw(@ISA @EXPORT);
 
-	my $app = defined($t) ? $t->{'app'}:$cursor->[0]->{'app'};
-	my $type = defined($t) ? $t->{'type'}:$cursor->[0]->{'type'};
+@ISA = qw(Exporter);
+@EXPORT = qw(get_client get_type get_collection get_date generate_id remove_props_insert);
 
-	my $obj_type = User::application($app)->eval_type($type);
-	my $arr_type = User::application($app)->eval_type("Array<$type>");
-
-	my $parray = $arr_type->construct->($size+0);
-	my $i = 0;
-	while (my $p = $cursor->next) {		
-		$parray->[$i] = doc2object_internal($p, $db_name, $col_name, $obj_type);
-		++$i;
-	}
-	return $parray;
-
-}
-
-# This is a helper function that transforms a database cursor into an array of strings (IDs).
-function cursor2stringarray {
-	my $cursor = shift;
-	
-	my @parray = ();
-	while (my $p = $cursor->next) {
-		push @parray, $p->{_id};
-	}
-	return @parray;
-
-}
-
-
-
-# This is a helper function that transforms a database document into an object.
-function doc2object {
-	my $doc = shift;
-	my $t = shift;
-	my $db_name = shift;
-	my $col_name = shift;
-	
-	my $app = defined($doc->{'app'}) ? $doc->{'app'}:$t->{'app'};
-	my $type = defined($doc->{'type'}) ? $doc->{'type'}:$t->{'type'};
-
-	my $obj_type = User::application($app)->eval_type($type);
-	return doc2object_internal($doc, $db_name, $col_name, $obj_type);
-}
-
-sub doc2object_internal {
-	my ($doc, $db_name, $col_name, $obj_type) = @_; 
-
-	delete $doc->{'app'};
-	delete $doc->{'type'};
-	delete $doc->{'name'};
-	delete $doc->{'version'};
-	delete $doc->{'description'};
-	
-	return $obj_type->construct->($cursor->{'_id'}, %$cursor, database=>$db_name, collection=>$col_name);
-
-}
+use Term::ReadKey;
 
 
 # @category Database
@@ -86,7 +33,7 @@ sub doc2object_internal {
 # @param String username optional
 # @param String password optional
 # @return MongoClient
-function get_client {
+sub get_client {
 	my @args = @_;
 	my ($local, $u, $p);
 	if (@args == 3) {
@@ -109,14 +56,15 @@ function get_client {
 	return $client;
 }
 
+
 # returns the database entry with the type information for a given collection
-function get_type {
+sub get_type {
 	my ($client, $db_name, $collection) = @_;
 	return $client->get_database($type_db)->get_collection("Types")->find_one({db => $db_name, col => $collection});
 }
 
 # returns a collection object
-function get_collection {
+sub get_collection {
 	my ($client, $db_name, $collection) = @_;
 	my $db = $client->get_database($db_name);
 	return $db->get_collection($collection);
@@ -132,7 +80,7 @@ sub get_date {
 }
 
 # generates a unique ID for the object from the name of the file
-function generate_id {
+sub generate_id {
 	my ($name, $db, $col) = @_;
 	
 	if ($col eq "SmoothReflexive") {
@@ -150,7 +98,7 @@ function generate_id {
 
 
 # generates a hash containing local, username and password from a possibly larger one
-function lup {
+sub lup {
 	my $o = shift;
 	my $r = {};
 	$r->{local}=$o->{local};
@@ -161,7 +109,7 @@ function lup {
 
 
 
-sub remove_props {
+sub remove_props_insert {
 	my ($db, $col, $client, $options) = @_;
 	my $rem_props;
 	unless (defined($rem_props = $options->{rem_props})) {
@@ -172,3 +120,32 @@ sub remove_props {
 	}
 	return $rem_props;
 }
+
+
+
+
+sub get_credentials {
+	# TODO: cache, key chain??
+	print "user name: ";
+	my $u= <STDIN>;
+	ReadMode 2;
+	print "password: ";
+	my $p= <STDIN>;
+	ReadMode 0;
+	print "\n";
+	chomp($u);
+	chomp($p);
+	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
+	my $answer = <STDIN>;
+	chomp($answer);
+	print "\n";
+	if ($answer == "yes") {
+		set_custom $db_user = $u;
+		set_custom $db_pwd = $p;
+	}
+	print "Successfully saved user settings for $u.\n";
+	return ($u,$p);
+}
+
+
+1;

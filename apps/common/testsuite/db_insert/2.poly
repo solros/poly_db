@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="530151b4"?>
+
+<object name="p2" type="polytope::Polytope&lt;Rational&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <property name="VERTICES">
+    <m>
+      <v>1 -1 -1 -1</v>
+      <v>1 1 -1 -1</v>
+      <v>1 -1 1 -1</v>
+      <v>1 1 1 -1</v>
+      <v>1 -1 -1 1</v>
+      <v>1 1 -1 1</v>
+      <v>1 -1 1 1</v>
+      <v>1 1 1 1</v>
+    </m>
+  </property>
+  <property name="FEASIBLE" value="true" />
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+</object>

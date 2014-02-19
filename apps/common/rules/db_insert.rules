@@ -16,39 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-CREDIT polyDB
 
-
-use Term::ReadKey;
-
-
-function get_credentials {
-	# TODO: cache, key chain??
-	print "user name: ";
-	my $u= <STDIN>;
-	ReadMode 2;
-	print "password: ";
-	my $p= <STDIN>;
-	ReadMode 0;
-	print "\n";
-	chomp($u);
-	chomp($p);
-	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
-	my $answer = <STDIN>;
-	chomp($answer);
-	print "\n";
-	if ($answer == "yes") {
-		set_custom $db_user = $u;
-		set_custom $db_pwd = $p;
-	}
-	print "Successfully saved user settings for $u.\n";
-	return ($u,$p);
-}
 
 # @category Database Write Access
 # Adds an object //obj// to the collection //col// in the database //db//.
 # 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this.
 # 
 # Contained in extension ''polyDB''.
 # @param Core::Object obj
@@ -59,9 +32,9 @@ function get_credentials {
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template set to 1 to match properties with a template object. 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (implies use_template => 1)
-# @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @option Bool use_template set to 1 to match properties with a template object  
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
 user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}){
@@ -73,7 +46,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 		$client = get_client($options);
 	}
 	
-	my $rem_props = remove_props($db, $col, $client, $options);
+	my $rem_props = remove_props_insert($db, $col, $client, $options);
 
 	# get template object if not given by the options
 	if ($options->{use_template} or defined(my $temp = $options->{template})) {
@@ -85,7 +58,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	
 	my $collection = get_collection($client, $db, $col);
 
-	my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
+	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0);
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -94,7 +67,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @category Database Write Access
 # Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
-# Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
+# Note that you need write access to the database for this.
 # 
 # Contained in extension ''polyDB''.
 # @param String file polymake object stored in a file
@@ -107,7 +80,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @option String password
 # @option Bool use_template set to 1 to match properties with a template object. 
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
-# @option Core::Object template can be precomputed for better performance when applying to multiple objects
+# @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
 user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
@@ -143,7 +116,7 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option String username
 # @option String password
 # @option Bool use_template set to 1 to match properties with a template object. 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose print database output
 # @option MongoClient client
@@ -203,7 +176,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, $options->{id}, 0, {contributor => $options->{contrib}}, $rem_props);
+		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
 
@@ -217,3 +190,34 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	}
 	print "\n";
 }
+
+
+
+# @category Database Write Access
+# Removes the object with a given //id// from the collection //col// in the database //db//.
+# 
+# Note that you need write access to the database for this.
+# 
+# Contained in extension ''polyDB''.
+# @param String id
+# @param String db database name
+# @param String col collection name
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option MongoClient client
+# @return String
+user_function db_remove ($, $, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
+	my ($id, $db_name, $col_name, $options) = @_;
+
+	# get client if not given by the options
+	my $client;
+	unless (defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+
+	my $col = get_collection($client, $db_name, $col_name);
+	
+	return $col->remove({'_id' => $id});
+}
+

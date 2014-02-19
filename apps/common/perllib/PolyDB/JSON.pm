@@ -16,8 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
+
+package PolyDB::JSON;
+
 use PolyDB::JSONwriter;
 
+require Exporter;
+use vars qw(@ISA @EXPORT @EXPORT_OK);
+
+@ISA = qw(Exporter);
+@EXPORT = qw(write_json);
+
+
+# This functions transforms a given object into json code.
+# (It follows the lead of Polymake::Core::XMLwriter::save.)
 sub write_json {
 	my ($object)=@_;
 	my $writer=new PolyDB::JSONwriter;
@@ -38,32 +50,10 @@ sub write_json {
 	return $writer->string;
 }
 
-sub pm2json {
-	my ($object, $id, $temp, $add_props, $rem_props) = @_;
-	# add_props contains database properties
-	# rem_props contains properties that are stored collection wide in the type db and are not written to the database
-	# temp should be set to 1 for a template object
-	
-	my $json = write_json($object);
-	$json =~ s/\s\:\s/ => /g;
-	my $r = eval($json);
-		
-	foreach (keys %$add_props) {
-		$r->{$_} = $add_props->{$_};
-	}
-	foreach (@$rem_props) {
-		delete $r->{$_};
-	}
-	unless ($temp) {
-		$r->{_id} = $id;
-		$r->{date} = get_date();
-	}
-	return $r;
-}
-
-# Polymake::Core::XMLwriter::type_attr produces the type attribute needed for some properties (e.g. type => SparseMatrix, etc)
 
 
+# This functions writes the json code for a subobject.
+# (It follows the lead of Polymake::Core::XMLwriter::write_subobject.)
 sub write_subobject {
 	my ($writer, $object, $parent, $expected_type)=@_;
 	my $type=$object->type;
@@ -80,3 +70,10 @@ sub write_subobject {
    Polymake::Core::XMLwriter::write_object_contents($writer,$object);
    $writer->endTag("object");
 }
+
+
+# Polymake::Core::XMLwriter::type_attr produces the type attribute needed for some properties (e.g. type => SparseMatrix, etc)
+
+
+1;
+
