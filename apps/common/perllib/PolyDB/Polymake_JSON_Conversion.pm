@@ -122,9 +122,7 @@ sub pm2json {
 	# add_props contains database properties that shall be added
 	# rem_props contains properties that are stored collection wide in the type db and are not written to the database
 	# temp should be set to 1 for a template object
-	
-	unless ($id) { $id = $object->_id; }
-	
+		
 	my $json = write_json($object);
 	$json =~ s/\s\:\s/ => /g;
 	my $r = eval($json);
@@ -136,6 +134,7 @@ sub pm2json {
 		delete $r->{$_};
 	}
 	unless ($temp) {
+		unless ($id) { $id = $object->_id; }
 		$r->{_id} = $id;
 		$r->{date} = get_date();
 	}
@@ -191,7 +190,10 @@ sub doc2object {
 	my $type = defined($doc->{'type'}) ? $doc->{'type'}:$t->{'type'};
 
 	# TODO: add other properties from type entry
-	my $addprops = {"database" => $db_name, "collection" => $col_name};
+	my $addprops;
+	if ($db_name && $col_name) {
+		$addprops = {"database" => $db_name, "collection" => $col_name};
+	}
 	
 	my $obj_type = User::application($app)->eval_type($type);
 	

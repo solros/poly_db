@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="522e4ac9"?>
+<?pm chk="5304fb61"?>
 
-<object type="polytope::LatticePolytope" version="2.12.5" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="H_STAR_VECTOR">
     <v>1 24 24 1</v>
   </property>
@@ -55,4 +55,11 @@
   <property name="POINTED" value="true" />
   <property name="CONE_AMBIENT_DIM" value="4" />
   <property name="FULL_DIM" value="true" />
+  <property name="FEASIBLE" value="true" />
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="AFFINE_HULL">
+    <m />
+  </property>
 </object>

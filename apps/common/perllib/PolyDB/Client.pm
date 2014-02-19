@@ -91,6 +91,14 @@ sub generate_id {
 			return;
 		}
 	}
+	if ($col eq "SmoothReflexive9") {
+		if ($name =~ m/\.(\d+D)\.f(\d+)\.(\d+)/) {
+			return "F.$1.$2.$3";
+		} else {
+			croak("name $name does not yield valid id for collection $col\n");
+			return;
+		}		
+	}
 	
 	croak("no rule to generate id for collection $col\n");
 	return;
