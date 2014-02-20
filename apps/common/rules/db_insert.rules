@@ -39,12 +39,15 @@
 # @return String
 user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}){
 	my ($obj, $db, $col, $options) = @_;
- 		
+ 	 	
 	# get client if not given by the options
 	my $client;
 	unless (defined($client = $options->{client})) {
 		$client = get_client($options);
 	}
+	
+ 	check_type($obj, $db, $col, $client);
+
 	
 	my $rem_props = remove_props_insert($db, $col, $client, $options);
 
@@ -167,6 +170,9 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	
 	foreach my $file (@files) {
 		my $obj = User::load($file);
+
+	 	#check_type($obj, $db_name, $collection, $client);
+
 		my $id = generate_id($obj->name, $db_name, $collection);
 		
 		if ($col->find_one({'_id'=>$id})) {
@@ -177,6 +183,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 		}
 
 		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0);
+
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
 
