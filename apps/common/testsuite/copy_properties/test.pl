@@ -11,10 +11,15 @@ do {
 	copy_properties($p1, $t1);
 	copy_properties($p2, $t1);
 	copy_properties($p3, $t3);
+
+	$t1->dont_save();
+	$t3->dont_save();
 	
 	$p1->dont_save();
 	$p2->dont_save();
 	$p3->dont_save();
+
+	# TODO: testcase for subobject, testcase for removal of props, incompatible types
 
 	compare_object( '1.poly', $p1 )
 	and
