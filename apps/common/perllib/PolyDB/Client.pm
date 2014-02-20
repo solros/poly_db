@@ -22,7 +22,7 @@ require Exporter;
 use vars qw(@ISA @EXPORT);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(get_client get_type get_collection get_date generate_id remove_props_insert);
+@EXPORT = qw(get_client get_type get_collection get_date generate_id remove_props_insert check_type);
 
 use Term::ReadKey;
 
@@ -60,7 +60,7 @@ sub get_client {
 # returns the database entry with the type information for a given collection
 sub get_type {
 	my ($client, $db_name, $collection) = @_;
-	return $client->get_database($type_db)->get_collection("Types")->find_one({db => $db_name, col => $collection});
+	return $client->get_database($db_name)->get_collection("type_information")->find_one({db => $db_name, col => $collection});
 }
 
 # returns a collection object
@@ -69,6 +69,24 @@ sub get_collection {
 	my $db = $client->get_database($db_name);
 	return $db->get_collection($collection);
 }
+
+
+sub check_type {
+	my ($obj, $db, $col, $client) = @_;
+	my $c = get_type($client, $db, $col);
+
+	unless ($c) {
+		return 1;
+	}
+	
+	my $col_type = $c->{type};
+
+	unless ($obj->type->isa($c->{app}."::".$col_type) || $col_type ~~ {map {$_->name} keys %{$obj->type->auto_casts}}) {
+		croak("Type mismatch: Collection $db.$col only takes objects of type $col_type; given object is of type ".$obj->type->full_name."\n");
+	}
+	return 1;
+}
+
 
 
 # the current date as a string in the form yyyy-mm-dd
@@ -99,9 +117,9 @@ sub generate_id {
 			return;
 		}		
 	}
-	
-	croak("no rule to generate id for collection $col\n");
-	return;
+	return $name;
+	#croak("no rule to generate id for collection $col\n");
+	#return;
 }
 
 

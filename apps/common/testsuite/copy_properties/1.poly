@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="52ed8d9e"?>
+<?pm chk="5305f06b"?>
 
 <object name="F.3D.0000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <credit product="lrslib"><![CDATA[
-Copyright by David Avis.
-http://cgm.cs.mcgill.ca/~avis/lrs.html
+  <credit product="cddlib"><![CDATA[
+Copyright by Komei Fukuda.
+http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
+]]></credit>
+  <credit product="libnormaliz"><![CDATA[
+Copyright by Winfried Bruns, Bogdan Ichim, Christof Soeger.
+http://www.math.uos.de/normaliz/
 ]]></credit>
   <property name="CONE_DIM" value="4" />
   <property name="VERTICES">
@@ -24,31 +28,40 @@ http://cgm.cs.mcgill.ca/~avis/lrs.html
   <property name="LINEALITY_SPACE">
     <m />
   </property>
-  <property name="FACETS">
-    <m>
-      <v>1 0 0 -1</v>
-      <v>1 0 -1 0</v>
-      <v>1 1 0 -1</v>
-      <v>1 -1 1 2</v>
-      <v>1 -1 0 0</v>
-      <v>1 -1 0 1</v>
-    </m>
+  <property name="H_STAR_VECTOR">
+    <v>1 24 24 1</v>
   </property>
+  <property name="REFLEXIVE" value="true" />
   <property name="AFFINE_HULL">
     <m />
   </property>
-  <property name="REFLEXIVE" value="true" />
   <property name="GORENSTEIN" value="true" />
   <property name="LATTICE_CODEGREE" value="1" />
+  <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+  <property name="FACETS">
+    <m>
+      <v>1 -1 0 1</v>
+      <v>1 1 0 -1</v>
+      <v>1 -1 1 2</v>
+      <v>1 0 0 -1</v>
+      <v>1 -1 0 0</v>
+      <v>1 0 -1 0</v>
+    </m>
+  </property>
   <property name="SMOOTH" value="true" />
+  <property name="N_LATTICE_POINTS" value="28" />
   <property name="FACET_WIDTHS">
-    <v>4 4 2 4 5 2</v>
+    <v>2 2 4 4 5 4</v>
   </property>
   <property name="CENTROID">
     <v>1 -12/25 -3/40 -33/200</v>
   </property>
   <property name="LATTICE_DEGREE" value="3" />
   <property name="LATTICE_VOLUME" value="50" />
+  <property name="EHRHART_POLYNOMIAL_COEFF">
+    <v>1 37/6 25/2 25/3</v>
+  </property>
+  <property name="N_BOUNDARY_LATTICE_POINTS" value="27" />
   <property name="ESSENTIALLY_GENERIC" value="false" />
   <property name="VERY_AMPLE" value="true" />
   <property name="F_VECTOR">

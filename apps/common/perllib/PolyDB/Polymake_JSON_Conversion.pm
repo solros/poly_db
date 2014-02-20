@@ -83,9 +83,9 @@ sub json2sparse {
 #		print "type ".$etype->full_name."\n";
 		for (my $i=0; $i<$rows; ++$i) {
 			foreach (keys %{$value->[$i]}) {
-#				my @entry = @{$value->[$i]->{$_}};
-#				print "entry: "; print @entry; print "\n";
-				$r->[$i]->[$_] = $etype->construct->($value->[$i]->{$_});
+				#$r->[$i]->[$_] = $etype->construct->($value->[$i]->{$_});
+				# TODO QuadraticExtension, Float, ...
+				$r->[$i]->[$_] = new Rational($value->[$i]->{$_});
 			}
 		}
 		return $r;
@@ -146,9 +146,11 @@ sub pm2json {
 sub cursor2array {
 	my ($cursor, $t, $db_name, $col_name) = @_;
 	my $size = $cursor->count(1);
+	
+	my @objects = $cursor->all;
 
-	my $app = defined($t) ? $t->{'app'}:$cursor->[0]->{'app'};
-	my $type = defined($t) ? $t->{'type'}:$cursor->[0]->{'type'};
+	my $app = defined($t) ? $t->{'app'}:$objects[0]->{'app'};
+	my $type = defined($t) ? $t->{'type'}:$objects[0]->{'type'};
 
 	my $obj_type = User::application($app)->eval_type($type);
 	my $arr_type = User::application($app)->eval_type("Array<$type>");
@@ -158,7 +160,7 @@ sub cursor2array {
 	
 	# TODO: add other properties from type entry
 	my $addprops = {"database" => $db_name, "collection" => $col_name};
-	while (my $p = $cursor->next) {		
+	foreach my $p (@objects) {		
 		$parray->[$i] = json2object($p, $obj_type, $addprops);
 		++$i;
 	}

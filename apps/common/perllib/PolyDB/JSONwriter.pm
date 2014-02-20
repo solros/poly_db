@@ -49,7 +49,7 @@ sub ret {
 	$string =~ s/\,\s*\]/]/g;		# s. a.: , ] -> ]
 	
 	# make arrays with ":" into subobjects - (they occur for sparse types) 
-	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{$1}@gx;
+	$string =~ s@ \[ ( (:?[0-9]+ \s\:\s (:? [-"/0-9]+ | \[.*?\])+ (:?,\s)?)+ ) \]@{$1}@gx;
 	
 	return $string;
 }
@@ -224,7 +224,7 @@ sub value {
 	$val =~ s/true/1/g;
 	$val =~ s/false/0/g;
 
-	if (!looks_like_number($val) && !$val =~ m/^".*"$/) {
+	if (!looks_like_number($val) && !($val =~ m/^".*"$/)) {
 		$val = "\"" . $val . "\"";
 	}
 	return $val;
@@ -271,7 +271,7 @@ sub cdataElement {
 	my ($self, $name, $data, @atts) = @_;
 
 	$self->startTag($name, @atts);
-	$self->characters("\"" . $data . "\"");
+	$self->characters($data);
 	$self->endTag($name);
 }
 

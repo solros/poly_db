@@ -42,6 +42,12 @@ do {
 		and
 	compare_values( '3-insert', 3, $count3i )
 		and
-	compare_values( 'remove', 0, $count1r );
-}
-;
+	compare_values( 'remove', 0, $count1r )
+		and
+	do {
+		# cleanup
+		system("rm 2out.poly");
+		1
+	};
+};
+

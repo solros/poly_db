@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="52ed85c6"?>
+<?pm chk="5305f529"?>
 
 <object name="F.4D.0000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="CONE_DIM" value="5" />
