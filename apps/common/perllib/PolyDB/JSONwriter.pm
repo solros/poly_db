@@ -269,10 +269,11 @@ sub dataElement {
 
 sub cdataElement {
 	my ($self, $name, $data, @atts) = @_;
-
-	$self->startTag($name, @atts);
-	$self->characters($data);
-	$self->endTag($name);
+	unless ($name eq "credit") {
+		$self->startTag($name, @atts);
+		$self->characters($data);
+		$self->endTag($name);
+	}
 }
 
 sub setDataMode {
