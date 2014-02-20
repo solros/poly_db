@@ -31,6 +31,12 @@ do {
 		and
 	compare_output { print eval { db_insert($g, "Test", $col_name, id => "test2"); } || neutralized_ERROR() } "typecheck"
 		and
-	compare_values( 'remove', 0, poly_db_count({}, db => "Test", collection => $col_name) );
+	compare_values( 'remove', 0, poly_db_count({}, db => "Test", collection => $col_name) )
+		and
+	do {
+		# cleanup
+		system("rm typecheck.OK");
+		1
+	};
 }
 ;
