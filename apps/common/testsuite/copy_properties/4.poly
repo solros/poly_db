@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?pm chk="5305f859"?>
+
+<object name="t" type="polytope::Polytope&lt;Rational&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[simplex of dimension 6
+]]></description>
+  <credit product="cddlib"><![CDATA[
+Copyright by Komei Fukuda.
+http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
+]]></credit>
+  <credit product="lrslib"><![CDATA[
+Copyright by David Avis.
+http://cgm.cs.mcgill.ca/~avis/lrs.html
+]]></credit>
+  <property name="CONE_AMBIENT_DIM" value="7" />
+  <property name="CONE_DIM" value="7" />
+  <property name="VERTICES">
+    <m>
+      <v>1 0 0 0 0 0 0</v>
+      <v>1 1 0 0 0 0 0</v>
+      <v>1 0 1 0 0 0 0</v>
+      <v>1 0 0 1 0 0 0</v>
+      <v>1 0 0 0 1 0 0</v>
+      <v>1 0 0 0 0 1 0</v>
+      <v>1 0 0 0 0 0 1</v>
+    </m>
+  </property>
+  <property name="LINEALITY_SPACE">
+    <m />
+  </property>
+  <property name="N_VERTICES" value="7" />
+  <property name="SIMPLICIALITY" value="6" />
+  <property name="BOUNDED" value="true" />
+  <property name="FEASIBLE" value="true" />
+  <property name="AFFINE_HULL">
+    <m />
+  </property>
+  <property name="CUBICALITY" value="1" />
+  <property name="CUBICAL" value="false" />
+</object>
