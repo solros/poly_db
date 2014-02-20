@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="52c6cb51"?>
+<?pm chk="53052762"?>
 
-<object type="polytope::LatticePolytope" version="2.12.5" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="LINEALITY_SPACE">
     <m />
   </property>
