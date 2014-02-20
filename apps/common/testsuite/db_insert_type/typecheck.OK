@@ -1,0 +1,1 @@
+Type mismatch: Collection Test.test-d0074.vpn.hrz.tu-darmstadt.de-2014-02-20T12:28:50 only takes objects of type LatticePolytope; given object is of type Graph<Undirected> at /Volumes/Polaris/poly_database/apps/common/rules/db_insert.rules line 49.
