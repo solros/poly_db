@@ -26,7 +26,7 @@ do {
 		and
 	do {
 		for (my $i=0; $i<$out->size; ++$i) {
-			if(!_compare_object($out_ok->[$i], $out->[$i], ignore=>['collection'])) {
+			if(!_compare_object($out_ok->[$i], $out->[$i], ignore=>['collection', 'date'])) {
 				return 0;
 			}
 		}
