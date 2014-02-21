@@ -36,6 +36,7 @@ do {
 	do {
 		# cleanup
 		system("rm typecheck.OK");
+		db_clean_up_type_info("Test", $col_name);
 		1
 	};
 }

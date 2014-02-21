@@ -142,3 +142,15 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 		
 	undef $client;
 }
+
+
+function db_clean_up_type_info ($, $, {username => "", password => ""}) {
+	my ($db, $col, $options) = @_;
+	
+	my $client = get_client($options);
+		
+	my $tdb = $client->get_database($db);
+	my $tcol = $tdb->get_collection("type_information");
+	
+	return $tcol->remove({"db"=>$db, "col"=>$col});
+}

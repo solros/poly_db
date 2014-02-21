@@ -34,6 +34,10 @@ do {
 	}
 		and
 	compare_values( 'remove', 0, poly_db_count({}, db => "Test", collection => $col_name) )
+		and
+	do {
+		db_clean_up_type_info("Test", $col_name);
+	}
 	;
 }
 ;
