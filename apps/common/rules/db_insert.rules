@@ -251,15 +251,16 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 	foreach my $obj (@$objects) {
 		$obj->CONE_DIM;
 		$obj->N_FACETS;
-		if ($options->{use_template}) {
-			copy_properties($obj, $temp, nonew => $options->{nonew});
-		}
 
 		my $id = generate_id($obj->name, $db_name, $collection);
 		
 		if ($col->find_one({'_id' => $id})) {	
 			if ($options->{verbose}) { print "id $id already exists\n"; }
 			next;
+		}
+
+		if ($options->{use_template}) {
+			copy_properties($obj, $temp, nonew => $options->{nonew});
 		}
 
 		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0);
