@@ -16,17 +16,17 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
+declare $test_col_re = qr{test-.*?-\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}}xo;
+
 
 # @category Database Admin
 # This function cleans up everything (failed) testcases may have left in the Test database.
-user_function db_clean_up_test ({local=>0, db=>"Test", username=>$db_user, password=>$db_pwd}){
+function db_clean_up_test ({local=>0, db=>"Test", username=>$db_user, password=>$db_pwd}){
 	my $options = shift;
 
 	my $client = get_client($options);
 	my $db = $client->get_database($options->{db});
 	
-	my $test_col_re = qr{test-.*?-\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}}xo;
-
 	my @cols = $db->collection_names;
 	my $i = 0;
 	

@@ -152,5 +152,7 @@ function db_clean_up_type_info ($, $, {username => "", password => ""}) {
 	my $tdb = $client->get_database($db);
 	my $tcol = $tdb->get_collection("type_information");
 	
-	return $tcol->remove({"db"=>$db, "col"=>$col});
+	$tcol->remove({"db"=>$db, "col"=>$col});
+	
+	$tdb->get_collection($col)->drop();
 }

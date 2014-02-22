@@ -47,6 +47,7 @@ do {
 	do {
 		# cleanup
 		system("rm 2out.poly");
+		db_clean_up_type_info("Test", $col_name);
 		1
 	};
 };
