@@ -24,12 +24,36 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 @ISA = qw(Exporter);
 @EXPORT = qw(poly_db_tabcompletion);
 
+my $statement_start_re=qr{(?: ^ | [;\}] )\s*}xo;
+
+my $args_start_re=qr{(?: \s+ | \s*\(\s* )}xo;
 
 sub poly_db_tab_completion {
 	my $self = shift;
 	my $line = shift;
+    pos($line)=$self->term->Attribs->{point};
 	
-	if ($line =~m{ db\s*=>\s* (:? (?'quote' ['"]) (?'prefix' [^"']*)? )? }xo) {
+	# col name
+	if ($line =~
+       m{(?: \b db \s*=>\s* ["'](?'db' [^"']*)["']\s*,\s*) (:? \b $id_re \s*=>\s* .*?\s*,\s*)* (?: \b collection \s*=>\s* )
+         (?:(?'quote' ['"]) (?'prefix' [^"']*)? )? \G}xogc) {
+
+		my ($db, $quote, $prefix) = @+{qw(db quote prefix)};
+		if (defined $quote) {
+			$self->completion_words = [ list_col_completions($db, $prefix) ];
+			$self->term->Attribs->{completion_append_character}=$quote;
+			
+			return 1;
+		} else {
+			$self->completion_words = ['"'];
+			return 1;
+		}	
+	}
+
+	# db name
+	elsif ($line =~
+       m{(?: \b db \s*=>\s* )
+         (?:(?'quote' ['"]) (?'prefix' [^"']*)? )? \G}xogc) {
 		my ($quote, $prefix) = @+{qw(quote prefix)};
 		if (defined $quote) {
 			$self->completion_words = [ list_db_completions($prefix) ];
@@ -41,6 +65,8 @@ sub poly_db_tab_completion {
 			return 1;
 		}
 	}
+	
+	
 	return 0;
 }
 
@@ -48,6 +74,11 @@ sub poly_db_tab_completion {
 sub list_db_completions {
 	my $prefix = shift;
 	grep { /^\Q$prefix\E/ } @{common::get_db_list()};
+}
+sub list_col_completions {
+	my $db = shift;
+	my $prefix = shift;
+	grep { /^\Q$prefix\E/ } @{common::get_col_list($db)};
 }
 
 
