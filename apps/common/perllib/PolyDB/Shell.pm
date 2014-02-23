@@ -24,9 +24,6 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 @ISA = qw(Exporter);
 @EXPORT = qw(poly_db_tabcompletion);
 
-my $statement_start_re=qr{(?: ^ | [;\}] )\s*}xo;
-
-my $args_start_re=qr{(?: \s+ | \s*\(\s* )}xo;
 
 sub poly_db_tab_completion {
 	my $self = shift;
