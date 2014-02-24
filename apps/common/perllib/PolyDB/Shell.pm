@@ -79,4 +79,7 @@ sub list_col_completions {
 }
 
 
+push @Core::Shell::custom_tab_completion,  \&PolyDB::Shell::poly_db_tab_completion;
+
+
 1;
