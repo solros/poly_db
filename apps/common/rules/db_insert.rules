@@ -47,21 +47,23 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	}
 	
  	check_type($obj, $db, $col, $client);
-
 	
 	my $rem_props = remove_props_insert($db, $col, $client, $options);
 
 	# get template object if not given by the options
-	if ($options->{use_template} or defined(my $temp = $options->{template})) {
+	my $temp;
+	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
 			$temp = get_template_object($db, $col, local => $options->{local}, client => $client);
 		}
-		copy_properties($obj, $temp, nonew => $options->{nonew});
+		if (!$options->{nonew}) {
+			copy_properties($obj, $temp);
+		}
 	}
 	
 	my $collection = get_collection($client, $db, $col);
 
-	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0);
+	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0, $temp);
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -135,29 +137,20 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	}
 
 	# get template object if needed
+	my $temp;
 	if ($options->{use_template}){
-		my $temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
 	}
 
-	my $rem_props;
-	unless (defined($rem_props = $options->{rem_props})) {
-		$rem_props = ["database","collection"];
-		if (my $type = get_type($client, $db, $col)) {
-			#push @$rem_props, ("version", "contributor", "type", "app");
-			push @$rem_props, keys %$type;
-		}
-	}
+	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
 
-
-	# get first object
-	my $fst = User::load($files[0]);
 		
 	print "inserting ...\n";
 	foreach (@files) {
 		my $obj = User::load($_);
 		$obj->CONE_DIM;
-		if ($options->{use_template}) {
-			copy_properties($obj, $temp, nonew => $options->{nonew});
+		if ($options->{use_template} && !$options->{nonew}) {
+			copy_properties($obj, $temp);
 		}
 	}
 
@@ -182,7 +175,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0);
+		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
 
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
@@ -235,13 +228,7 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 		unless ($temp) {croak("no template object\n");}
 	}
 
-	my $rem_props;
-	unless (defined($rem_props = $options->{rem_props})) {
-		$rem_props = ["database","collection"];
-		if (my $type = get_type($client, $db_name, $collection)) {
-			push @$rem_props, keys %$type;
-		}
-	}
+	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
 
 	my $objects = User::load_data($file);
 
@@ -259,11 +246,11 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		if ($options->{use_template}) {
-			copy_properties($obj, $temp, nonew => $options->{nonew});
+		if ($options->{use_template} && !$options->{nonew}) {
+			copy_properties($obj, $temp);
 		}
 
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0);
+		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) { print "$output "; }
 

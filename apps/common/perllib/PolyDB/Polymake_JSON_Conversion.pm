@@ -118,10 +118,11 @@ sub json2object {
 # This function takes a polymake object and transforms it into a json hash.
 # It also adds further properties (like ... erm ... dunno) and removes those that should not go into the database (like database and collection). It also adds an id.
 sub pm2json {
-	my ($object, $add_props, $rem_props, $id, $temp) = @_;
+	my ($object, $add_props, $rem_props, $id, $temp, $template) = @_;
 	# add_props contains database properties that shall be added
 	# rem_props contains properties that are stored collection wide in the type db and are not written to the database
-	# temp should be set to 1 for a template object
+	# temp should be set to 1 for a creating a template object
+	# template - remove properties not contained in the template object
 		
 	my $json = write_json($object);
 	$json =~ s/\s\:\s/ => /g;
@@ -133,6 +134,16 @@ sub pm2json {
 	foreach (@$rem_props) {
 		delete $r->{$_};
 	}
+	
+	if (defined $template) {
+		my $s = new Set<String>($object->list_properties());
+		my $t = new Set<String>($template->list_properties());
+		my $rem = $s - $t;
+		foreach (@$rem) {
+			delete $r->{$_};
+		}
+	}
+	
 	unless ($temp) {
 		unless ($id) { $id = $object->_id; }
 		$r->{_id} = $id;
