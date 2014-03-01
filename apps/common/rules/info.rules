@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-
+use Term::ANSIColor;
 
 # @category Database
 # Print information about available databases and collections.
@@ -52,12 +52,12 @@ user_function db_info ({db => undef, collection => undef, local => 0, username =
 
 		if ($search->count == 0) {next;}
 		
-		print "DATABASE: ".$current_db."\n";
+		print colored ['red'], "DATABASE: ".$current_db."\n";
 		print $db_cursor->{description}."\n\n";
 		
 		while (my $col_cursor = $search->next) {
 			if ($col_cursor->{col} eq "db_info") {next;}
-			print "Collection: ".$col_cursor->{col}."\n";
+			print colored ['blue'], "Collection: ".$col_cursor->{col}."\n";
 			print $col_cursor->{description}."\n\n";
 		}
 		print "__________________\n\n";

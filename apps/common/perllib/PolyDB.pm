@@ -20,5 +20,6 @@ use PolyDB::Client;
 use PolyDB::JSON;
 use PolyDB::JSONwriter;
 use PolyDB::Polymake_JSON_Conversion;
+use PolyDB::Shell;
 
 1;

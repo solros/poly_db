@@ -9,3 +9,7 @@ Access to the polymake polytope database.
 
 
 NAME polyDB
+
+
+#TAB_COMPLETION 
+#PolyDB::Shell::poly_db_tab_completion
