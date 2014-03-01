@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5305faa8"?>
+<?pm chk="53123a3e"?>
 
 <object name="t" type="polytope::Polytope&lt;Rational&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <description><![CDATA[simplex of dimension 6
 ]]></description>
-  <credit product="cddlib"><![CDATA[
-Copyright by Komei Fukuda.
-http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
-]]></credit>
   <credit product="lrslib"><![CDATA[
 Copyright by David Avis.
 http://cgm.cs.mcgill.ca/~avis/lrs.html
+]]></credit>
+  <credit product="cddlib"><![CDATA[
+Copyright by Komei Fukuda.
+http://www.ifor.math.ethz.ch/~fukuda/cdd_home/cdd.html
 ]]></credit>
   <property name="CONE_AMBIENT_DIM" value="7" />
   <property name="CONE_DIM" value="7" />

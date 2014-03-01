@@ -19,46 +19,34 @@
 
 
 # @category Utilities
-# Takes an [[Core::Object|Object]] //obj// and a template [[Core::Object|Object]] of the same type and computes or deletes properties so that they have (more or less) the same list of known properties.
-# (This is just a quick and dirty solution for this until I make a fast and efficient one.)
-# 
-# There might be some problems since polymake does not allow deletion of non-redundant properties. This in particular poses a problem if //obj// was retrieved from a database.
+# Takes an [[Core::Object|Object]] //obj// and a template [[Core::Object|Object]] //temp// of the same type and computes properties so that //obj// has all properties that //temp// has.
 # 
 # Contained in extension ''polyDB''.
 # @param Core::Object obj
 # @param Core::Object template
-# @option Bool nonew set to 1 if you don't want to compute missing properties
-user_function copy_properties ($, $, {nonew => 0}) {
-	my ($o, $t, $options) = @_;
-
-	my $nonew = $options->{nonew};
+user_function copy_properties {
+	my ($o, $t) = @_;
 
 	# TODO: check that $o and $t are of compatible types
-
-	# TODO: attachments
-
-	my @p = $t->list_properties;
-#	my @ap = $t->list_attachments;
 	
-	unless ($nonew) {
-		# compute missing properties (one by one)
-		foreach($t->list_properties){
-			my $s = $o->get_schedule($_);
+	# compute missing properties (one by one, in no particular order)
+	foreach my $pv (@{$t->contents}) {
+		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
+		
+      	if (instanceof Core::Object($pv)) {
+      		# make sure $o has this property (will most probably compute only the most trivial subproperty, such as CONNECTED for GRAPH of a Polytope)
+			my $s = $o->get_schedule($pv->property->name);
 			$s->apply($o);
-			# TODO: subobjects!
+			
+			my $subobj = $o->contents->[$o->dictionary->{$pv->property->key}];
+      		
+      		# recursive call
+      		copy_properties($subobj, $pv);
+      		
+      	} else {
+			my $s = $o->get_schedule($pv->property->name);
+			$s->apply($o);
 		}
-	}
-	
-	
-	my @q = $o->list_properties;
-	
-	my $sp = new Set<String>(@p, "_id", "contributor", "date", "database", "collection", "version");		# properties of temp + db properties
-	my $sq = new Set<String>(@q); 	# properties of o
-	
-	my $s = $sq-$sp;	# surplus properties that are to be removed
-	
-	foreach (@$s) {
-		$o->remove($_, 1);
 	}
 
 }
