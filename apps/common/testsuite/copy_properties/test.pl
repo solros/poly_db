@@ -24,7 +24,7 @@ do {
 	$p3->dont_save();
 	$p4->dont_save();
 
-	# TODO: testcase for subobject, testcase for removal of props, incompatible types
+	# TODO: testcase for subobject, incompatible types
 
 	compare_object( '1.poly', $p1 )
 	and
