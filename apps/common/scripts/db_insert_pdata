@@ -29,18 +29,18 @@ sub insert_pdata {
 	my $collection = shift;
 	my $local = shift;
 	my $nonew = shift;
-	my $u = shift;
-	my $p = shift;
+#	my $u = shift;
+#	my $p = shift;
 	
 	my @files = @_;
 
 	print "db_name: $db_name\ncollection: $collection\nfiles:\n".join(' ',@files)."\n";
 	
-	my $client = get_client($local, $u, $p);
+	my $client = get_client($local, "", "");
 	
 	foreach (@files) {
 		print "\n". $_." ";
-		db_insert_pdata($_, $db_name, $collection, local => $local, use_template => 1, nonew => $nonew, username => $u, password => $p, client => $client);
+		db_insert_pdata($_, $db_name, $collection, local => $local, use_template => 1, nonew => $nonew, client => $client);
 	}
 }
 
