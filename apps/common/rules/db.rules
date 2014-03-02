@@ -20,8 +20,8 @@
 
 
 # polyDB: The hostname of the database, default 'polymake.org'
-#custom $db_host = "polymake.org";
-custom $db_host = "130.83.68.137";
+custom $db_host = "db.polymake.org";
+#custom $db_host = "130.83.68.137";
 
 # polyDB: The port of the database, default 27017
 custom $db_port = "27017";
