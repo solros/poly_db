@@ -221,6 +221,8 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 		$client = get_client($options);
 	}
 
+	my $col = get_collection($client, $db_name, $collection);
+
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template} || defined($options->{template})){
@@ -231,10 +233,9 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
 
 	my $objects = User::load_data($file);
-
-	my $col = get_collection($client, $db_name, $collection);
 		
 	print "inserting ...\n";
+	my $count = 0;
 	foreach my $obj (@$objects) {
 		$obj->CONE_DIM;
 		$obj->N_FACETS;
@@ -253,13 +254,14 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
 		my $output = $col->insert($json);
 		if ($options->{verbose}) { print "$output "; }
+		$count++;
 
 	}
 	
 	unless (defined($options->{client})){
 		undef $client;
 	}
-	print "\n";
+	print "Inserted $count objects.\n\n";
 }
 
 

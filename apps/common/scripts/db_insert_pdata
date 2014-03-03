@@ -39,7 +39,7 @@ sub insert_pdata {
 	my $client = get_client($local, "", "");
 	
 	foreach (@files) {
-		print "\n". $_." ";
+		print $_."\n";
 		db_insert_pdata($_, $db_name, $collection, local => $local, use_template => 1, nonew => $nonew, client => $client);
 	}
 }
