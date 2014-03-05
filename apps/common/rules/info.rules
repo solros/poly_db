@@ -232,6 +232,14 @@ user_function set_db_info ($, $, {users => undef, local => 0, username => $db_us
 	undef $client;
 }
 
+# @category Database Admin
+# Add a user to database //db//. Note that this only affects the user's output for [[db_info]], [[db_list]] etc and the tabcompletion. It does not create the user.
+# You need write access for this.
+# @param String db name of the database
+# @param String user
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
 function add_user_to_db ($, $, {local => 0, username => $db_user, password => $db_pwd}){
 	my ($db, $user, $options) = @_;
 	
