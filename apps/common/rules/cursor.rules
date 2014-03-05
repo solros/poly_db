@@ -94,7 +94,11 @@ object DatabaseCursor {
 		my $type = User::application($this->APP)->eval_type($this->TYPE);
 		my $p = $this->CURSOR->next;
 		unless ($p) {print "no such object"; return;}
-		return $type->construct->($p->{'_id'}, %$p);
+
+		my $addprops;
+		$addprops = {"database" => $this->DATABASE, "collection" => $this->COLLECTION};
+
+		return PolyDB::Polymake_JSON_Conversion::json2object($p, $type, $addprops)
 	}
 
 	# Returns true if there is another object to fetch.
