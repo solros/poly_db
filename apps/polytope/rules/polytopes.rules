@@ -16,7 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
+
 object Polytope {
+
+# @topic category properties/Database
+# Database properties.
+
+
 
 	# @category Database
 	# The unique ID of the polytope in the database.
