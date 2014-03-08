@@ -22,8 +22,6 @@
 # Updates a list of objects in the collection //col// in the database //db//. Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''polyDB''.
 # @param Array obj_list either an Array<[[Core::Object]]> of polymake objects or an Array<String> of [[_id|IDs]]
 # @param String db database name
 # @param String col collection name
@@ -85,8 +83,6 @@ function db_batch_update(Array, $, $, {local => 0, username => "", password => "
 # Updates the object with a given [[_id]] in the collection //col// in the database //db// by matching its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param String id
@@ -111,8 +107,6 @@ function db_update_id($, $, $, {local => 0, username => $db_user, password => $d
 # Updates an object //obj// in the collection //col// in the database //db//. Moreover, it matches its properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this. You will be asked for credentials if you don't specify them.
-# 
-# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @param Core::Object obj

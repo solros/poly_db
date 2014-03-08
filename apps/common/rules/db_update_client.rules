@@ -26,8 +26,6 @@ use DateTime;
 # Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''poly_database''.
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
@@ -47,8 +45,6 @@ function db_do_package ({local => 0, username => $db_user, password => $db_pwd, 
 # Perpetually works on the database until it is killed.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''poly_database''.
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
@@ -72,8 +68,6 @@ user_function db_work_on_packages ({local => 0, username => $db_user, password =
 # Moreover, it matches their properties with the template object for this collection.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param Int package
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
@@ -188,8 +182,6 @@ function db_finish_package($, $, $, {local => 0, username => $db_user, password 
 
 # @category Database Admin
 # Subdivides all objects into packages that are to be updated. (E.g. by computing missing properties.)
-# 
-# Contained in extension ''poly_database''.
 # @param String db
 # @param String col
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
@@ -219,8 +211,6 @@ user_function create_packages ($, $, {local => 0, username => $db_user, password
 
 # @category Database Admin
 # Prints all active packages in the collection //col// in database //db// with start time and host computer.
-# 
-# Contained in extension ''poly_database''.
 # @param String db
 # @param String col
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
@@ -266,8 +256,6 @@ user_function show_active_packages ($, $, {local => 0, username => $db_user, pas
 
 # @category Database Admin
 # Resets all active packages in the collection //col// in database //db//. Only use this if you are sure that they are no longer being processed.
-# 
-# Contained in extension ''poly_database''.
 # @param String db
 # @param String col
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0

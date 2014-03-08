@@ -20,8 +20,6 @@
 
 # @category Utilities
 # Takes an [[Core::Object|Object]] //obj// and a template [[Core::Object|Object]] of the same type and computes properties so that //obj// has all properties that //template// has.
-# 
-# Contained in extension ''polyDB''.
 # @param Core::Object obj
 # @param Core::Object template
 user_function copy_properties {
