@@ -51,8 +51,6 @@ custom $collection_name = "";
 
 # @category Database
 # Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
-# 
-# Contained in extension ''polyDB''.
 # @param HASH query
 # @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @option String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
@@ -84,8 +82,6 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 
 # @category Database
 # Returns one object in the database //db// in //collection// that matches the //query//.
-# 
-# Contained in extension ''polyDB''.
 # @param HASH query
 # @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @option String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
@@ -115,8 +111,6 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 
 # @category Database
 # Returns the number of objects in the database //db// in //collection// that match the //query//.
-# 
-# Contained in extension ''polyDB''.
 # @param HASH query
 # @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @option String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
@@ -140,8 +134,6 @@ user_function poly_db_count($, {db => $db_name, collection => $collection_name, 
 
 # @category Database
 # Returns the IDs of all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
-# 
-# Contained in extension ''polyDB''.
 # @param HASH query
 # @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @option String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections

@@ -36,28 +36,20 @@ use MongoDB::OID;
 
 
 # A database cursor. Initialize it with a [[DATABASE]] name, a [[COLLECTION]] name and a [[QUERY]]. You can then iterate over the objects matching the [[QUERY]] with [[next]]. It lazily fetches more objects from the database server. (Note that you have to create a new cursor if you want to start from the beginning.)
-# 
-# Contained in extension ''polyDB''.
 declare object DatabaseCursor;
 
 
 # @topic category functions/Database
 # Here you can find the functions to access the polymake database.
-# 
-# Contained in extension ''polyDB''.
 
 # @topic category functions/Database Admin
 # These are administrative functions. You need admin access to the database for these.
 # 
 # This category also contains functions that I want to hide from the public because they are not yet completely presentable.
-# 
-# Contained in extension ''polyDB''.
 
 
 # @topic category functions/Database Write Access
 # These are the functions to insert and update objects. You need write access to the database for these. 
-# 
-# Contained in extension ''polyDB''.
 
 
 

@@ -20,32 +20,22 @@ object Polytope {
 
 	# @category Database
 	# The unique ID of the polytope in the database.
-	# 
-	# Contained in extension ''polyDB''.
 	property _id : String;
 
 	# @category Database
 	# The contributor of the polytope in the database.
-	# 
-	# Contained in extension ''polyDB''.
 	property contributor : String;
 
 	# @category Database
 	# The date the polytope was added to the database.
-	# 
-	# Contained in extension ''polyDB''.
 	property date : String;
 
 	# @category Database
 	# The database the polytope came from. (This is not stored in the database.)
-	# 
-	# Contained in extension ''polyDB''.
 	property database : String;
 
 	# @category Database
 	# The collection the polytope came from. (This is not stored in the database.)
-	# 
-	# Contained in extension ''polyDB''.
 	property collection : String;
 
 }
