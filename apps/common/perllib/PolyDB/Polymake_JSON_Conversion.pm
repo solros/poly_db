@@ -30,22 +30,23 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 # This function takes a json hash and returns one that can be fed into a polymake object.
 sub json2pm {
+	my $obj_type = shift;
+	my $app = shift;
 	my %j = @_;
-	my %r = map { entry2prop($_, $j{$_}) } keys %j; 
+	my %r = map { entry2prop($_, $j{$_}, $obj_type, $app) } keys %j; 
 	return %r;
 }
 
 
 # This function converts one entry ($key => $val).
 sub entry2prop {
-	my ($key, $val) = @_;
-#	print "key: $key\n";
-#	print "val: $val\n";
+	my ($key, $val, $obj_type, $app) = @_;
+	print "e2p: $key\n";
 	if (ref($val) eq "HASH") {
+		print "HASH\n";
 		if (defined(my $type = $val->{type})){
 			my $app = defined($val->{app}) ? User::application($val->{app}) : User::application();
 			my $prop_type = $app->eval_type($type);
-#			print "type: ".$type."\n";
 			if (defined($val->{value})) {
 				if (!@{$val->{value}}) {	# empty property
 					return $key => $val->{value};
@@ -60,7 +61,51 @@ sub entry2prop {
 		}
 	}
 
-	return $key => $val;
+	return $key => property_value_wrapper($obj_type, $app, $key, $val);
+}
+
+sub property_value_wrapper {
+	my ($obj_type, $app, $key, $val) = @_;
+	my $all = User::application($app)->object_types;
+	my ( $index )= grep { $all->[$_]->full_name eq $obj_type->full_name } 0..$#{$all};
+	
+	my $prop_type = $all->[$index]->properties->{$key}->type;
+	if ($prop_type->full_name =~ m/QuadraticExtension/) {
+		return qetype($val, $prop_type);
+	} else {
+		return $val;
+	}
+}
+
+# take care of QuadraticExtensions
+sub qetype {
+	my ($val, $type) = @_;
+	if ($type->name eq "QuadraticExtension") {
+		return new QuadraticExtension(new Rational($val->[0]), new Rational($val->[1]), new Rational($val->[2]));
+	}
+
+	if ($type->name eq "Vector") {
+		my $size = $#{$val};
+		my $r = new Vector<QuadraticExtension>($size);
+		for (my $i=0; $i<$size; ++$i) {
+			$r->[$i] = new QuadraticExtension(new Rational($val->[$i]->[0]), new Rational($val->[$i]->[1]), new Rational($val->[$i]->[2]));
+		}
+		return $r;
+	}
+
+	
+	if ($type->name eq "Matrix") {
+		my $rows = $#{$val};
+		my $cols = $#{$val->[0]};
+		my $r = new Matrix<QuadraticExtension>($rows, $cols);
+		for (my $i=0; $i<$rows; ++$i) {
+			for (my $j=0; $j<$cols; ++$j) {
+				$r->[$i]->[$j] = new QuadraticExtension(new Rational($val->[$i]->[$j]->[0]), new Rational($val->[$i]->[$j]->[1]), new Rational($val->[$i]->[$j]->[2]));
+			}
+		}
+		return $r;
+	}
+	# TODO: recursive call
 }
 
 # This function creates a sparse matrix or vector from json.
@@ -70,9 +115,9 @@ sub json2sparse {
 	
 	if ($prop_type->name eq "SparseVector") {
 		my $r = $prop_type->construct->($val->{cols});
-		my $etype = $r->[0]->type;
+		my $etype = $r->[0]->type->full_name;
 		foreach (keys %{$value}) {
-			$r->[$_] = $etype->construct->(@{$value->{$_}});
+			$r->[$_] = construct_wrapper($value->{$_},$etype);
 		}
 		return $r;
 	}
@@ -80,16 +125,26 @@ sub json2sparse {
 		my $rows = @$value;
 		my $r = $prop_type->construct->($rows, $val->{cols});	
 		my $etype = $r->[0]->[0]->type;
-#		print "type ".$etype->full_name."\n";
 		for (my $i=0; $i<$rows; ++$i) {
 			foreach (keys %{$value->[$i]}) {
-				#$r->[$i]->[$_] = $etype->construct->($value->[$i]->{$_});
-				# TODO QuadraticExtension, Float, ...
-				$r->[$i]->[$_] = new Rational($value->[$i]->{$_});
+				$r->[$i]->[$_] = construct_wrapper($value->[$i]->{$_}, $etype);
 			}
 		}
 		return $r;
 	}
+}
+
+sub construct_wrapper {
+	my ($val, $type) = @_;
+	my $name = $type->full_name;
+	if ($name eq "QuadraticExtension<Rational>") {
+		return new QuadraticExtension(new Rational($val->[0]), new Rational($val->[1]), new Rational($val->[2]));	
+	} elsif ($name eq "Float") {
+		return new Float($val);	
+	} elsif ($name eq "Rational") {
+		return new Rational($val);
+	}
+	return $type->construct->($val);
 }
 
 
@@ -98,6 +153,7 @@ sub json2sparse {
 sub json2object {
 	my ($doc, $obj_type, $add_props, $rem_props) = @_; 
 	
+	my $app = $doc->{app};
 	unless (defined($obj_type)) {
 		$obj_type = User::application($doc->{app})->eval_type($doc->{type});
 	}
@@ -111,7 +167,7 @@ sub json2object {
 	}
 	my $name = defined($doc->{name}) ? $doc->{name} : defined($doc->{_id}) ? $doc->{_id} : "<unnamed>";
 	
-	return $obj_type->construct->($name, json2pm(%$doc), %$add_props);
+	return $obj_type->construct->($name, json2pm($obj_type, $app, %$doc), %$add_props);
 }
 
 
