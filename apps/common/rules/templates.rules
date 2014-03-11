@@ -18,10 +18,8 @@
 
 
 
-# @category Database Write Access
+# @category Database
 # Returns the template object for the collection //col// of the database //db// (if this is set).
-# 
-# Contained in extension ''polyDB''.
 # @param String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
@@ -56,12 +54,10 @@ user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}
 
 
 
-# @category Database Admin
+# @category Database Write Access
 # Set or update type (and template) information for collection //col// in the database //db//.
 # 
 # Note that you need write access to the type database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
 # @option String app application name for the objects

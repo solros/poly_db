@@ -240,7 +240,7 @@ user_function set_db_info ($, $, {users => undef, local => 0, username => $db_us
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-function add_user_to_db ($, $, {local => 0, username => $db_user, password => $db_pwd}){
+user_function add_user_to_db ($, $, {local => 0, username => $db_user, password => $db_pwd}){
 	my ($db, $user, $options) = @_;
 	
 	
