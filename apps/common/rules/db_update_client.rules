@@ -188,9 +188,9 @@ function db_finish_package($, $, $, {local => 0, username => $db_user, password 
 # @option String password
 # @option Int package_size default 100
 user_function create_packages ($, $, {local => 0, username => $db_user, password => $db_pwd, package_size => 100}) {
-	my ($db_name, $col_name, $query, $options) = @_;
+	my ($db_name, $col_name, $options) = @_;
 	
-	my $total = poly_db_count({}, $options, db => $db_name, collection => $col_name);
+	my $total = poly_db_count({}, {$options, db => $db_name, collection => $col_name});
 	
 	my $npacks = ceil($total/$options->{package_size});
 	
