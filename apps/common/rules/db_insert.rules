@@ -22,8 +22,6 @@
 # Adds an object //obj// to the collection //col// in the database //db//.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param Core::Object obj
 # @param String db database name
 # @param String col collection name
@@ -35,10 +33,9 @@
 # @option Bool use_template set to 1 to match properties with a template object  
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
-# @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}){
-	my ($obj, $db, $col, $options) = @_;
+user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef}){
+	my ($obj, $db_name, $col_name, $options) = @_;
  	 	
 	# get client if not given by the options
 	my $client;
@@ -46,24 +43,33 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 		$client = get_client($options);
 	}
 	
- 	check_type($obj, $db, $col, $client);
+ 	check_type($obj, $db_name, $col_name, $client);
 	
-	my $rem_props = remove_props_insert($db, $col, $client, $options);
 
 	# get template object if not given by the options
+	my $type_info = get_type($client, $db_name, $col_name);
+
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_template_object($db, $col, local => $options->{local}, client => $client);
+			$temp = get_template_object($db_name, $col_name, local => $options->{local}, client => $client);
+			$type_info->{template} = $temp;
 		}
 		if (!$options->{nonew}) {
 			copy_properties($obj, $temp);
 		}
+	} else {
+		delete $type_info->{template};
 	}
 	
-	my $collection = get_collection($client, $db, $col);
+	my $collection = get_collection($client, $db_name, $col_name);
 
-	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0, $temp);
+	my $addprops = {};
+	$addprops->{contributor} = $options->{contrib} if (defined $options->{contrib});
+	$addprops->{_id} = $options->{id} if (defined $options->{id});
+
+
+	my $json = pm2json($obj, $type_info, $addprops);
 	my $output = $collection->insert($json);
 	return $output;
 }
@@ -73,8 +79,6 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # Adds an object from a file //file// to the collection //col// in the database //db//. First it matches its properties with the template object for this collection (unless your options say otherwise).
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param String file polymake object stored in a file
 # @param String db database name
 # @param String col collection name
@@ -86,22 +90,21 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 # @option Bool use_template set to 1 to match properties with a template object. 
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
-# @option MongoClient client
 # @return String
 user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
-	my ($file, $db, $col, $options) = @_;
+	my ($file, $db_name, $col_name, $options) = @_;
 
 	my $obj = User::load($file);
 	
 	my $id = $options->{id};
 	
 	unless ($id) {
-		if ($id = generate_id($file, $db, $col)) {
+		if ($id = generate_id($file, $db_name, $col_name)) {
 			$options->{"id"} = $id;
 		}
 	}
 	
-	return db_insert($obj, $db, $col, $options);
+	return db_insert($obj, $db_name, $col_name, $options);
 }
 
 
@@ -111,8 +114,6 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param Array<String> files list of file names
 # @param String db database name
 # @param String col collection name
@@ -124,9 +125,8 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose print database output
-# @option MongoClient client
-user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
-	my ($files, $db_name, $collection, $options) = @_;
+user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef}){
+	my ($files, $db_name, $col_name, $options) = @_;
 	
 	my @files = @$files;
 	
@@ -136,14 +136,16 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 		$client = get_client($options);
 	}
 
+	my $type_info = get_type($client, $db_name, $col_name);
+
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template}){
-		$temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = get_template_object($db_name, $col_name, local => $options->{local}, client => $client);
+		$type_info->{template} = $temp;
+	} else {
+		delete $type_info->{template};
 	}
-
-	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
-
 		
 	print "inserting ...\n";
 	foreach (@files) {
@@ -154,19 +156,20 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 		}
 	}
 
-	my $col = get_collection($client, $db_name, $collection);
+	my $col = get_collection($client, $db_name, $col_name);
 	
 	my $md = $options->{move_dir};
 	if ($md) {
 		system("mkdir -p $md");
 	}
+
 	
 	foreach my $file (@files) {
 		my $obj = User::load($file);
 
-	 	#check_type($obj, $db_name, $collection, $client);
+	 	#check_type($obj, $db_name, $col_name, $client);
 
-		my $id = generate_id($obj->name, $db_name, $collection);
+		my $id = generate_id($obj->name, $db_name, $col_name);
 		
 		if ($col->find_one({'_id'=>$id})) {
 			if ($md) {
@@ -175,7 +178,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
+		my $json = pm2json($obj, $type_info, {contributor => $options->{contrib}, id => $id});
 
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
@@ -185,9 +188,6 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 		}
 	}
 	
-	unless (defined($options->{client})){
-		undef $client;
-	}
 	print "\n";
 }
 
@@ -198,8 +198,6 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 # TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param String file pdata file (created with [[save_data]])
 # @param String db database name
 # @param String col collection name
@@ -211,9 +209,8 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 # @option Core::Object template (implies //use_templates//=>1)
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option Bool verbose print database output
-# @option MongoClient client
-user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, verbose => 0}){
-	my ($file, $db_name, $collection, $options) = @_;
+user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, template => undef, verbose => 0}){
+	my ($file, $db_name, $col_name, $options) = @_;
 	
 	# get client if not given by the options
 	my $client;
@@ -221,26 +218,28 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 		$client = get_client($options);
 	}
 
-	my $col = get_collection($client, $db_name, $collection);
+	my $type_info = get_type($client, $db_name, $col_name);
 
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template} || defined($options->{template})){
-		$temp = defined($options->{template}) ? $options->{template} : get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = defined($options->{template}) ? $options->{template} : get_template_object($db_name, $col_name, local => $options->{local}, client => $client);
 		unless ($temp) {croak("no template object\n");}
+		$type_info->{template} = $temp;
+	} else {
+		delete $type_info->{template};
 	}
 
-	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
-
 	my $objects = User::load_data($file);
+
+	my $col = get_collection($client, $db_name, $col_name);
 		
 	print "inserting ...\n";
-	my $count = 0;
 	foreach my $obj (@$objects) {
 		$obj->CONE_DIM;
 		$obj->N_FACETS;
 
-		my $id = generate_id($obj->name, $db_name, $collection);
+		my $id = generate_id($obj->name, $db_name, $col_name);
 		
 		if ($col->find_one({'_id' => $id})) {	
 			if ($options->{verbose}) { print "id $id already exists\n"; }
@@ -251,17 +250,13 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 			copy_properties($obj, $temp);
 		}
 
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
+		my $json = pm2json($obj, $type_info, {contributor => $options->{contrib}, _id => $id});
 		my $output = $col->insert($json);
 		if ($options->{verbose}) { print "$output "; }
-		$count++;
 
 	}
 	
-	unless (defined($options->{client})){
-		undef $client;
-	}
-	print "Inserted $count objects.\n\n";
+	print "\n";
 }
 
 
@@ -270,15 +265,12 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 # Removes the object with a given //id// from the collection //col// in the database //db//.
 # 
 # Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
 # @param String id
 # @param String db database name
 # @param String col collection name
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option MongoClient client
 # @return String
 user_function db_remove ($, $, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
 	my ($id, $db_name, $col_name, $options) = @_;

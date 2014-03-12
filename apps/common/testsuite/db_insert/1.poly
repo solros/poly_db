@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="53015817"?>
+<?pm chk="532053f8"?>
 
 <object name="F.4D.0000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="H_STAR_VECTOR">
@@ -56,8 +56,8 @@
     <v>11 22 18 7</v>
   </property>
   <property name="GORENSTEIN" value="true" />
-  <property name="database" value="LatticePolytopes" />
-  <property name="collection" value="SmoothReflexive" />
+  <property name="database" ext="1=http://solros.de/polymake/poly_db#0.1" value="LatticePolytopes" />
+  <property name="collection" ext="1" value="SmoothReflexive" />
   <property name="FEASIBLE" value="true" />
   <property name="LINEALITY_SPACE">
     <m />
@@ -65,4 +65,5 @@
   <property name="AFFINE_HULL">
     <m />
   </property>
+  <property name="_id" ext="1" undef="true" />
 </object>

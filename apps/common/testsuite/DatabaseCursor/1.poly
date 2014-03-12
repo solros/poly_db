@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5303f405"?>
+<?pm chk="532051d6"?>
 
 <object name="F.4D.0020" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="H_STAR_VECTOR">
@@ -7,10 +7,11 @@
   </property>
   <property name="REFLEXIVE" value="true" />
   <property name="CONE_DIM" value="5" />
-  <property name="date" value="2013-08-14" />
-  <property name="_id" value="F.4D.0020" />
+  <property name="date" ext="1=http://solros.de/polymake/poly_db#0.1" value="2013-08-14" />
+  <property name="_id" ext="1" value="F.4D.0020" />
   <property name="LATTICE_CODEGREE" value="1" />
   <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
+  <property name="collection" ext="1" value="SmoothReflexive" />
   <property name="SMOOTH" value="true" />
   <property name="N_LATTICE_POINTS" value="120" />
   <property name="FACET_WIDTHS">
@@ -43,7 +44,7 @@
     <v>1 -68/165 -34/55 -68/165 17/55</v>
   </property>
   <property name="N_VERTICES" value="9" />
-  <property name="contributor" value="'Andreas Paffenholz'" />
+  <property name="contributor" ext="1" value="'Andreas Paffenholz'" />
   <property name="LATTICE_DEGREE" value="4" />
   <property name="LATTICE_VOLUME" value="594" />
   <property name="EHRHART_POLYNOMIAL_COEFF">
@@ -51,6 +52,7 @@
   </property>
   <property name="N_BOUNDARY_LATTICE_POINTS" value="119" />
   <property name="ESSENTIALLY_GENERIC" value="false" />
+  <property name="database" ext="1" value="LatticePolytopes" />
   <property name="VERY_AMPLE" value="true" />
   <property name="F_VECTOR">
     <v>9 18 15 6</v>

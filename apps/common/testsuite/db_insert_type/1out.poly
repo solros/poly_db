@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?pm chk="530548a3"?>
 
-<object name="test1" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <property name="CONE_AMBIENT_DIM" value="4" />
+<object name="test1" type="polytope::Polytope&lt;Rational&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[cube of dimension 3
+]]></description>
+<property name="CONE_AMBIENT_DIM" value="4" />
   <property name="CONE_DIM" value="4" />
   <property name="AFFINE_HULL">
     <m />

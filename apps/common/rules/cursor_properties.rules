@@ -87,6 +87,11 @@ object DatabaseCursor {
 	property APP : String;
 
 
+	# @category Internal
+	# The collection info document. Will be created automatically.
+	property COLLECTION_INFO : HASH;
+
+
 	# @category Advanced
 	# Set this to 1 if you want to access a local database server. (Functionality not implemented yet.)
 	property LOCAL : Bool;

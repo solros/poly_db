@@ -26,7 +26,7 @@ do {
 
 	# TODO: testcase for subobject, incompatible types
 
-	compare_object( '1.poly', $p1 )
+	compare_object( '1.poly', $p1, ignore => ["HOMOGENEOUS"] )
 	and
 	compare_object( '2.poly', $p2 )
 	and

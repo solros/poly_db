@@ -74,7 +74,7 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 
 	my $client = get_client($options);
 		
-	my $tdb = $client->get_database($db);
+	my $tdb = $client->get_database($db);	# type database
 	my $tcol = $tdb->get_collection("type_information");
 
 	my $update = 0;
@@ -102,13 +102,13 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 	}
 
 	if (defined(my $obj = $options->{template})) {
-		my $json = pm2json($obj, undef, undef, undef, 1);
+		my $json = pm2json($obj, undef, undef, 1);
 		$h->{template} = $json;
 		$h->{app} = $json->{app};
 		$h->{type} = $json->{type};
 	}
 	if (defined(my $obj = $options->{tinytemplate})) {
-		$h->{tinytemplate} = pm2json($obj, undef, undef, undef, 1);
+		$h->{tinytemplate} = pm2json($obj, undef, undef, 1);
 		# TODO: app and type
 	}
 

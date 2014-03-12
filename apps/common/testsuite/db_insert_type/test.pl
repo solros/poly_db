@@ -21,7 +21,7 @@ do {
 
 
 	open OUTFILE, ">typecheck.OK";
-	print OUTFILE "Type mismatch: Collection Test.$col_name only takes objects of type LatticePolytope; given object is of type Graph<Undirected> at /Volumes/Polaris/poly_database/apps/common/rules/db_insert.rules line 49.\n";
+	print OUTFILE "Type mismatch: Collection Test.$col_name only takes objects of type LatticePolytope; given object is of type Graph<Undirected> at /Volumes/Polaris/poly_database/apps/common/rules/db_insert.rules line 46.\n";
 	close OUTFILE;
 
 

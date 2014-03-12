@@ -59,30 +59,32 @@ sub get_client {
 
 # returns the database entry with the type information for a given collection
 sub get_type {
-	my ($client, $db_name, $collection) = @_;
-	return $client->get_database($db_name)->get_collection("type_information")->find_one({db => $db_name, col => $collection});
+	my ($client, $db_name, $col_name) = @_;
+	my $type =  $client->get_database($db_name)->get_collection("type_information")->find_one({db => $db_name, col => $col_name});
+	delete $type->{_id};
+	return $type;
 }
 
 # returns a collection object
 sub get_collection {
-	my ($client, $db_name, $collection) = @_;
+	my ($client, $db_name, $col_name) = @_;
 	my $db = $client->get_database($db_name);
-	return $db->get_collection($collection);
+	return $db->get_collection($col_name);
 }
 
 
 sub check_type {
-	my ($obj, $db, $col, $client) = @_;
-	my $c = get_type($client, $db, $col);
+	my ($obj, $db_name, $col_name, $client) = @_;
+	my $c = get_type($client, $db_name, $col_name);
 
-	unless ($c) {
+	unless (exists $c->{type}) {
 		return 1;
 	}
 	
 	my $col_type = $c->{type};
 
 	unless ($obj->type->isa($c->{app}."::".$col_type) || $col_type ~~ {map {$_->name} keys %{$obj->type->auto_casts}}) {
-		croak("Type mismatch: Collection $db.$col only takes objects of type $col_type; given object is of type ".$obj->type->full_name."\n");
+		croak("Type mismatch: Collection $db_name.$col_name only takes objects of type $col_type; given object is of type ".$obj->type->full_name."\n");
 	}
 	return 1;
 }
@@ -99,26 +101,26 @@ sub get_date {
 
 # generates a unique ID for the object from the name of the file
 sub generate_id {
-	my ($name, $db, $col) = @_;
+	my ($name, $db_name, $col_name) = @_;
 	
-	if ($col eq "SmoothReflexive") {
+	if ($col_name eq "SmoothReflexive") {
 		if ($name =~ m/\.(\d+D)\.(\d+)/) {
 			return "F.$1.$2";
 		} else {
-			croak("name $name does not yield valid id for collection $col\n");
+			croak("name $name does not yield valid id for collection $col_name\n");
 			return;
 		}
 	}
-	if ($col eq "SmoothReflexive9") {
+	if ($col_name eq "SmoothReflexive9") {
 		if ($name =~ m/\.(\d+D)\.f(\d+)\.(\d+)/) {
 			return "F.$1.$2.$3";
 		} else {
-			croak("name $name does not yield valid id for collection $col\n");
+			croak("name $name does not yield valid id for collection $col_name\n");
 			return;
 		}		
 	}
 	return $name;
-	#croak("no rule to generate id for collection $col\n");
+	#croak("no rule to generate id for collection $col_name\n");
 	#return;
 }
 
@@ -137,12 +139,9 @@ sub lup {
 
 sub remove_props_insert {
 	my ($db, $col, $client, $options) = @_;
-	my $rem_props;
-	unless (defined($rem_props = $options->{rem_props})) {
-		$rem_props = ["database","collection"];
-		if (my $type = get_type($client, $db, $col)) {
-			push @$rem_props, keys %$type;
-		}
+	my $rem_props = ["database","collection"];
+	if (my $type = get_type($client, $db, $col)) {
+		push @$rem_props, keys %$type;
 	}
 	return $rem_props;
 }

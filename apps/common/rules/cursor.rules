@@ -64,11 +64,12 @@ object DatabaseCursor {
 		$this->SORT_BY = {};
 	}
 
-	rule initial : TYPE, APP : {
+	rule initial : TYPE, APP, COLLECTION_INFO : {
 		my $client = get_client($this->LOCAL, $this->USER_NAME, $this->PASSWORD);
-		my $type = get_type($client, $this->DATABASE, $this->COLLECTION);
-		my $app = $type->{'app'};
-		my $type = $type->{'type'};
+		my $type_info = get_type($client, $this->DATABASE, $this->COLLECTION);
+		my $app = $type_info->{'app'};
+		my $type = $type_info->{'type'};
+		$this->COLLECTION_INFO = $type_info;
 		$this->APP = $app;
 		$this->TYPE = $type;
 	}
@@ -91,14 +92,10 @@ object DatabaseCursor {
 	# @return Core::Object
 	user_method next {
 		my $this = shift;
-		my $type = User::application($this->APP)->eval_type($this->TYPE);
 		my $p = $this->CURSOR->next;
 		unless ($p) {print "no such object"; return;}
 
-		my $addprops;
-		$addprops = {"database" => $this->DATABASE, "collection" => $this->COLLECTION};
-
-		return PolyDB::Polymake_JSON_Conversion::json2object($p, $type, $addprops)
+		return doc2object($p, $this->COLLECTION_INFO, $this->DATABASE, $this->COLLECTION);
 	}
 
 	# Returns true if there is another object to fetch.

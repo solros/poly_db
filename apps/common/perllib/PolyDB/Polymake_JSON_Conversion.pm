@@ -21,11 +21,142 @@ package PolyDB::Polymake_JSON_Conversion;
 use PolyDB::JSON;
 
 require Exporter;
-use vars qw(@ISA @EXPORT @EXPORT_OK);
+use vars qw(@ISA @EXPORT @EXPORT_OK @db_only_props @obj_only_props @col_info_props);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(doc2object cursor2array cursor2stringarray pm2json);
-@EXPORT_OK = qw(json2object);
+
+
+@db_only_props = qw(app type name version ext description name);
+@obj_only_props = qw(database collection);
+@col_info_props = qw(contributor type app version ext);
+
+
+# This function takes a polymake object and transforms it into a json hash.
+# It also adds further properties (like type and version information) and removes those that should not go into the database (like database and collection). It also adds an id.
+sub pm2json {
+	my ($object, $type_info, $addprops, $temp) = @_;
+	# type_info contains type info
+	# addprops contains additional properties that are added to the object
+	# temp should be set to 1 for creating a template object
+	
+	my $json = write_json($object);
+	$json =~ s/\s\:\s/ => /g;
+	my $r = eval($json);
+	
+	foreach (@col_info_props) {
+		delete $r->{$_} if (exists $type_info->{$_} and $r->{$_} eq $type_info->{$_});
+	}
+	foreach (keys %$addprops) {
+		$r->{$_} = $addprops->{$_};
+	}
+	foreach (@obj_only_props) {
+		delete $r->{$_};
+	}
+	
+	if (defined (my $template = $type_info->{template})) {
+		my $s = new Set<String>($object->list_properties());
+		my $t = new Set<String>($template->list_properties());
+		my $rem = $s - $t;
+		foreach (@$rem) {
+			delete $r->{$_};
+		}
+	}
+	
+	unless ($temp) {
+		if ($addprops->{_id}) {
+			$r->{_id} = $addprops->{_id};
+		} elsif (not defined $object->_id) {
+			croak("no id given");
+		}
+		$r->{date} = get_date();
+	}
+	return $r;
+}
+
+
+#############################################################
+
+
+# This function takes a json hash and an optional object type and transforms the hash into a polymake object.
+# It also removes those properties that shall not go into the object (like app, type, version, ...).
+sub json2object {
+	my ($doc, $obj_type) = @_; 
+	my $app = $doc->{app};
+	unless (defined($obj_type)) {
+		$obj_type = User::application($doc->{app})->eval_type($doc->{type});
+	}
+
+	my $name = defined($doc->{name}) ? $doc->{name} : defined($doc->{_id}) ? $doc->{_id} : "<unnamed>";
+	my $descr = $doc->{description};
+	
+	# remove stuff that is only needed in the database (or has to be added later, e.g. description)
+	foreach (@db_only_props) {
+		delete $doc->{$_};
+	}
+	my $ret = $obj_type->construct->($name, json2pm($obj_type, $app, %$doc));
+	$ret->description = $descr;
+	return $ret;
+}
+
+
+
+
+# This is a helper function that transforms a database cursor into an array of polymake objects.
+sub cursor2array {
+	my ($cursor, $type_info, $db_name, $col_name) = @_;
+	my $size = $cursor->count(1);
+	
+	my @objects = $cursor->all;
+
+	# TODO: only allows this for collections with type information (i.e. when $t is defined)??
+	my $app = (defined $type_info and defined $type_info->{'app'}) ? $type_info->{'app'} : $objects[0]->{'app'};
+	my $type = (defined $type_info and defined $type_info->{'type'}) ? $type_info->{'type'} : $objects[0]->{'type'};
+
+	my $arr_type = User::application($app)->eval_type("Array<$type>");
+
+	my $parray = $arr_type->construct->($size+0);
+	my $i = 0;
+	
+	foreach my $p (@objects) {	
+		$parray->[$i] = doc2object($p, $type_info, $db_name, $col_name);
+		++$i;
+	}
+	return $parray;
+
+}
+
+# This is a helper function that transforms a database cursor into an array of strings (IDs).
+sub cursor2stringarray {
+	my $cursor = shift;
+	
+	my @parray = ();
+	while (my $p = $cursor->next) {
+		push @parray, $p->{_id};
+	}
+	return @parray;
+
+}
+
+
+# This is a helper function that transforms a database document into an object.
+sub doc2object {
+	my ($doc, $type_info, $db_name, $col_name) = @_;
+	
+	$doc->{'database'} = $db_name if $db_name;
+	$doc->{'collection'} = $col_name if $col_name;
+#	$doc->{'app'} = $type_info->{'app'} unless (defined $doc->{'app'});
+#	$doc->{'type'} = $type_info->{'type'} unless (defined $doc->{'type'});
+	foreach ((@col_info_props, 'app', 'type')) {
+		$doc->{$_} = $type_info->{$_} if (exists $type_info->{$_} and not defined $doc->{$_});
+	}
+	
+	return json2object($doc);
+}
+
+
+
+
 
 
 # This function takes a json hash and returns one that can be fed into a polymake object.
@@ -40,10 +171,8 @@ sub json2pm {
 
 # This function converts one entry ($key => $val).
 sub entry2prop {
-	my ($key, $val, $obj_type, $app) = @_;
-	print "e2p: $key\n";
+	my ($key, $val, $obj_type, $app_name) = @_;
 	if (ref($val) eq "HASH") {
-		print "HASH\n";
 		if (defined(my $type = $val->{type})){
 			my $app = defined($val->{app}) ? User::application($val->{app}) : User::application();
 			my $prop_type = $app->eval_type($type);
@@ -57,19 +186,23 @@ sub entry2prop {
 				return $key => json2object($val, $prop_type);
 			}
 		} else {
-			return map {entry2prop($key.".".$_, $val->{$_})} keys %$val; 
+			return map {entry2prop($key.".".$_, $val->{$_}, $obj_type, $app_name)} keys %$val; 
 		}
 	}
 
-	return $key => property_value_wrapper($obj_type, $app, $key, $val);
+	return $key => property_value_wrapper($obj_type, $app_name, $key, $val);
 }
 
 sub property_value_wrapper {
 	my ($obj_type, $app, $key, $val) = @_;
-	my $all = User::application($app)->object_types;
-	my ( $index )= grep { $all->[$_]->full_name eq $obj_type->full_name } 0..$#{$all};
+	#my $all = User::application($app)->object_types;
+	#my ( $index )= grep { $all->[$_]->full_name eq $obj_type->full_name } 0..$#{$all};
 	
-	my $prop_type = $all->[$index]->properties->{$key}->type;
+	my @keys = split('.',$key);
+	my $prop_type = $obj_type;
+	foreach (@keys) {
+		$prop_type = $prop_type->lookup_property($_)->type;
+	}
 	if ($prop_type->full_name =~ m/QuadraticExtension/) {
 		return qetype($val, $prop_type);
 	} else {
@@ -147,127 +280,6 @@ sub construct_wrapper {
 	return $type->construct->($val);
 }
 
-
-# This function takes a json hash and an object type and transforms the hash into a polymake object.
-# It also adds further properties (like database and collection) and removes those that shall not go into the object (like app, type, version, ...).
-sub json2object {
-	my ($doc, $obj_type, $add_props, $rem_props) = @_; 
-	
-	my $app = $doc->{app};
-	unless (defined($obj_type)) {
-		$obj_type = User::application($doc->{app})->eval_type($doc->{type});
-	}
-
-	unless (defined($rem_props)) {
-		$rem_props = ["app", "type", "name", "version", "ext", "description"];
-	}
-	
-	foreach (@$rem_props) {
-		delete $doc->{$_};
-	}
-	my $name = defined($doc->{name}) ? $doc->{name} : defined($doc->{_id}) ? $doc->{_id} : "<unnamed>";
-	
-	return $obj_type->construct->($name, json2pm($obj_type, $app, %$doc), %$add_props);
-}
-
-
-# This function takes a polymake object and transforms it into a json hash.
-# It also adds further properties (like ... erm ... dunno) and removes those that should not go into the database (like database and collection). It also adds an id.
-sub pm2json {
-	my ($object, $add_props, $rem_props, $id, $temp, $template) = @_;
-	# add_props contains database properties that shall be added
-	# rem_props contains properties that are stored collection wide in the type db and are not written to the database
-	# temp should be set to 1 for a creating a template object
-	# template - remove properties not contained in the template object
-		
-	my $json = write_json($object);
-	$json =~ s/\s\:\s/ => /g;
-	my $r = eval($json);
-		
-	foreach (keys %$add_props) {
-		$r->{$_} = $add_props->{$_};
-	}
-	foreach (@$rem_props) {
-		delete $r->{$_};
-	}
-	
-	if (defined $template) {
-		my $s = new Set<String>($object->list_properties());
-		my $t = new Set<String>($template->list_properties());
-		my $rem = $s - $t;
-		foreach (@$rem) {
-			delete $r->{$_};
-		}
-	}
-	
-	unless ($temp) {
-		unless ($id) { $id = $object->_id; }
-		$r->{_id} = $id;
-		$r->{date} = get_date();
-	}
-	return $r;
-}
-
-
-# This is a helper function that transforms a database cursor into an array of polymake objects.
-sub cursor2array {
-	my ($cursor, $t, $db_name, $col_name) = @_;
-	my $size = $cursor->count(1);
-	
-	my @objects = $cursor->all;
-
-	my $app = defined($t) ? $t->{'app'}:$objects[0]->{'app'};
-	my $type = defined($t) ? $t->{'type'}:$objects[0]->{'type'};
-
-	my $obj_type = User::application($app)->eval_type($type);
-	my $arr_type = User::application($app)->eval_type("Array<$type>");
-
-	my $parray = $arr_type->construct->($size+0);
-	my $i = 0;
-	
-	# TODO: add other properties from type entry
-	my $addprops = {"database" => $db_name, "collection" => $col_name};
-	foreach my $p (@objects) {		
-		$parray->[$i] = json2object($p, $obj_type, $addprops);
-		++$i;
-	}
-	return $parray;
-
-}
-
-# This is a helper function that transforms a database cursor into an array of strings (IDs).
-sub cursor2stringarray {
-	my $cursor = shift;
-	
-	my @parray = ();
-	while (my $p = $cursor->next) {
-		push @parray, $p->{_id};
-	}
-	return @parray;
-
-}
-
-
-# This is a helper function that transforms a database document into an object.
-sub doc2object {
-	my $doc = shift;
-	my $t = shift;
-	my $db_name = shift;
-	my $col_name = shift;
-	
-	my $app = defined($doc->{'app'}) ? $doc->{'app'}:$t->{'app'};
-	my $type = defined($doc->{'type'}) ? $doc->{'type'}:$t->{'type'};
-
-	# TODO: add other properties from type entry
-	my $addprops;
-	if ($db_name && $col_name) {
-		$addprops = {"database" => $db_name, "collection" => $col_name};
-	}
-	
-	my $obj_type = User::application($app)->eval_type($type);
-	
-	return json2object($doc, $obj_type, $addprops);
-}
 
 
 
