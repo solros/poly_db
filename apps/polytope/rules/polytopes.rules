@@ -18,6 +18,9 @@
 
 object Polytope {
 
+        # @topic category properties/Database
+        # Database properties
+
 	# @category Database
 	# The unique ID of the polytope in the database.
 	property _id : String;
