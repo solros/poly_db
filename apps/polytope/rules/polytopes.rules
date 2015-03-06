@@ -18,6 +18,11 @@
 
 object Polytope {
 
+        # @topic category properties/Database
+        # The following properties are used for the polymake database project polyDB and 
+        # provide technical information about an object 
+        # not contained in one of the properties defined in polymake
+    
 	# @category Database
 	# The unique ID of the polytope in the database.
 	property _id : String;
