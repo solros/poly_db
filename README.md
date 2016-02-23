@@ -3,6 +3,11 @@ polyDB
 
 This is an extension for polymake that allows access to the online polymake polytope database on the polymake server. (See polymake.org or solros.de/polymake/poly_db for more details.)
 
+Versions
+------
+
+The extensions works with releases 2.14 and 3.0 of polymake. For polymake 2.14 you should check out the tag r2.14 of this extension, for polymake 3.0 you should use the master branch.
+
 
 Installation
 ------
