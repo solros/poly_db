@@ -39,7 +39,7 @@ sub write_json {
 
 	$writer->startTag("object",
         defined($object->name) ? (name => $object->name) : (),
-        Polymake::Core::XMLwriter::type_attr($writer, $object_type),
+        Polymake::Core::XMLwriter::type_attr($object_type),
         Polymake::Core::XMLwriter::top_ext_attr($writer, $object_type),
         version => $Version,
     );
