@@ -81,7 +81,7 @@ sub check_type {
 	
 	my $col_type = $c->{type};
 
-	unless ($obj->type->isa($c->{app}."::".$col_type) || $col_type ~~ {map {$_->name} keys %{$obj->type->auto_casts}}) {
+	unless ($obj->type->isa($c->{app}."::".$col_type) || grep $col_type, {map {$_->name} keys %{$obj->type->auto_casts}}) {
 		croak("Type mismatch: Collection $db.$col only takes objects of type $col_type; given object is of type ".$obj->type->full_name."\n");
 	}
 	return 1;
