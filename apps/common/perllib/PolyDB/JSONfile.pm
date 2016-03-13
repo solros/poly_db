@@ -51,7 +51,7 @@ sub write_subobject {
 	$polymake_object->{"type"} = $object->type->qualified_name;
 	$polymake_object->{"tag"} = "object";
 
-	if (length($object->name) ) {
+	if (length($object->name) && !$object->property->flags & $Polymake::Core::Property::is_multiple ) {
 		$polymake_object->{"name"} = $object->name;
 	}
     if (length($object->description)) {
