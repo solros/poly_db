@@ -103,7 +103,7 @@ sub write_object_contents {
 		   }
 		   if ($type->toXML) {
 			   # FIXME need writers for C++ objects, GRAPH and RING here
-			   print $pv->property->name, " has a toXML method\n ";
+			   $polymake_object->{$pv->property->qual_name} = "handler not yet implemented";
 		   } elsif (!looks_like_number($val) ) {
 			   $polymake_object->{$pv->property->qual_name} = $type->toString->();
 		   } else {
