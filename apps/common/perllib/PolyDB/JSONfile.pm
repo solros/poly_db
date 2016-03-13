@@ -72,19 +72,7 @@ sub write_object_contents {
     if (length($object->description)) {
     	   $polymake_object->{"description"} = $object->description;
     }
-   
-    my @credits = ();
-    while (my ($product, $credit_string)=each %{$object->credits}) {
-		my %credit =();
-        $credit{"credit"} = Polymake::is_object($credit_string) ? $credit_string->toFileString : $credit_string;
-    	$credit{"product"} = $product;
-    	push @credits, \%credit;
-    }
-	
-	$polymake_object->{"credits"} = \@credits;
-
-
-
+  
     foreach my $pv (@{$object->contents}) {
        next if !defined($pv) || $pv->property->flags & $Polymake::Core::Property::is_non_storable;
 
@@ -100,6 +88,10 @@ sub write_object_contents {
 	   } elsif ($pv->property->flags & $Polymake::Core::Property::is_multiple) {
 		   print "adding multiple property: ", $pv->property->qual_name, "\n" if $DEBUG;
 		   
+		    my $content = {};
+			$content->{$_->name} = write_subobject($_, $object, $_->property->type) for @{$pv->values};
+		    $polymake_object->{$pv->property->qual_name} = $content;
+			
 	   } elsif (defined($pv->value)) {
 		   print "adding value: ", $pv->property->qual_name, "\n" if $DEBUG;
 		   my $type=$pv->property->type;
@@ -142,6 +134,16 @@ sub json_save {
     if (length($object->description)) {
     	   $polymake_object->{"description"} = $object->description;
     } 
+	
+    my @credits = ();
+    while (my ($product, $credit_string)=each %{$object->credits}) {
+		my %credit =();
+        $credit{"credit"} = Polymake::is_object($credit_string) ? $credit_string->toFileString : $credit_string;
+    	$credit{"product"} = $product;
+    	push @credits, \%credit;
+    }
+	
+	$polymake_object->{"credits"} = \@credits;
 
 	my $contents = write_object_contents($object);
 	@{$polymake_object}{keys %{$contents}} = values %{$contents};
