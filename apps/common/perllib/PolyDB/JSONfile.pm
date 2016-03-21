@@ -22,9 +22,11 @@
  require Cwd;
 
  use strict;
- use namespaces;
 
  my $pmns="http://www.math.tu-berlin.de/polymake/#3";
+ my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String)$};
+ my $unhandled = "this property is still unhandled";
+ 
  
  my $DEBUG=1;
  
@@ -41,90 +43,221 @@ sub type_attr {
    ( type => $type->qualified_name(defined($owner) ? $owner->type->application : undef) )
 }
 
-sub write_subobject {
-	my ($object, $parent, $expected_type)=@_;
-	print "writing subobject: ", $object->type->qualified_name, "\n" if $DEBUG;
+##*************************************************************
+##*************************************************************
+sub matrix_toJSON {
+    my $pv=shift;
+    my $content = [];
 
-	my $type=$object->type;
-	my $polymake_object = {};
-
-	$polymake_object->{"type"} = $object->type->qualified_name;
-	$polymake_object->{"tag"} = "object";
-
-	if (length($object->name) && !$object->property->flags & $Polymake::Core::Property::is_multiple ) {
-		$polymake_object->{"name"} = $object->name;
+    if ( @{$pv} ) {
+	foreach (@{$pv}) {
+	    push @$content, handle_cpp_content($_);
 	}
-    if (length($object->description)) {
-    	   $polymake_object->{"description"} = $object->description;
     } 
-	
-	if ( $type != $expected_type ) { print "type and expected type deviate: ", type_attr($type->pure_type, $parent), "\n"; };
-	# FIXME handle extensions
-	
-	$polymake_object->{"content"} = write_object_contents($object);
-	return $polymake_object;
+    return $content;
 }
 
-sub write_object_contents {
-	my ($object)=@_;
-	my $polymake_object = {};
 
-    if (length($object->description)) {
-    	   $polymake_object->{"description"} = $object->description;
-    }
-  
-    foreach my $pv (@{$object->contents}) {
-       next if !defined($pv) || $pv->property->flags & $Polymake::Core::Property::is_non_storable;
+##*************************************************************
+##*************************************************************
+sub vector_toJSON {
+    my $pv=shift;
+    my $content = [];
+    my $descr=$pv->type->cppoptions->descr;
+    my $val_type=Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 1);
+    my $sub_qual_name= $val_type->qualified_name;
 
-	   #handle extensions here
-	   
-	   my $val = $pv->value;
-	   if (instanceof Polymake::Core::Object($pv)) {
-		   print "adding object: ", $pv->property->qual_name, "\n" if $DEBUG;
-		   $polymake_object->{$pv->property->qual_name} = write_subobject($pv, $object, $pv->property->type);
-      	   
-       # TODO: handle explicit references to other objects some day...
-
-	   } elsif ($pv->property->flags & $Polymake::Core::Property::is_multiple) {
-		   print "adding multiple property: ", $pv->property->qual_name, "\n" if $DEBUG;
-		   
-		    my $content = {};
-			$content->{$_->name} = write_subobject($_, $object, $_->property->type) for @{$pv->values};
-		    $polymake_object->{$pv->property->qual_name} = $content;
-			
-	   } elsif (defined($pv->value)) {
-		   print "adding value: ", $pv->property->qual_name, "\n" if $DEBUG;
-		   my $type=$pv->property->type;
-		   my @show_type;
-		   if (Polymake::is_object($val)) {
-			   if (ref($pv->value) ne $type->pkg) {
-				   $type=$val->type;
-			  }
-		   }
-		   if ($type->toXML) {
-			   # FIXME need writers for C++ objects, GRAPH and RING here
-			   $polymake_object->{$pv->property->qual_name} = "handler not yet implemented";
-		   } elsif (!looks_like_number($val) ) {
-			   $polymake_object->{$pv->property->qual_name} = $type->toString->();
-		   } else {
-			   # FIXME we are ignoring show_type and ext here
-			   $polymake_object->{$pv->property->qual_name} = $val;
-   		   }
-		} else {
- 		   print "adding undef: ", $pv->property->qual_name, "\n" if $DEBUG;
-			# FIXME we are ignoring ext here
-		   $polymake_object->{$pv->property->qual_name} = "undef";
-		}
+    if( $sub_qual_name =~ $simpletype_re ) {
+	if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container) {
+	    $content = {};
+	    for (my $it=args::entire($pv); $it; ++$it) {
+		$content->{$it->index} = $val_type->toString->($it->deref);
+	    }
+	} else {
+	    my @pv_copy = map { $val_type->toString->($_) } @$pv;
+	    $content = \@pv_copy;
 	}
+    } else {
+	foreach (@{$pv}) {
+	    push @$content, handle_cpp_content($_);
+	}
+    }
 
-	return $polymake_object;
+    return $content;
 }
 
+##*************************************************************
+##*************************************************************
+sub array_toJSON {
+
+    my $pv=shift;
+    my $content = [];
+    my $descr=$pv->type->cppoptions->descr;
+    my $val_type=Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 1);
+    my $sub_qual_name= $val_type->qualified_name;
+
+    if( $sub_qual_name =~ $simpletype_re ) {
+
+	my @pv_copy = @$pv;
+	$content = \@pv_copy;
+	    
+    } else {
+	$content = [];
+	foreach (@{$pv}) {
+	    push @$content, handle_cpp_content($_);
+	}
+    }
+    return $content;
+}
+
+##*************************************************************
+##*************************************************************
+sub graph_toJSON {
+    my $pv=shift;
+    my $content = {};
+
+    if ($pv->has_gaps) {
+	$content = \$unhandled;
+    } else {
+	my $am=adjacency_matrix($pv);
+	$content = handle_cpp_content($am);
+    }
+    
+    return $content;
+}
+
+##*************************************************************
+##*************************************************************
+sub nodeMap_toJSON {
+    my $pv=shift;
+    my $content = [];
+    foreach (@$pv) {
+	push @$content, handle_cpp_content($_);
+    }
+    return $content;
+}
+
+##*************************************************************
+##*************************************************************
+sub quadraticExtension_toJSON {
+    my $pv=shift;
+    my $content = {};
+    $content->{"type"} = "QE";
+
+    return $content;
+}
+
+##*************************************************************
+##*************************************************************
+sub tropicalNumber_toJSON {
+    my $pv=shift;
+    my $type = $pv->type;
+    my $content = $type->toString->($pv);
+    return $content;
+}
+
+##*************************************************************
+##*************************************************************
+sub handle_cpp_content {
+
+    my $pv=shift;
+    my $content = {};
+    my $qualified_value_name = $pv->type->qualified_name;
+    my $descr=$pv->type->cppoptions->descr;
+    my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
+
+    print "$qualified_value_name has kind $kind\n";
+    if ( $kind==$Polymake::Core::CPlusPlus::class_is_container ) { print "class is container\n"; }
+    if ( $kind==$Polymake::Core::CPlusPlus::class_is_assoc_container ) { print "class is assoc container\n"; }
+    if ( $kind==$Polymake::Core::CPlusPlus::class_is_composite ) { print "class is composite\n"; }
+	    
+    if( $qualified_value_name =~ /^common::.*Matrix/ ) {
+	$content = matrix_toJSON($pv);
+
+    } elsif( $qualified_value_name =~ /^common::(Array|Set)/ ) {
+	$content = array_toJSON($pv);
+	
+    } elsif( $qualified_value_name =~ /^common::.*Vector/ ) {
+	$content = vector_toJSON($pv);
+	
+    } elsif( $qualified_value_name =~ /^common::Graph/ ) {
+	$content = graph_toJSON($pv);
+
+    } elsif( $qualified_value_name =~ /^common::NodeMap/ ) {
+	$content = nodeMap_toJSON($pv);
+
+    } elsif( $qualified_value_name =~ /^common::QuadraticExtension/ ) {
+	$content = quadraticExtension_toJSON($pv);
+
+    } elsif( $qualified_value_name =~ /^common::TropicalNumber/ ) {
+	$content = tropicalNumber_toJSON($pv);
+    } else {
+	$content = $unhandled;
+    }
+
+    return $content;
+
+}
+
+##*************************************************************
+##*************************************************************
+sub value_toJSON {
+
+    my $val = shift;
+    my $type = shift;
+    my $content = {};
+
+    if ( instanceof Polymake::Core::Object($val) ) {
+	$content = handle_subobject($val);
+    } elsif( $type->qualified_name =~ $simpletype_re ) {
+	$content = $type->toString->($val);
+    } else {  # now we are dealing with a C++ type
+	$content = handle_cpp_content($val);
+    }
+    
+    return $content;
+}
+
+
+##*************************************************************
+##*************************************************************
+sub property_toJSON {
+    my $pv = shift;
+    my $type= $pv->property->type;
+    my $content = {};
+
+    if ($pv->property->flags & $Polymake::Core::Property::is_multiple) {
+	$content->{$_->name} = value_toJSON($_,$type)  for @{$pv->values};
+    } else {
+	$content = value_toJSON($pv->value,$type);
+    }
+
+    return $content;
+}
+
+
+
+##*************************************************************
+##*************************************************************
+sub handle_subobject {
+
+    my $pv = shift;
+    my $main_type=$pv->type->qualified_name;
+    my $content = {};
+
+    foreach my $pv (@{$pv->contents}) {
+	my $property = $pv->property->name;
+	$content->{$property} = property_toJSON($pv);
+    }
+    
+    return $content;
+}
+
+##*************************************************************
+##*************************************************************
 sub json_save {
 	my ($object)=@_;
 	
-	my $json = ::JSON->new;
-
 	my $polymake_object = {};
 	$polymake_object->{"type"} = $object->type->qualified_name;
 	$polymake_object->{"name"} = $object->name;
@@ -145,9 +278,12 @@ sub json_save {
 	
 	$polymake_object->{"credits"} = \@credits;
 
-	my $contents = write_object_contents($object);
-	@{$polymake_object}{keys %{$contents}} = values %{$contents};
+ 	foreach my $pv (@{$object->contents}) {
+		my $property = $pv->property->name;
+		$polymake_object->{$property} = property_toJSON($pv);
+    }
 
+	my $json = ::JSON->new;
 	$json->pretty->encode($polymake_object);
 }
 
