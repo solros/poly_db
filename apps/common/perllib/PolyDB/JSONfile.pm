@@ -203,7 +203,19 @@ sub handle_cpp_content {
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
 	
-    if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix)/ ) {
+    if ($kind==$Polymake::Core::CPlusPlus::class_is_container) {		
+ 	   print $qualified_value_name, " class is container\n";
+	   if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_assoc_container) {	
+ 		   print $qualified_value_name, " class is assoc container\n";
+	   }
+   	} elsif ($kind==$Polymake::Core::CPlusPlus::class_is_composite) {
+	   print $qualified_value_name, " class is composite\n";
+	} else {
+		print $qualified_value_name, " still unhandled\n";
+	}
+
+	    
+    if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix|IncidenceMatrix)/ ) {
 	$content = matrix_toJSON($pv);
 
     } elsif( $qualified_value_name =~ /^common::(Array|Set)/ ) {
