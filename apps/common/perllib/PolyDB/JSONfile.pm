@@ -139,6 +139,43 @@ sub nodeMap_toJSON {
 
 ##*************************************************************
 ##*************************************************************
+sub map_toJSON {
+    my $pv=shift;
+    my $content = [];
+    
+    my $descr=$pv->type->cppoptions->descr;
+    my @kv_type=map { Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, $_) } 0,1;
+
+    foreach (keys %$pv) {
+	my $val = [];
+	push @$val, value_toJSON($_,$kv_type[0]);
+	push @$val, value_toJSON($pv->{$_},$kv_type[1]);
+	push @$content, $val;
+    }
+    return $content;
+}
+
+
+##*************************************************************
+##*************************************************************
+sub pair_toJSON {
+    my $pv=shift;
+    my $content = [];
+    
+    my $descr=$pv->type->cppoptions->descr;
+    my $types = Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 2);
+
+    print "first type: ", $types->[0]->qualified_name, "\n", $pv->first, "\n";
+    
+    push @$content, value_toJSON($pv->first,$types->[0]);
+    push @$content, value_toJSON($pv->second,$types->[1]);
+    return $content;
+}
+
+
+
+##*************************************************************
+##*************************************************************
 sub quadraticExtension_toJSON {
     my $pv=shift;
     my $content = {};
@@ -166,7 +203,6 @@ sub handle_cpp_content {
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
 	
-	    
     if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix)/ ) {
 	$content = matrix_toJSON($pv);
 
@@ -181,6 +217,12 @@ sub handle_cpp_content {
 
     } elsif( $qualified_value_name =~ /^common::NodeMap/ ) {
 	$content = nodeMap_toJSON($pv);
+
+    } elsif( $qualified_value_name =~ /^common::Map/ ) {
+	$content = map_toJSON($pv);
+
+    } elsif( $qualified_value_name =~ /^common::Pair/ ) {
+	$content = pair_toJSON($pv);
 
     } elsif( $qualified_value_name =~ /^common::QuadraticExtension/ ) {
 	$content = quadraticExtension_toJSON($pv);
@@ -206,7 +248,12 @@ sub value_toJSON {
     if ( instanceof Polymake::Core::Object($val) ) {
 	$content = handle_subobject($val);
     } elsif( $type->qualified_name =~ $simpletype_re ) {
-	$content = $type->toString->($val);
+	if ( looks_like_number($val) ) {
+	    $content = $val;
+	} else {
+	    $content = $type->toString->($val);
+	    
+	}
     } else {  # now we are dealing with a C++ type
 	$content = handle_cpp_content($val);
     }
