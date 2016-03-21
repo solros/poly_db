@@ -67,6 +67,8 @@ sub vector_toJSON {
     my $val_type=Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 1);
     my $sub_qual_name= $val_type->qualified_name;
 
+    print $pv->type->qualified_name, "\n";
+
     if( $sub_qual_name =~ $simpletype_re ) {
 	if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container) {
 	    $content = {};
@@ -97,15 +99,13 @@ sub array_toJSON {
     my $sub_qual_name= $val_type->qualified_name;
 
     if( $sub_qual_name =~ $simpletype_re ) {
-
-	my @pv_copy = @$pv;
-	$content = \@pv_copy;
-	    
+		my @pv_copy = @$pv;
+		$content = \@pv_copy;
     } else {
-	$content = [];
-	foreach (@{$pv}) {
-	    push @$content, handle_cpp_content($_);
-	}
+		$content = [];
+		foreach (@{$pv}) {
+	    	push @$content, handle_cpp_content($_);
+		}
     }
     return $content;
 }
@@ -165,15 +165,15 @@ sub handle_cpp_content {
     my $qualified_value_name = $pv->type->qualified_name;
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
-
+	
 	    
-    if( $qualified_value_name =~ /^common::.*Matrix/ ) {
+    if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix)/ ) {
 	$content = matrix_toJSON($pv);
 
     } elsif( $qualified_value_name =~ /^common::(Array|Set)/ ) {
 	$content = array_toJSON($pv);
 	
-    } elsif( $qualified_value_name =~ /^common::.*Vector/ ) {
+    } elsif( $qualified_value_name =~ /^common::(SparseVector|Vector)/ ) {
 	$content = vector_toJSON($pv);
 	
     } elsif( $qualified_value_name =~ /^common::Graph/ ) {
