@@ -99,13 +99,13 @@ sub array_toJSON {
     my $sub_qual_name= $val_type->qualified_name;
 
     if( $sub_qual_name =~ $simpletype_re ) {
-		my @pv_copy = @$pv;
-		$content = \@pv_copy;
+	my @pv_copy = @$pv;
+	$content = \@pv_copy;
     } else {
-		$content = [];
-		foreach (@{$pv}) {
-	    	push @$content, handle_cpp_content($_);
-		}
+	$content = [];
+	foreach (@{$pv}) {
+	    push @$content, handle_cpp_content($_);
+	}
     }
     return $content;
 }
@@ -203,17 +203,6 @@ sub handle_cpp_content {
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
 	
-    if ($kind==$Polymake::Core::CPlusPlus::class_is_container) {		
- 	   print $qualified_value_name, " class is container\n";
-	   if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_assoc_container) {	
- 		   print $qualified_value_name, " class is assoc container\n";
-	   }
-   	} elsif ($kind==$Polymake::Core::CPlusPlus::class_is_composite) {
-	   print $qualified_value_name, " class is composite\n";
-	} else {
-		print $qualified_value_name, " still unhandled\n";
-	}
-
 	    
     if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix|IncidenceMatrix)/ ) {
 	$content = matrix_toJSON($pv);
@@ -242,7 +231,7 @@ sub handle_cpp_content {
     } elsif( $qualified_value_name =~ /^common::TropicalNumber/ ) {
 	$content = tropicalNumber_toJSON($pv);
     } else {
-	$content = $unhandled;
+	$content = $qualified_value_name.$unhandled;
     }
 
     return $content;
