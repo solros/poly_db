@@ -166,10 +166,6 @@ sub handle_cpp_content {
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
 
-    print "$qualified_value_name has kind $kind\n";
-    if ( $kind==$Polymake::Core::CPlusPlus::class_is_container ) { print "class is container\n"; }
-    if ( $kind==$Polymake::Core::CPlusPlus::class_is_assoc_container ) { print "class is assoc container\n"; }
-    if ( $kind==$Polymake::Core::CPlusPlus::class_is_composite ) { print "class is composite\n"; }
 	    
     if( $qualified_value_name =~ /^common::.*Matrix/ ) {
 	$content = matrix_toJSON($pv);
