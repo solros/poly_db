@@ -67,8 +67,6 @@ sub vector_toJSON {
     my $val_type=Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 1);
     my $sub_qual_name= $val_type->qualified_name;
 
-    print $pv->type->qualified_name, "\n";
-
     if( $sub_qual_name =~ $simpletype_re ) {
 	if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container) {
 	    $content = {};
@@ -164,8 +162,6 @@ sub pair_toJSON {
     
     my $descr=$pv->type->cppoptions->descr;
     my $types = Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 2);
-
-    print "first type: ", $types->[0]->qualified_name, "\n", $pv->first, "\n";
     
     push @$content, value_toJSON($pv->first,$types->[0]);
     push @$content, value_toJSON($pv->second,$types->[1]);
@@ -203,7 +199,6 @@ sub handle_cpp_content {
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
 	
-	    
     if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix|IncidenceMatrix)/ ) {
 	$content = matrix_toJSON($pv);
 
