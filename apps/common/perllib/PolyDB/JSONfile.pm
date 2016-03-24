@@ -24,7 +24,7 @@ require Cwd;
  use strict;
 
  my $pmns="http://www.math.tu-berlin.de/polymake/#3";
- my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String)$};
+ my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String|Float)$};
  my $unhandled = "this property is still unhandled";
  
  
@@ -313,6 +313,7 @@ sub handle_subobject {
 
     foreach my $pv (@{$pv->contents}) {
 	my $property = $pv->property->name;
+	print "encoding property $property in subobject\n" if $DEBUG;
 	$content->{$property} = property_toJSON($pv);
     }
     
@@ -347,6 +348,7 @@ sub json_save {
     
     foreach my $pv (@{$object->contents}) {
 	my $property = $pv->property->name;
+	print "encoding property $property\n" if $DEBUG;
 	$polymake_object->{$property} = property_toJSON($pv);
     }
     
