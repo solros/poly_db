@@ -242,7 +242,7 @@ sub handle_cpp_content {
 	$content = tropicalNumber_toJSON($pv);
     } else {
 	print $qualified_value_name, "is still unhandled\n" if $DEBUG;
-	$content = $qualified_value_name.$unhandled;
+	$content = $qualified_value_name." ".$unhandled;
     }
 
     return $content;
