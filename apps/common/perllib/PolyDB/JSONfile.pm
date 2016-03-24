@@ -299,7 +299,7 @@ sub handle_subobject {
     $content->{"name"} = $pv->name;
     $content->{"tag"} = "object";
     if (length($pv->description)) {
-    	   $content->{"description"} = $object->description;
+    	   $content->{"description"} = $pv->description;
     } 
 	
     my @credits = ();
