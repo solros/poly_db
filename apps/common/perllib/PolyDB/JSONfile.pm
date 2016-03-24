@@ -296,7 +296,9 @@ sub handle_subobject {
     my $main_type=$pv->type->qualified_name;
     my $content = {};
     $content->{"type"} = $pv->type->qualified_name;
-    $content->{"name"} = $pv->name;
+    if (length($pv->name)) {
+	$content->{"name"} = $pv->name;
+    }
     $content->{"tag"} = "object";
     if (length($pv->description)) {
     	   $content->{"description"} = $pv->description;
