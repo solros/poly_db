@@ -260,12 +260,7 @@ sub value_toJSON {
     if ( instanceof Polymake::Core::Object($val) ) {
 	$content = handle_subobject($val);
     } elsif( $type->qualified_name =~ $simpletype_re ) {
-	if ( looks_like_number($val) ) {
-	    $content = $val;
-	} else {
-	    $content = $type->toString->($val);
-	    
-	}
+	$content = $type->toString->($val);
     } else {  # now we are dealing with a C++ type
 	$content = handle_cpp_content($val);
     }
