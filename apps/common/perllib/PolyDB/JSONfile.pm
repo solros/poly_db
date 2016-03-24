@@ -19,7 +19,7 @@
 
  use JSON
 
- require Cwd;
+require Cwd;
 
  use strict;
 
@@ -115,6 +115,7 @@ sub graph_toJSON {
     my $content = {};
 
     if ($pv->has_gaps) {
+	print "graphs with gaps are still unhandled\n" if $DEBUG;
 	$content = \$unhandled;
     } else {
 	my $am=adjacency_matrix($pv);
@@ -198,7 +199,21 @@ sub handle_cpp_content {
     my $qualified_value_name = $pv->type->qualified_name;
     my $descr=$pv->type->cppoptions->descr;
     my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
-	
+
+
+    if ( $DEBUG ) {
+	if ($kind==$Polymake::Core::CPlusPlus::class_is_container) {		
+	    print $qualified_value_name, " class is container\n";
+	    if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_assoc_container) {	
+		print $qualified_value_name, " class is assoc container\n";
+	    }
+   	} elsif ($kind==$Polymake::Core::CPlusPlus::class_is_composite) {
+	    print $qualified_value_name, " class is composite\n";
+	} else {
+	    print $qualified_value_name, " has unknown class structure\n";
+	}
+    }
+	    
     if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix|IncidenceMatrix)/ ) {
 	$content = matrix_toJSON($pv);
 
@@ -226,6 +241,7 @@ sub handle_cpp_content {
     } elsif( $qualified_value_name =~ /^common::TropicalNumber/ ) {
 	$content = tropicalNumber_toJSON($pv);
     } else {
+	print $qualified_value_name, "is still unhandled\n" if $DEBUG;
 	$content = $qualified_value_name.$unhandled;
     }
 
@@ -266,7 +282,8 @@ sub property_toJSON {
     my $content = {};
 
     if ($pv->property->flags & $Polymake::Core::Property::is_multiple) {
-	$content->{$_->name} = value_toJSON($_,$type)  for @{$pv->values};
+	$content = [];
+	push @$content, handle_subobject($_)  for @{$pv->values};
     } else {
 	$content = value_toJSON($pv->value,$type);
     }
@@ -283,6 +300,21 @@ sub handle_subobject {
     my $pv = shift;
     my $main_type=$pv->type->qualified_name;
     my $content = {};
+    $content->{"type"} = $pv->type->qualified_name;
+    $content->{"name"} = $pv->name;
+    $content->{"tag"} = "object";
+    if (length($pv->description)) {
+    	   $content->{"description"} = $object->description;
+    } 
+	
+    my @credits = ();
+    while (my ($product, $credit_string)=each %{$pv->credits}) {
+	my %credit =();
+        $credit{"credit"} = Polymake::is_object($credit_string) ? $credit_string->toFileString : $credit_string;
+    	$credit{"product"} = $product;
+    	push @credits, \%credit;
+    }
+    $content->{"credits"} = \@credits;
 
     foreach my $pv (@{$pv->contents}) {
 	my $property = $pv->property->name;
@@ -295,35 +327,36 @@ sub handle_subobject {
 ##*************************************************************
 ##*************************************************************
 sub json_save {
-	my ($object)=@_;
-	
-	my $polymake_object = {};
-	$polymake_object->{"type"} = $object->type->qualified_name;
-	$polymake_object->{"name"} = $object->name;
-	$polymake_object->{"version"} = $Polymake::Version;
-	$polymake_object->{"tag"} = "object";
-	
+    my ($object)=@_;
+    
+    my $polymake_object = {};
+    $polymake_object->{"type"} = $object->type->qualified_name;
+    $polymake_object->{"name"} = $object->name;
+    $polymake_object->{"version"} = $Polymake::Version;
+    $polymake_object->{"tag"} = "object";
+    
     if (length($object->description)) {
     	   $polymake_object->{"description"} = $object->description;
     } 
 	
     my @credits = ();
     while (my ($product, $credit_string)=each %{$object->credits}) {
-		my %credit =();
+	my %credit =();
         $credit{"credit"} = Polymake::is_object($credit_string) ? $credit_string->toFileString : $credit_string;
     	$credit{"product"} = $product;
     	push @credits, \%credit;
     }
-	
-	$polymake_object->{"credits"} = \@credits;
+    $polymake_object->{"credits"} = \@credits;
 
- 	foreach my $pv (@{$object->contents}) {
-		my $property = $pv->property->name;
-		$polymake_object->{$property} = property_toJSON($pv);
+    
+    
+    foreach my $pv (@{$object->contents}) {
+	my $property = $pv->property->name;
+	$polymake_object->{$property} = property_toJSON($pv);
     }
-
-	my $json = ::JSON->new;
-	$json->pretty->encode($polymake_object);
+    
+    my $json = ::JSON->new;
+    $json->pretty->encode($polymake_object);
 }
 
 1
