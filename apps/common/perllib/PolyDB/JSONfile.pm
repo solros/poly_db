@@ -260,11 +260,11 @@ sub value_toJSON {
     my $content = {};
 
     if ( instanceof Polymake::Core::Object($val) ) {
-	$content = handle_subobject($val);
+		$content = handle_subobject($val);
     } elsif( $type->qualified_name =~ $simpletype_re ) {
-	$content = $type->toString->($val);
+		$content = $type->toString->($val);
     } else {  # now we are dealing with a C++ type
-	$content = handle_cpp_content($val);
+		$content = handle_cpp_content($val);
     }
     
     return $content;
@@ -279,10 +279,10 @@ sub property_toJSON {
     my $content = {};
 
     if ($pv->property->flags & $Polymake::Core::Property::is_multiple) {
-	$content = [];
-	push @$content, handle_subobject($_)  for @{$pv->values};
+		$content = [];
+		push @$content, handle_subobject($_)  for @{$pv->values};
     } else {
-	$content = value_toJSON($pv->value,$type);
+		$content = value_toJSON($pv->value,$type);
     }
 
     return $content;
