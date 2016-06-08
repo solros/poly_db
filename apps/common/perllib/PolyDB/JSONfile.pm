@@ -278,10 +278,15 @@ sub property_toJSON {
     my $type= $pv->property->type;
     my $content = {};
 
+	# multiple subobjects are stored as an array of objects
+	# in this case we know from the start that the value of this 
+	# property is a polymake object, hence no need to detect this as
+	# will be done in the non-multiple case
     if ($pv->property->flags & $Polymake::Core::Property::is_multiple) {
 		$content = [];
 		push @$content, handle_subobject($_)  for @{$pv->values};
     } else {
+		# here we don't know whether the propery is again an object, a builtin or a C++ type
 		$content = value_toJSON($pv->value,$type);
     }
 
