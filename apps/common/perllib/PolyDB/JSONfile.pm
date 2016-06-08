@@ -49,12 +49,20 @@ sub type_attr {
 ##*************************************************************
 sub matrix_toJSON {
     my $pv=shift;
-    my $content = [];
+    my $content = {};
 
     if ( @{$pv} ) {
-	foreach (@{$pv}) {
-	    push @$content, handle_cpp_content($_);
-	}
+		$content->{'cpptype'} = $pv->type->full_name;
+	    if( $content->{'cpptype'} =~ /^Sparse/ ) {
+			$content->{'spase'} = 1;
+		} else {
+			$content->{'spase'} = 0;
+		}
+		$content->{'cols'} = $pv->cols;
+		$content->{'data'} = [];
+		foreach (@{$pv}) {
+	    	push @{$content->{'data'}}, handle_cpp_content($_);
+		}
     } 
     return $content;
 }
@@ -194,6 +202,9 @@ sub tropicalNumber_toJSON {
 
 ##*************************************************************
 ##*************************************************************
+# handle C++ types
+# this is the most difficult case as 
+# C++-types can be arbitrarily nested
 sub handle_cpp_content {
 
     my $pv=shift;
@@ -253,6 +264,9 @@ sub handle_cpp_content {
 
 ##*************************************************************
 ##*************************************************************
+# this is only a distributor function that calls the 
+# correct handler depending on whether the value is a 
+# polymake object, builtin type, or C++ type
 sub value_toJSON {
 
     my $val = shift;
