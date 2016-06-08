@@ -359,9 +359,9 @@ sub json_save {
     # now turn to the actual properties of the polytope
 	# we run through the top level and handle the rest recursively
     foreach my $pv (@{$object->contents}) {
-	my $property = $pv->property->name;
-	print "encoding property $property\n" if $DEBUG;
-	$polymake_object->{$property} = property_toJSON($pv);
+		my $property = $pv->property->name;
+		print "encoding property $property\n" if $DEBUG;
+		$polymake_object->{$property} = property_toJSON($pv);
     }
     
 	# finally, convert the perl hash into a json object
