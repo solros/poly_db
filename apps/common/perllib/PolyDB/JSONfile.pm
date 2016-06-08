@@ -17,7 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
- use JSON
+ use JSON;
+ use XML::Simple;
+ 
 
 require Cwd;
 
@@ -326,17 +328,24 @@ sub handle_subobject {
 ##*************************************************************
 sub json_save {
     my ($object)=@_;
-    
+
+	# create a perl hash that contains the data from the polymake object
+	# later, we use JSON::encode to convert this into a json object
     my $polymake_object = {};
+	
+	# add the meta properties of the polytope
+	# FIXME we don't store xmlns, this needs to be restored during reading
     $polymake_object->{"type"} = $object->type->qualified_name;
     $polymake_object->{"name"} = $object->name;
     $polymake_object->{"version"} = $Polymake::Version;
     $polymake_object->{"tag"} = "object";
     
-    if (length($object->description)) {
+	# description is optional, so check
+    if (length($object->description)) { 
     	   $polymake_object->{"description"} = $object->description;
     } 
 	
+	# an object may have multiple credits
     my @credits = ();
     while (my ($product, $credit_string)=each %{$object->credits}) {
 	my %credit =();
@@ -347,15 +356,31 @@ sub json_save {
     $polymake_object->{"credits"} = \@credits;
 
     
-    
+    # now turn to the actual properties of the polytope
+	# we run through the top level and handle the rest recursively
     foreach my $pv (@{$object->contents}) {
 	my $property = $pv->property->name;
 	print "encoding property $property\n" if $DEBUG;
 	$polymake_object->{$property} = property_toJSON($pv);
     }
     
+	# finally, convert the perl hash into a json object
     my $json = ::JSON->new;
     $json->pretty->encode($polymake_object);
+}
+
+sub json_read {
+	
+	my $json=shift;
+	my $polymake_object = ::JSON->new->utf8->decode($json);
+	
+#	perl::Object p($polymake_object->{'type'});
+#	print $p;
+	
+	while ( my ( $property, $value) = each %{$polymake_object} ) {
+		print $property;
+	}
+	return $polymake_object;
 }
 
 1
