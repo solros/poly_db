@@ -50,11 +50,12 @@ sub type_attr {
 sub matrix_toJSON {
     my $pv=shift;
     my $content = {};
-
-    if ( @{$pv} ) {
-		$content->{'cpptype'} = $pv->type->full_name;
+	my $descr=$pv->type->cppoptions->descr;
+    
+	if ( @{$pv} ) {
+		$content->{'type'} = $pv->type->full_name;
 		# record whether data is sparse
-	    if( $content->{'cpptype'} =~ /^Sparse/ ) {
+	    if( $descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container ) {
 			$content->{'sparse'} = 1;
 		} else {
 			$content->{'sparse'} = 0;
@@ -73,6 +74,7 @@ sub matrix_toJSON {
 ##*************************************************************
 sub vector_toJSON {
     my $pv=shift;
+	
     my $content = [];
     my $descr=$pv->type->cppoptions->descr;
     my $val_type=Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 1);
@@ -82,7 +84,7 @@ sub vector_toJSON {
 	if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container) {
 	    $content = {};
 	    for (my $it=args::entire($pv); $it; ++$it) {
-		$content->{$it->index} = $val_type->toString->($it->deref);
+			$content->{$it->index} = $val_type->toString->($it->deref);
 	    }
 	} else {
 	    my @pv_copy = map { $val_type->toString->($_) } @$pv;
