@@ -371,6 +371,7 @@ sub json_save {
 	# add the meta properties of the polytope
 	# FIXME we don't store xmlns, this needs to be restored during reading
     $polymake_object->{"type"} = $object->type->qualified_name;
+	($polymake_object->{"app"}) = $polymake_object->{"type"} =~ /^(.+?)(?=::)/;
     $polymake_object->{"name"} = $object->name;
     $polymake_object->{"version"} = $Polymake::Version;
     $polymake_object->{"tag"} = "object";
@@ -398,7 +399,11 @@ sub json_save {
 		print "encoding property $property\n" if $DEBUG;
 		$polymake_object->{$property} = property_toJSON($pv);
     }
+	
+	my $xml = save Core::XMLstring($object);
     
+	$polymake_object->{'xml'} = $xml;
+	
 	# finally, convert the perl hash into a json object
     my $json = ::JSON->new;
     $json->pretty->encode($polymake_object);
@@ -408,14 +413,11 @@ sub json_read {
 	
 	my $json=shift;
 	my $polymake_object = ::JSON->new->utf8->decode($json);
+
+	my $p=eval("new ".$polymake_object->{'type'}.";");
+	load Core::XMLstring($p,$polymake_object->{'xml'});	
 	
-#	perl::Object p($polymake_object->{'type'});
-#	print $p;
-	
-	while ( my ( $property, $value) = each %{$polymake_object} ) {
-		print $property;
-	}
-	return $polymake_object;
+	return $p;
 }
 
 1
