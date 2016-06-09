@@ -53,10 +53,11 @@ sub matrix_toJSON {
 
     if ( @{$pv} ) {
 		$content->{'cpptype'} = $pv->type->full_name;
+		# record whether data is sparse
 	    if( $content->{'cpptype'} =~ /^Sparse/ ) {
-			$content->{'spase'} = 1;
+			$content->{'sparse'} = 1;
 		} else {
-			$content->{'spase'} = 0;
+			$content->{'sparse'} = 0;
 		}
 		$content->{'cols'} = $pv->cols;
 		$content->{'data'} = [];
