@@ -47,6 +47,8 @@ sub type_attr {
 
 ##*************************************************************
 ##*************************************************************
+# we always need to store the number of columns as this is not reconstructible from the 
+# data even for dense matrices, if they are empty
 sub matrix_toJSON {
     my $pv=shift;
     my $content = {};
@@ -72,28 +74,39 @@ sub matrix_toJSON {
 
 ##*************************************************************
 ##*************************************************************
+# FIXME in analogy to matrices a vector could always record its type
+# then a vector would always be an object with fields type, dim, sparse, data
 sub vector_toJSON {
     my $pv=shift;
+	my $content = [];
 	
-    my $content = [];
+	# get type description
     my $descr=$pv->type->cppoptions->descr;
+	
+	# get the type of the elements of the vector
     my $val_type=Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 1);
     my $sub_qual_name= $val_type->qualified_name;
 
+	# check if inner type is builtin or Rational/Integer
     if( $sub_qual_name =~ $simpletype_re ) {
-	if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container) {
-	    $content = {};
-	    for (my $it=args::entire($pv); $it; ++$it) {
-			$content->{$it->index} = $val_type->toString->($it->deref);
-	    }
+		# check if data is sparse
+		# FIXME apparently sparse vectors can only contain simple types?
+		if ($descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container) {
+	    	$content = {};
+			$content->{'dim'} = $pv->dim;
+			$content->{'sparse'} = 1;
+			$content->{'data'} = {};
+			for (my $it=args::entire($pv); $it; ++$it) {
+				$content->{'data'}->{$it->index} = $val_type->toString->($it->deref);
+			}
+		} else {
+	    	my @pv_copy = map { $val_type->toString->($_) } @$pv;
+			$content = \@pv_copy;
+		}
 	} else {
-	    my @pv_copy = map { $val_type->toString->($_) } @$pv;
-	    $content = \@pv_copy;
-	}
-    } else {
-	foreach (@{$pv}) {
-	    push @$content, handle_cpp_content($_);
-	}
+		foreach (@{$pv}) {
+	    	push @$content, handle_cpp_content($_);
+		}
     }
 
     return $content;
