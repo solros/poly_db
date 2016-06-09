@@ -49,6 +49,7 @@ sub type_attr {
 ##*************************************************************
 # we always need to store the number of columns as this is not reconstructible from the 
 # data even for dense matrices, if they are empty
+# FIXME for reconstruction: a SparseMatrix can have dense rows, so cannot rely on sparse attribute of matrix
 sub matrix_toJSON {
     my $pv=shift;
     my $content = {};
@@ -201,9 +202,8 @@ sub pair_toJSON {
 ##*************************************************************
 sub quadraticExtension_toJSON {
     my $pv=shift;
-    my $content = {};
-    $content->{"type"} = "QE";
-
+    my $type = $pv->type;
+    my $content = $type->toString->($pv);
     return $content;
 }
 
