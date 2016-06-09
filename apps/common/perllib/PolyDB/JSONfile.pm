@@ -123,13 +123,13 @@ sub array_toJSON {
     my $sub_qual_name= $val_type->qualified_name;
 
     if( $sub_qual_name =~ $simpletype_re ) {
-	my @pv_copy = @$pv;
-	$content = \@pv_copy;
-    } else {
-	$content = [];
-	foreach (@{$pv}) {
-	    push @$content, handle_cpp_content($_);
-	}
+		my @pv_copy = @$pv;
+		$content = \@pv_copy;
+	} else {
+		$content = [];
+		foreach (@{$pv}) {
+	    	push @$content, handle_cpp_content($_);
+		}
     }
     return $content;
 }
