@@ -99,9 +99,12 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 		$client = get_client($options);
 	}
 
+	# get one template entry of the collection
 	my $type = get_type($client, $options->{db}, $options->{collection});
-	my $col = get_collection($client, $options->{db}, $options->{collection});	
-		
+	# get the actual collection
+	my $col  = get_collection($client, $options->{db}, $options->{collection});	
+	# query the database
+	# NOTE: the return is a perl hash of the json in the datatbase!
 	my $output = $col->find_one($query);
 	
 	unless ($output) { croak("No such object.\n"); }

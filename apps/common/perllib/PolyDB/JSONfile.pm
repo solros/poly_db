@@ -419,25 +419,44 @@ sub json_save {
 }
 
 
-sub json_read_hash {
+sub read_db_hash {
 	
-	my $polymake_object = shift;
+	my ($polymake_object, $addprops) = @_;
+	
+	# create the polytope
 	my $p=eval("new ".$polymake_object->{'type'}.";");
+
+	# read the polytope from the xml of the db
 	load Core::XMLstring($p,$polymake_object->{'xml'});	
+	
+	# assign a name if it does not have one already
+	# first try if one is stored in the db, then use the id
+	if ( !defined($p->name) ) {
+		if ( defined($polymake_object->{'name'}) ) {
+			$p->name = $polymake_object->{'name'};
+		} else {
+			if ( defined($polymake_object->{'_id'}) ) {
+				$p->name = $polymake_object->{'_id'};
+			}
+		}
+	}
+	
+	if ( defined($addprops) ) {
+		foreach ( keys %$addprops ) {
+			$p->take($_, $addprops->{$_});
+		}
+	}
 	
 	return $p;	
 }
 
 sub json_read {
 	
-	my $json=shift;
+	my ($json,$addprops) = @_;
 	
 	my $polymake_object = ::JSON->new->utf8->decode($json);
 
-	my $p=eval("new ".$polymake_object->{'type'}.";");
-	load Core::XMLstring($p,$polymake_object->{'xml'});	
-	
-	return $p;
+	return read_db_hash($polymake_object,$addprops);
 }
 
 1
