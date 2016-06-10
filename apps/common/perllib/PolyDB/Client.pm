@@ -70,7 +70,7 @@ sub get_collection {
 	return $db->get_collection($collection);
 }
 
-
+# checks if there is a template for the db and checks whether input data adheres to this template
 sub check_type {
 	my ($obj, $db, $col, $client) = @_;
 	my $c = get_type($client, $db, $col);

@@ -210,6 +210,7 @@ sub doc2object {
 	
 	my $obj_type = User::application($app)->eval_type($type);
 	
+	return PolyDB::DirectJSONwriter::json_read_hash($doc);
 	return json2object($doc, $obj_type, $addprops);
 }
 

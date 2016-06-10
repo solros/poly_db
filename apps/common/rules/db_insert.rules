@@ -37,7 +37,7 @@
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}){
+user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
 	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
@@ -64,7 +64,8 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	my $collection = get_collection($client, $db, $col);
 
 	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0, $temp);
-	my $output = $collection->insert($json);
+	my $json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}});
+	my $output = $collection->insert(::JSON->new->utf8->decode($json));
 	return $output;
 }
 

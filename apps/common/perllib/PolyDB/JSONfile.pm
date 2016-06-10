@@ -19,7 +19,7 @@
 
  use JSON;
  use XML::Simple;
- 
+ use Data::Dumper;
 
 require Cwd;
 
@@ -362,7 +362,7 @@ sub handle_subobject {
 ##*************************************************************
 ##*************************************************************
 sub json_save {
-    my ($object)=@_;
+    my ($object, $options)=@_;
 
 	# create a perl hash that contains the data from the polymake object
 	# later, we use JSON::encode to convert this into a json object
@@ -375,6 +375,15 @@ sub json_save {
     $polymake_object->{"name"} = $object->name;
     $polymake_object->{"version"} = $Polymake::Version;
     $polymake_object->{"tag"} = "object";
+	
+	if ( $options ) {
+		if ( defined($options->{'id'}) ) {
+			$polymake_object->{'_id'} = $options->{'id'};
+		}
+		if ( defined($options->{'contributor'}) ) {
+			$polymake_object->{'contributor'} = $options->{'contributor'};
+		}
+	}
     
 	# description is optional, so check
     if (length($object->description)) { 
@@ -409,9 +418,20 @@ sub json_save {
     $json->pretty->encode($polymake_object);
 }
 
+
+sub json_read_hash {
+	
+	my $polymake_object = shift;
+	my $p=eval("new ".$polymake_object->{'type'}.";");
+	load Core::XMLstring($p,$polymake_object->{'xml'});	
+	
+	return $p;	
+}
+
 sub json_read {
 	
 	my $json=shift;
+	
 	my $polymake_object = ::JSON->new->utf8->decode($json);
 
 	my $p=eval("new ".$polymake_object->{'type'}.";");
