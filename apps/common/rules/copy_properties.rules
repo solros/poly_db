@@ -54,16 +54,46 @@ user_function copy_properties {
 
 user_function compute_properties {
 	my ($o, $t) = @_;
-
-	# TODO: check that $o and $t are of compatible types
 	
-	print $t;
+	my $properties = $t->{'template'};
 	
 	# compute missing properties (one by one, in no particular order)
-	foreach my $pv (@{$t->{'template'}}) {
-		print "computing ".$pv."\n";
+	foreach my $pv (keys %$properties) {
+		if ( $properties->{$pv} == 1 ) {
+			my $s = $o->get_schedule($pv);
+			$s->apply($o);
+		} else {
+			# TODO handle subproerties here
+		}
+	}
+}
+
+sub remove_subproperties {
+	
+}
+
+user_function remove_properties {
+	my ($o, $t) = @_;
+	
+	
+	
+	foreach my $pv (@{$o->contents}) {
+		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
+		
+      	if (instanceof Core::Object($pv)) {
+
+			
+			my $subobj = $o->contents->[$o->dictionary->{$pv->property->key}];
+      		
+      		# recursive call
+      		copy_properties($subobj, $pv);
+      		
+      	} else {
+			my $s = $o->get_schedule($pv->property->name);
+			$s->apply($o);
+		}
 		my $s = $o->get_schedule($pv);
 		$s->apply($o);
 	}
-
 }
+

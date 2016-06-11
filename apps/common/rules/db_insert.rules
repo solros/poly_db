@@ -37,7 +37,7 @@
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
+user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, keep_all_props=> 0, client => undef, rem_props => undef}) {
 	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
@@ -58,6 +58,9 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 		}
 		if (!$options->{nonew}) {
 			compute_properties($obj, $temp);
+		}
+		if (!$options->{keep_all_props}) {
+			
 		}
 	}
 	
