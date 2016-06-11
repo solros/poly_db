@@ -50,3 +50,20 @@ user_function copy_properties {
 	}
 
 }
+
+
+user_function compute_properties {
+	my ($o, $t) = @_;
+
+	# TODO: check that $o and $t are of compatible types
+	
+	print $t;
+	
+	# compute missing properties (one by one, in no particular order)
+	foreach my $pv (@{$t->{'template'}}) {
+		print "computing ".$pv."\n";
+		my $s = $o->get_schedule($pv);
+		$s->apply($o);
+	}
+
+}

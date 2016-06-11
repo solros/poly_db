@@ -54,16 +54,16 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_template_object($db, $col, local => $options->{local}, client => $client);
+			$temp = get_template_data($db, $col, local => $options->{local}, client => $client);
 		}
 		if (!$options->{nonew}) {
-			copy_properties($obj, $temp);
+			compute_properties($obj, $temp);
 		}
 	}
 	
 	my $collection = get_collection($client, $db, $col);
 
-	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0, $temp);
+#	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0, $temp);
 	my $json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}});
 	my $output = $collection->insert(::JSON->new->utf8->decode($json));
 	return $output;

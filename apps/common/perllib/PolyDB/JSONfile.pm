@@ -30,7 +30,7 @@ require Cwd;
  my $unhandled = "this property is still unhandled";
  
  
- my $DEBUG=1;
+ my $DEBUG=0;
  
 #############################################################################################
 #
@@ -450,12 +450,12 @@ sub read_db_hash {
 	return $p;	
 }
 
+# convert a complete json hash into a polymake object
+# note that this exxentially means to read the 
+# xml property of the json
 sub json_read {
-	
 	my ($json,$addprops) = @_;
-	
 	my $polymake_object = ::JSON->new->utf8->decode($json);
-
 	return read_db_hash($polymake_object,$addprops);
 }
 

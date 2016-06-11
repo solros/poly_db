@@ -53,6 +53,24 @@ user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}
 }
 
 
+# NEW TEMPLATE FUNCTION
+user_function get_template_data($, $, {local => 0, tiny => 0, client => undef}) {
+	my ($db, $col, $options) = @_;
+	my $local = $options->{local};
+	
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client	= get_client($local, "", "");
+	}
+		
+	my $tcol = $client->get_database($db)->get_collection("type_information");
+
+	my $doc = $tcol->find({db => $db, col => $col})->next;
+	
+	unless ($doc) {croak("no template data for collection $col in database $db");}
+	
+	return $doc;
+}
 
 
 
