@@ -361,12 +361,41 @@ sub handle_subobject {
 
 ##*************************************************************
 ##*************************************************************
+sub project_json {
+	my ($polymake_object, $projection ) = @_;
+	
+	foreach ( keys %{$polymake_object} ) {
+		if ( !defined($projection->{$_}) ) {
+			delete $polymake_object->{$_};
+		} else {
+			if ( ref($projection->{$_}) eq "HASH" ) {
+				project_json($polymake_object->{$_}, $projection->{$_});
+			}
+		}
+	}
+}
+
 sub json_save {
     my ($object, $options)=@_;
 
 	# create a perl hash that contains the data from the polymake object
 	# later, we use JSON::encode to convert this into a json object
     my $polymake_object = {};
+	
+   
+    # encode properties of the polytope
+	# we run through the top level and handle the rest recursively
+    foreach my $pv (@{$object->contents}) {
+		print "encoding ".$pv."\n" if $DEBUG;
+		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
+		my $property = $pv->property->name;
+		print "encoding property $property\n" if $DEBUG;
+		$polymake_object->{$property} = property_toJSON($pv);
+    }
+
+	if ( defined($options->{'projection'}) ) {
+		project_json($polymake_object, $options->{'projection'});
+	}
 	
 	# add the meta properties of the polytope
 	# FIXME we don't store xmlns, this needs to be restored during reading
@@ -399,20 +428,10 @@ sub json_save {
     	push @credits, \%credit;
     }
     $polymake_object->{"credits"} = \@credits;
-
-    
-    # now turn to the actual properties of the polytope
-	# we run through the top level and handle the rest recursively
-    foreach my $pv (@{$object->contents}) {
-		print "encoding ".$pv."\n" if $DEBUG;
-		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
-		my $property = $pv->property->name;
-		print "encoding property $property\n" if $DEBUG;
-		$polymake_object->{$property} = property_toJSON($pv);
-    }
 	
-	my $xml = save Core::XMLstring($object);
-    
+	print Dumper($polymake_object);
+	
+	my $xml = save Core::XMLstring($object);    
 	$polymake_object->{'xml'} = $xml;
 	
 	# finally, convert the perl hash into a json object

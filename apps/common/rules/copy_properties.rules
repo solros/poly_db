@@ -89,13 +89,13 @@ user_function remove_properties {
 # unfortunately, this creates a LOT of copies
 	my $x=$o->copy;
 	
-	foreach my $pv (@{$o->contents}) {
+	foreach my $pv (@{$x->contents}) {
 		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
 		if ( !exists($properties->{$pv->property->name}) ) {
 			$x->remove($pv->property->name);
 		} else {		
 			if (instanceof Core::Object($pv)) {
-				my $subobj = $o->contents->[$o->dictionary->{$pv->property->key}];
+				my $subobj = $x->contents->[$o->dictionary->{$pv->property->key}];
 				my $subprops = $properties->{$pv->property->name};
 				$x=remove_properties($subobj, $pv);
 			}
