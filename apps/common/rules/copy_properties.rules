@@ -24,6 +24,9 @@
 # Contained in extension ''polyDB''.
 # @param Core::Object obj
 # @param Core::Object template
+
+use Data::Dumper;
+
 user_function copy_properties {
 	my ($o, $t) = @_;
 
@@ -56,44 +59,50 @@ user_function compute_properties {
 	my ($o, $t) = @_;
 	
 	my $properties = $t->{'template'};
+	my %knownproperties = map { $_->property->name => 1 } @{$o->contents};
 	
 	# compute missing properties (one by one, in no particular order)
 	foreach my $pv (keys %$properties) {
 		if ( $properties->{$pv} == 1 ) {
-			my $s = $o->get_schedule($pv);
-			$s->apply($o);
+			if ( !exists($knownproperties{$pv} ) ) {
+# FIXME using a schedule apparently does not work
+#				my $s = $o->get_schedule($pv);
+#				$s->apply($o);
+				$o->give($pv);
+			}
 		} else {
-			# TODO handle subproerties here
+			print "should be computing ".$pv."\n" if $DEBUG;
+			# TODO handle subproperties here 
 		}
 	}
+
 }
 
-sub remove_subproperties {
-	
-}
 
 user_function remove_properties {
 	my ($o, $t) = @_;
 	
+	my $properties = $t->{'template'};
 	
+# FIXME we cannot directly remove properties from $o (WHY?)
+# so we have to use a copy and pass this around 	
+# unfortunately, this creates a LOT of copies
+	my $x=$o->copy;
 	
 	foreach my $pv (@{$o->contents}) {
 		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
-		
-      	if (instanceof Core::Object($pv)) {
-
-			
-			my $subobj = $o->contents->[$o->dictionary->{$pv->property->key}];
-      		
-      		# recursive call
-      		copy_properties($subobj, $pv);
-      		
-      	} else {
-			my $s = $o->get_schedule($pv->property->name);
-			$s->apply($o);
+		if ( !exists($properties->{$pv->property->name}) ) {
+			$x->remove($pv->property->name);
+		} else {		
+			if (instanceof Core::Object($pv)) {
+				my $subobj = $o->contents->[$o->dictionary->{$pv->property->key}];
+				my $subprops = $properties->{$pv->property->name};
+				$x=remove_properties($subobj, $pv);
+			}
 		}
-		my $s = $o->get_schedule($pv);
-		$s->apply($o);
 	}
+	return $x;
 }
+
+
 

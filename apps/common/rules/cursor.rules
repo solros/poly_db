@@ -68,7 +68,8 @@ object DatabaseCursor {
 		my $client = get_client($this->LOCAL, $this->USER_NAME, $this->PASSWORD);
 		my $type = get_type($client, $this->DATABASE, $this->COLLECTION);
 		my $app = $type->{'app'};
-		my $type = $type->{'type'};
+		# FIXME redefinition of type, previous is unsused
+		$type = $type->{'type'};
 		$this->APP = $app;
 		$this->TYPE = $type;
 	}

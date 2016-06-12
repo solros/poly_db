@@ -60,7 +60,7 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 			compute_properties($obj, $temp);
 		}
 		if (!$options->{keep_all_props}) {
-			
+			$obj=remove_properties($obj,$temp);
 		}
 	}
 	
