@@ -334,11 +334,12 @@ sub handle_subobject {
     my $content = {};
     $content->{"type"} = $pv->type->qualified_name;
     if (length($pv->name)) {
-	$content->{"name"} = $pv->name;
+		my $name = $pv->name;
+		$content->{"name"} = "$name";
     }
     $content->{"tag"} = "object";
     if (length($pv->description)) {
-    	   $content->{"description"} = $pv->description;
+    	$content->{"description"} = $pv->description;
     } 
 	
     my @credits = ();
@@ -429,7 +430,7 @@ sub json_save {
     }
     $polymake_object->{"credits"} = \@credits;
 	
-	print Dumper($polymake_object);
+	print Dumper($polymake_object) if $DEBUG;
 	
 	my $xml = save Core::XMLstring($object);    
 	$polymake_object->{'xml'} = $xml;
