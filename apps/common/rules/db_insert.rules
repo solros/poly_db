@@ -37,8 +37,14 @@
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, template => undef, keep_all_props=> 0, client => undef, rem_props => undef}) {
-	my ($obj, $db, $col, $options) = @_;
+user_function db_insert ($, $, $, {local => 0, \
+								   id => "", \
+								   contrib => "", \
+								   username => $db_user, password => $db_pwd, \
+								   client => undef, \
+								   use_template => 0, template => undef, template_key=> "default", \
+								   nonew => 0, keep_all_props=> 0, rem_props => undef}) {
+	my ($obj_in, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
 	my $client;
@@ -46,7 +52,8 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 		$client = get_client($options);
 	}
 	
- 	check_type($obj, $db, $col, $client);
+ 	check_type($obj_in, $db, $col, $client);
+	my $obj = $obj_in->copy;
 	
 	my $rem_props = remove_props_insert($db, $col, $client, $options);
 
@@ -54,14 +61,9 @@ user_function db_insert ($, $, $, {local => 0, id => "", contrib => "", username
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_template_data($db, $col, local => $options->{local}, client => $client);
+			$temp = get_template_data($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
-		if (!$options->{nonew}) {
-			compute_properties($obj, $temp);
-		}
-		if (!$options->{keep_all_props}) {
-			$obj=remove_properties($obj,$temp);
-		}
+		$obj = adjust_properties($obj, $temp, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
 	}
 	
 	my $collection = get_collection($client, $db, $col);

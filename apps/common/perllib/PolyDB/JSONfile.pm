@@ -334,6 +334,10 @@ sub handle_subobject {
     my $content = {};
     $content->{"type"} = $pv->type->qualified_name;
     if (length($pv->name)) {
+		# FIXME here we need to copy the name into a separate variable 
+		# before assigning to content
+		# otherwise we run into a weird loop if property has no name, 
+		# e.g. for $c=cube(3); $c->TRIANGULATION;
 		my $name = $pv->name;
 		$content->{"name"} = "$name";
     }

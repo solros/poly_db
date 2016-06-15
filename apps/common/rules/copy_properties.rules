@@ -55,30 +55,56 @@ user_function copy_properties {
 }
 
 
-user_function compute_properties {
-	my ($o, $t) = @_;
+user_function adjust_properties {
+	my ($o, $t, $options ) = @_;
+
+	my $p;
+	if ( $options->{keep_all_props} ) {
+		$p = $o->copy;
+		$p->begin_transaction;
+	} else {
+	# create a new polytope
+		$p=eval("new ".$t->{basic_type}.";");	
+	}
 	
 	my $properties = $t->{'template'};
 	my %knownproperties = map { $_->property->name => 1 } @{$o->contents};
 	
-	# compute missing properties (one by one, in no particular order)
 	foreach my $pv (keys %$properties) {
 		if ( $properties->{$pv} == 1 ) {
-			if ( !exists($knownproperties{$pv} ) ) {
-# FIXME using a schedule apparently does not work
-#				my $s = $o->get_schedule($pv);
-#				$s->apply($o);
-				$o->give($pv);
+			if ( exists($knownproperties{$pv} ) ) {
+				if ( !$options->{keep_all_props} ) { # otherwise it is in $p already
+					# we get property from $o
+					my $prop = $o->give($pv);
+					# and pass them on to $p
+					$p->take($pv,$prop);
+				}
+			} else { 
+				if ( !$options->{nonew} ) {
+					# FIXME using a schedule apparently does not work
+					# my $s = $o->get_schedule($pv);
+					# $s->apply($o);
+					
+					# we compute properties in $o
+					my $prop = $o->give($pv);
+					# and pass them on to $p
+					$p->take($pv,$prop);
+				}
 			}
 		} else {
 			print "should be computing ".$pv."\n" if $DEBUG;
 			# TODO handle subproperties here 
 		}
 	}
-
+	
+	$p->commit;
+	return $p;
 }
 
 
+# this function is unused
+# as the function remove is of no use, as we cannot remove input properties
+# as e.g. POINTS
 user_function remove_properties {
 	my ($o, $t) = @_;
 	
@@ -92,7 +118,9 @@ user_function remove_properties {
 	foreach my $pv (@{$x->contents}) {
 		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
 		if ( !exists($properties->{$pv->property->name}) ) {
+			$x->begin_transaction;
 			$x->remove($pv->property->name);
+			$x->commit;
 		} else {		
 			if (instanceof Core::Object($pv)) {
 				my $subobj = $x->contents->[$o->dictionary->{$pv->property->key}];
