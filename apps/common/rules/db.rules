@@ -61,6 +61,7 @@ custom $collection_name = "";
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Array<Core::Object>
+# FIXME old version
 user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
 	my ($query, $options) = @_;
 
@@ -121,6 +122,7 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Int
+# FIXME old version
 user_function poly_db_count($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}) {
 	my ($query, $options) = @_;
 
@@ -147,6 +149,7 @@ user_function poly_db_count($, {db => $db_name, collection => $collection_name, 
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Array<String>
+# FIXME old version
 user_function poly_db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
 	my ($query, $options) = @_;
 
