@@ -55,6 +55,61 @@ user_function copy_properties {
 }
 
 
+sub adjust_properties_at_level {
+	my ($prefix, $o, $p, $properties, $options) = @_;
+	print "Entering with prefix ".$prefix."\n";
+
+	my %knownproperties;
+	if ( $prefix eq "" ) {
+		%knownproperties = map { $_->property->name => 1 } @{$o->contents};	
+	} else {
+		%knownproperties = map { $_->property->name => 1 } @{$o->give($prefix)->contents};	
+	}
+	foreach my $pv (keys %$properties) {		
+		my $prop = $pv;
+		print "Working with prefix ".$prefix."\n";
+		if ( $prefix ne "" ) {
+			print "adding prefix\n";
+			$prop = $prefix.".".$pv;
+		}
+		print "computing ".$prop."\n";
+		if ( $properties->{$pv} == 1 ) {
+			if ( exists($knownproperties{$pv} ) ) {
+				if ( !$options->{keep_all_props} ) { # otherwise it is in $p already
+					# we get property from $o
+					print "Retrieving prop\n";
+					my $val = $o->give($prop);
+					# and pass them on to $p
+					print "done, adding\n";
+					$p->take($prop,$val);
+					print "done\n";
+					
+				}
+			} else { 
+				if ( !$options->{nonew} ) {
+					# FIXME using a schedule apparently does not work
+					# my $s = $o->get_schedule($pv);
+					# $s->apply($o);
+				
+					# we compute properties in $o
+					print "Computing prop $prop\n";					
+					my $val = $o->give($prop);
+					print "done, adding $val\n";
+					# and pass them on to $p
+					$p->take($prop,$val);
+					print "done\n";
+				}
+			}
+		} else {
+			if ( exists($knownproperties{$pv}) || !$options->{nonew} ) {
+				adjust_properties_at_level($prop, $o, $p, $properties->{$pv}, $options);
+			}
+		}
+	}	
+	
+}
+
+
 user_function adjust_properties {
 	my ($o, $t, $options ) = @_;
 
@@ -68,34 +123,7 @@ user_function adjust_properties {
 	}
 	
 	my $properties = $t->{'template'};
-	my %knownproperties = map { $_->property->name => 1 } @{$o->contents};
-	
-	foreach my $pv (keys %$properties) {
-		if ( $properties->{$pv} == 1 ) {
-			if ( exists($knownproperties{$pv} ) ) {
-				if ( !$options->{keep_all_props} ) { # otherwise it is in $p already
-					# we get property from $o
-					my $prop = $o->give($pv);
-					# and pass them on to $p
-					$p->take($pv,$prop);
-				}
-			} else { 
-				if ( !$options->{nonew} ) {
-					# FIXME using a schedule apparently does not work
-					# my $s = $o->get_schedule($pv);
-					# $s->apply($o);
-					
-					# we compute properties in $o
-					my $prop = $o->give($pv);
-					# and pass them on to $p
-					$p->take($pv,$prop);
-				}
-			}
-		} else {
-			print "should be computing ".$pv."\n" if $DEBUG;
-			# TODO handle subproperties here 
-		}
-	}
+	adjust_properties_at_level("",$o,$p,$properties,$options);
 	
 	$p->commit;
 	return $p;
