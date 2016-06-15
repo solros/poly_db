@@ -67,7 +67,6 @@ user_function db_insert ($, $, $, {local => 0, \
 	my $collection = get_collection($client, $db, $col);
 
 	my $json;
-#	my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $options->{id}, 0, $temp);
 	if ( $options->{use_template} or defined($temp = $options->{template}) ) {
 		$json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}, projection=>$temp->{'db_template'}});
 	} else {

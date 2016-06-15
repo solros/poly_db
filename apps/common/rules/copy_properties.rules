@@ -27,33 +27,6 @@
 
 use Data::Dumper;
 
-user_function copy_properties {
-	my ($o, $t) = @_;
-
-	# TODO: check that $o and $t are of compatible types
-	
-	# compute missing properties (one by one, in no particular order)
-	foreach my $pv (@{$t->contents}) {
-		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
-		
-      	if (instanceof Core::Object($pv)) {
-      		# make sure $o has this property (will most probably compute only the most trivial subproperty, such as CONNECTED for GRAPH of a Polytope)
-			my $s = $o->get_schedule($pv->property->name);
-			$s->apply($o);
-			
-			my $subobj = $o->contents->[$o->dictionary->{$pv->property->key}];
-      		
-      		# recursive call
-      		copy_properties($subobj, $pv);
-      		
-      	} else {
-			my $s = $o->get_schedule($pv->property->name);
-			$s->apply($o);
-		}
-	}
-
-}
-
 
 sub adjust_properties_at_level {
 	my ($prefix, $o, $p, $properties, $options) = @_;
@@ -120,35 +93,6 @@ user_function adjust_properties {
 }
 
 
-# this function is unused
-# as the function remove is of no use, as we cannot remove input properties
-# as e.g. POINTS
-user_function remove_properties {
-	my ($o, $t) = @_;
-	
-	my $properties = $t->{'template'};
-	
-# FIXME we cannot directly remove properties from $o (WHY?)
-# so we have to use a copy and pass this around 	
-# unfortunately, this creates a LOT of copies
-	my $x=$o->copy;
-	
-	foreach my $pv (@{$x->contents}) {
-		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
-		if ( !exists($properties->{$pv->property->name}) ) {
-			$x->begin_transaction;
-			$x->remove($pv->property->name);
-			$x->commit;
-		} else {		
-			if (instanceof Core::Object($pv)) {
-				my $subobj = $x->contents->[$o->dictionary->{$pv->property->key}];
-				my $subprops = $properties->{$pv->property->name};
-				$x=remove_properties($subobj, $pv);
-			}
-		}
-	}
-	return $x;
-}
 
 
 
