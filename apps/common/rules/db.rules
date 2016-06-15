@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2014 Silke Horn
+# Copyright (c) 2013-2016 Silke Horn, Andreas Paffenholz
 # http://solros.de/polymake/poly_db
 # 
 # This file is part of the polymake extension polyDB.
@@ -61,8 +61,8 @@ custom $collection_name = "";
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Array<Core::Object>
-# FIXME old version
-user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
+# ADAPTED VERSION
+user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {_id => 1}}){
 	my ($query, $options) = @_;
 
 	check_options($options);
@@ -90,6 +90,7 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Core::Object
+# ADAPTED VERSION
 user_function poly_db_one ($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd, client => undef}){
 	my ($query, $options) = @_;
 
@@ -122,7 +123,7 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Int
-# FIXME old version
+# ADAPTED VERSION
 user_function poly_db_count($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}) {
 	my ($query, $options) = @_;
 
@@ -149,7 +150,7 @@ user_function poly_db_count($, {db => $db_name, collection => $collection_name, 
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
 # @return Array<String>
-# FIXME old version
+# ADAPTED VERSION
 user_function poly_db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
 	my ($query, $options) = @_;
 

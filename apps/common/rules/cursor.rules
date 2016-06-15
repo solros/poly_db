@@ -66,10 +66,9 @@ object DatabaseCursor {
 
 	rule initial : TYPE, APP : {
 		my $client = get_client($this->LOCAL, $this->USER_NAME, $this->PASSWORD);
-		my $type = get_type($client, $this->DATABASE, $this->COLLECTION);
+		my $template = get_type($client, $this->DATABASE, $this->COLLECTION);
 		my $app = $type->{'app'};
-		# FIXME redefinition of type, previous is unsused
-		$type = $type->{'type'};
+		$type = $template->{'type'};
 		$this->APP = $app;
 		$this->TYPE = $type;
 	}

@@ -154,6 +154,7 @@ sub pm2json {
 
 
 # This is a helper function that transforms a database cursor into an array of polymake objects.
+# ADAPTED VERSION
 sub cursor2array {
 	my ($cursor, $t, $db_name, $col_name) = @_;
 	my $size = $cursor->count(1);
@@ -172,7 +173,7 @@ sub cursor2array {
 	# TODO: add other properties from type entry
 	my $addprops = {"database" => $db_name, "collection" => $col_name};
 	foreach my $p (@objects) {		
-		$parray->[$i] = json2object($p, $obj_type, $addprops);
+		$parray->[$i] = PolyDB::DirectJSONwriter::read_db_hash($p, $addprops);
 		++$i;
 	}
 	return $parray;
@@ -193,6 +194,7 @@ sub cursor2stringarray {
 
 
 # This is a helper function that transforms a database document into an object.
+# ADAPTED VERSION
 sub doc2object {
 	my ($doc, $t, $db_name, $col_name) = @_;
 	
@@ -210,7 +212,6 @@ sub doc2object {
 	my $obj_type = User::application($app)->eval_type($type);
 	
 	return PolyDB::DirectJSONwriter::read_db_hash($doc, $addprops);
-	return json2object($doc, $obj_type, $addprops);
 }
 
 
