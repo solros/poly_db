@@ -57,7 +57,6 @@ user_function copy_properties {
 
 sub adjust_properties_at_level {
 	my ($prefix, $o, $p, $properties, $options) = @_;
-	print "Entering with prefix ".$prefix."\n";
 
 	my %knownproperties;
 	if ( $prefix eq "" ) {
@@ -67,22 +66,16 @@ sub adjust_properties_at_level {
 	}
 	foreach my $pv (keys %$properties) {		
 		my $prop = $pv;
-		print "Working with prefix ".$prefix."\n";
 		if ( $prefix ne "" ) {
-			print "adding prefix\n";
 			$prop = $prefix.".".$pv;
 		}
-		print "computing ".$prop."\n";
 		if ( $properties->{$pv} == 1 ) {
 			if ( exists($knownproperties{$pv} ) ) {
 				if ( !$options->{keep_all_props} ) { # otherwise it is in $p already
 					# we get property from $o
-					print "Retrieving prop\n";
 					my $val = $o->give($prop);
 					# and pass them on to $p
-					print "done, adding\n";
 					$p->take($prop,$val);
-					print "done\n";
 					
 				}
 			} else { 
@@ -92,12 +85,9 @@ sub adjust_properties_at_level {
 					# $s->apply($o);
 				
 					# we compute properties in $o
-					print "Computing prop $prop\n";					
 					my $val = $o->give($prop);
-					print "done, adding $val\n";
 					# and pass them on to $p
 					$p->take($prop,$val);
-					print "done\n";
 				}
 			}
 		} else {

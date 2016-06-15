@@ -55,8 +55,6 @@ user_function db_insert ($, $, $, {local => 0, \
  	check_type($obj_in, $db, $col, $client);
 	my $obj = $obj_in->copy;
 	
-	my $rem_props = remove_props_insert($db, $col, $client, $options);
-
 	# get template object if not given by the options
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
@@ -99,6 +97,7 @@ user_function db_insert ($, $, $, {local => 0, \
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
+# FIXME old version
 user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
@@ -136,6 +135,7 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option String move_dir directory in which processed files are moved
 # @option Bool verbose print database output
 # @option MongoClient client
+# FIXME old version
 user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
 	my ($files, $db_name, $collection, $options) = @_;
 	
@@ -223,6 +223,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option Bool verbose print database output
 # @option MongoClient client
+# FIXME old version
 user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, verbose => 0}){
 	my ($file, $db_name, $collection, $options) = @_;
 	
@@ -291,6 +292,7 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 # @option String password
 # @option MongoClient client
 # @return String
+# FIXME old version
 user_function db_remove ($, $, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
 	my ($id, $db_name, $col_name, $options) = @_;
 
