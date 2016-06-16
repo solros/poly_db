@@ -23,8 +23,8 @@ use MongoDB::OID;
 use PolyDB::DatabaseCursor;
 
 user_function database_cursor {
-	my ($database, $collection, $search_params) = @_;
-	my $dbc = new PolyDB::DBCursor($database, $collection, $search_params);
+	my ($database, $collection, %search_params) = @_;
+	my $dbc = new PolyDB::DBCursor($database, $collection, %search_params);
 	return $dbc;
 }
 

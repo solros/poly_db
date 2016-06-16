@@ -93,10 +93,14 @@ sub has_next {
 
 # The number of objects matching [[QUERY]].
 # @return Int
-sub count {
+sub full_count {
 	my $self = shift;
 	return $self->cursor->count;
 };
 
+sub count {
+	my $self = shift;
+	return $self->cursor->count(1);
+};
 
 1
