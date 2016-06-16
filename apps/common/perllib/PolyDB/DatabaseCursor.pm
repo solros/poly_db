@@ -54,7 +54,7 @@ sub new {
 	my $app = $template->{'app'};
 	my $type = $template->{'type'};
 	$self->app = $app;
-	$self->type = $type;
+	$self->type = $template;
 	
 	if ( !defined($self->search_params->{query}) ) {
 		$self->search_params->{query} = {"N_LATTICE_POINTS" => "67"};
@@ -72,7 +72,6 @@ sub new {
 	$self->cursor->immortal(1);
 	$self->cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
 
-	print $self->type;	
 	$self;
 }
 
@@ -84,7 +83,7 @@ sub next {
 	my $addprops;
 	$addprops = {"database" => $self->database, "collection" => $self->collection};
 
-	return PolyDB::Polymake_JSON_Conversion::doc2object($p, $addprops)
+	return doc2object($p, $self->type, $self->database, $self->collection)
 }
 
 sub has_next {
