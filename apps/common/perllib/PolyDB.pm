@@ -22,5 +22,6 @@ use PolyDB::JSONwriter;
 use PolyDB::JSONfile;
 use PolyDB::Polymake_JSON_Conversion;
 use PolyDB::Shell;
+use PolyDB::DatabaseCursor;
 
 1;
