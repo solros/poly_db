@@ -59,7 +59,7 @@ user_function db_insert ($, $, $, {local => 0, \
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_template_data($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = get_full_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
 		$obj = adjust_properties($obj, $temp, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
 	}
@@ -149,7 +149,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template}){
-		$temp = get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = get_full_template($db_name, $collection, local => $options->{local}, client => $client);
 	}
 
 	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
@@ -237,7 +237,7 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template} || defined($options->{template})){
-		$temp = defined($options->{template}) ? $options->{template} : get_template_object($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = defined($options->{template}) ? $options->{template} : get_full_template($db_name, $collection, local => $options->{local}, client => $client);
 		unless ($temp) {croak("no template object\n");}
 	}
 

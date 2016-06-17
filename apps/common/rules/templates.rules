@@ -25,9 +25,8 @@
 # @param String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option Bool tiny, default 0
-# @return Core::Object
-user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}) {
+# @return HASH
+user_function get_template($, $, {local => 0, client => undef, template_key => 'default'}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	
@@ -37,24 +36,31 @@ user_function get_template_object($, $, {local => 0, tiny => 0, client => undef}
 	}
 		
 	my $tcol = $client->get_database($db)->get_collection("type_information");
+	my $r = $tcol->find_one({db => $db, col => $col, template_key => 'default'});
+	unless ($r) { croak("no template data for collection $col in database $db"); }
 
-	my $doc = $tcol->find({db => $db, col => $col})->next;
-	
-	unless ($doc) {croak("no template data for collection $col in database $db");}
-	
-	my $r;
-	if ($options->{tiny}) {
-		$r = doc2object($doc->{'tinytemplate'}, $doc);
-	} else {
-		$r = doc2object($doc->{'template'}, $doc);
-	}
-	
-	return $r;
+	return $r->{'template'};
 }
 
 
-# NEW TEMPLATE FUNCTION
-user_function get_template_data($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
+user_function get_db_template($, $, {local => 0, client => undef, template_key => 'default'}) {
+	my ($db, $col, $options) = @_;
+	my $local = $options->{local};
+	
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client	= get_client($local, "", "");
+	}
+		
+	my $tcol = $client->get_database($db)->get_collection("type_information");
+	my $r = $tcol->find_one({db => $db, col => $col, template_key => 'default'});
+	unless ($r) { croak("no template data for collection $col in database $db"); }
+	
+	return $r->{'db_template'};
+}
+
+
+user_function get_full_template($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	
@@ -91,7 +97,7 @@ user_function get_template_data($, $, {local => 0, tiny => 0, client => undef, t
 # @option String password
 # @option Core::Object template
 # @option Bool verbose
-user_function set_type_info($, $, {app => "", type => "", version => "", contributor => "", local => 0, username => "", password => "", template => undef, tinytemplate => undef, version => "", verbose => 0}) {
+user_function set_type_info($, $, {app => "", type => "", version => "", contributor => "", local => 0, username => "", password => "", template_key => 'default', template => undef, db_template => undef, version => "", verbose => 0}) {
 	my ($db, $col, $options) = @_;
 
 	my $client = get_client($options);
@@ -101,10 +107,10 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 
 	my $update = 0;
 	my $h = {};
-	if ($tcol->find_one({'db'=>$db, 'col'=>$col})) {
+	if ($tcol->find_one({'db'=>$db, 'col'=>$col, 'key' => $options->{template_key} })) {
 		$update = 1;
 	} else {
-		$h = {'db'=>$db, 'col'=>$col};
+		$h = {'db'=>$db, 'col'=>$col, 'key' => $options->{template_key} };
 	}
 
 	if ($options->{app}) {
@@ -123,21 +129,15 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 		$h->{contributor} = $options->{contributor};
 	}
 
-	if (defined(my $obj = $options->{template})) {
-		my $json = pm2json($obj, undef, undef, undef, 1);
-		$h->{template} = $json;
-		$h->{app} = $json->{app};
-		$h->{type} = $json->{type};
+	if (defined(my $t = $options->{template})) {
+		$h->{template} = $t;
 	}
-	if (defined(my $obj = $options->{tinytemplate})) {
-		$h->{tinytemplate} = pm2json($obj, undef, undef, undef, 1);
-		# TODO: app and type
+	if (defined(my $t = $options->{db_template})) {
+		$h->{db_template} = $t;
 	}
-
 	
 	if ($update) {
 		my $output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => $h});
-
 		if ($options->{verbose}) {
 			if ($output->{ok}) {
 				print "successfully updated type information for $db.$col\n"
@@ -148,7 +148,6 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 	
 	} else {
 		my $output = $tcol->save($h);
-
 		if ($options->{verbose}) {
 			if ($output->{ok}) {
 				print "successfully saved type information for $db.$col\n";
