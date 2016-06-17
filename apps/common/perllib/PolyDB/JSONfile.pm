@@ -409,7 +409,8 @@ sub json_save {
     $polymake_object->{"name"} = $object->name;
     $polymake_object->{"version"} = $Polymake::Version;
     $polymake_object->{"tag"} = "object";
-	
+	$polymake_object->{"creation_date"} = get_date();
+			
 	if ( $options ) {
 		if ( defined($options->{'id'}) ) {
 			$polymake_object->{'_id'} = $options->{'id'};

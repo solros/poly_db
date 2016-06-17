@@ -28,6 +28,78 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 @EXPORT_OK = qw(json2object);
 
 
+
+
+# This is a helper function that transforms a database cursor into an array of polymake objects.
+# ADAPTED VERSION
+sub cursor2array {
+	my ($cursor, $t, $db_name, $col_name) = @_;
+	my $size = $cursor->count(1);
+	
+	my @objects = $cursor->all;
+
+	my $app = defined($t) ? $t->{'app'}:$objects[0]->{'app'};
+	my $type = defined($t) ? $t->{'type'}:$objects[0]->{'type'};
+
+	my $obj_type = User::application($app)->eval_type($type);
+	my $arr_type = User::application($app)->eval_type("Array<$type>");
+
+	my $parray = $arr_type->construct->($size+0);
+	my $i = 0;
+	
+	# TODO: add other properties from type entry
+	my $addprops = {"database" => $db_name, "collection" => $col_name};
+	foreach my $p (@objects) {		
+		$parray->[$i] = PolyDB::DirectJSONwriter::read_db_hash($p, $addprops);
+		++$i;
+	}
+	return $parray;
+
+}
+
+# This is a helper function that transforms a database cursor into an array of strings (IDs).
+# ADAPTED VERSION
+sub cursor2stringarray {
+	my $cursor = shift;
+	
+	my @parray = ();
+	while (my $p = $cursor->next) {
+		push @parray, $p->{_id};
+	}
+	return @parray;
+
+}
+
+
+# This is a helper function that transforms a database document into an object.
+# ADAPTED VERSION
+sub doc2object {
+	my ($doc, $t, $db_name, $col_name) = @_;
+	
+	# take application and type from the document, if defined
+	# otherwise use the information from the template
+	my $app  = defined($doc->{'app'})  ? $doc->{'app'}  : $t->{'app'};
+	my $type = defined($doc->{'type'}) ? $doc->{'type'} : $t->{'type'};
+
+	# TODO: add other properties from type entry
+	my $addprops;
+	if ($db_name && $col_name) {
+		$addprops = {"database" => $db_name, "collection" => $col_name};
+	}
+	
+	my $obj_type = User::application($app)->eval_type($type);
+	
+	return PolyDB::DirectJSONwriter::read_db_hash($doc, $addprops);
+}
+
+
+
+
+##### old functions
+
+
+
+
 # This function takes a json hash and returns one that can be fed into a polymake object.
 sub json2pm {
 	my %j = @_;
@@ -153,66 +225,6 @@ sub pm2json {
 }
 
 
-# This is a helper function that transforms a database cursor into an array of polymake objects.
-# ADAPTED VERSION
-sub cursor2array {
-	my ($cursor, $t, $db_name, $col_name) = @_;
-	my $size = $cursor->count(1);
-	
-	my @objects = $cursor->all;
-
-	my $app = defined($t) ? $t->{'app'}:$objects[0]->{'app'};
-	my $type = defined($t) ? $t->{'type'}:$objects[0]->{'type'};
-
-	my $obj_type = User::application($app)->eval_type($type);
-	my $arr_type = User::application($app)->eval_type("Array<$type>");
-
-	my $parray = $arr_type->construct->($size+0);
-	my $i = 0;
-	
-	# TODO: add other properties from type entry
-	my $addprops = {"database" => $db_name, "collection" => $col_name};
-	foreach my $p (@objects) {		
-		$parray->[$i] = PolyDB::DirectJSONwriter::read_db_hash($p, $addprops);
-		++$i;
-	}
-	return $parray;
-
-}
-
-# This is a helper function that transforms a database cursor into an array of strings (IDs).
-sub cursor2stringarray {
-	my $cursor = shift;
-	
-	my @parray = ();
-	while (my $p = $cursor->next) {
-		push @parray, $p->{_id};
-	}
-	return @parray;
-
-}
-
-
-# This is a helper function that transforms a database document into an object.
-# ADAPTED VERSION
-sub doc2object {
-	my ($doc, $t, $db_name, $col_name) = @_;
-	
-	# take application and type from the document, if defined
-	# otherwise use the information from the template
-	my $app  = defined($doc->{'app'})  ? $doc->{'app'}  : $t->{'app'};
-	my $type = defined($doc->{'type'}) ? $doc->{'type'} : $t->{'type'};
-
-	# TODO: add other properties from type entry
-	my $addprops;
-	if ($db_name && $col_name) {
-		$addprops = {"database" => $db_name, "collection" => $col_name};
-	}
-	
-	my $obj_type = User::application($app)->eval_type($type);
-	
-	return PolyDB::DirectJSONwriter::read_db_hash($doc, $addprops);
-}
 
 
 
