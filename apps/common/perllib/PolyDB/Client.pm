@@ -106,6 +106,7 @@ sub get_date {
 
 
 # generates a unique ID for the object from the name of the file
+# FIXME this has a rather restricted usecase
 sub generate_id {
 	my ($name, $db, $col) = @_;
 	

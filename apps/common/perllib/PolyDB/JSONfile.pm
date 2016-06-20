@@ -386,6 +386,7 @@ sub json_save {
 	# create a perl hash that contains the data from the polymake object
 	# later, we use JSON::encode to convert this into a json object
     my $polymake_object = {};
+	print "storing object with name: ",$object->name,"\n";
 	
    
     # encode properties of the polytope
@@ -406,6 +407,7 @@ sub json_save {
 	# FIXME we don't store xmlns, this needs to be restored during reading
     $polymake_object->{"type"} = $object->type->qualified_name;
 	($polymake_object->{"app"}) = $polymake_object->{"type"} =~ /^(.+?)(?=::)/;
+	print "assigning name: ", $object->name, "\n";
     $polymake_object->{"name"} = $object->name;
     $polymake_object->{"version"} = $Polymake::Version;
     $polymake_object->{"tag"} = "object";

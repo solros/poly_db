@@ -1,5 +1,6 @@
-# Copyright (c) 2013-2014 Silke Horn
+# Copyright (c) 2013-2014 Silke Horn, Andreas Paffenholz
 # http://solros.de/polymake/poly_db
+# http://www.mathematik.tu-darmstadt.de/~paffenholz
 # 
 # This file is part of the polymake extension polyDB.
 # 
@@ -15,6 +16,24 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
+
+
+sub insert_into_col {
+	my ($obj_in, $collection, $options) = @_;
+
+	my $obj = $obj_in->copy;
+	print "inserting ", $options->{id}," with name ", $obj->name,"\n";
+	my $json;	
+	if ( defined(my $temp = $options->{template} ) ) {
+		$obj = adjust_properties($obj, $temp, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
+		$json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}, projection=>$temp->{'db_template'}});
+	} else {
+		$json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}});		
+	}
+	my $o = $collection->insert_one(::JSON->new->utf8->decode($json));
+	
+	return $o;
+}
 
 
 
@@ -44,7 +63,7 @@ user_function db_insert ($, $, $, {local => 0, \
 								   client => undef, \
 								   use_template => 0, template => undef, template_key=> "default", \
 								   nonew => 0, keep_all_props=> 0, rem_props => undef}) {
-	my ($obj_in, $db, $col, $options) = @_;
+	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
 	my $client;
@@ -52,27 +71,21 @@ user_function db_insert ($, $, $, {local => 0, \
 		$client = get_client($options);
 	}
 	
- 	check_type($obj_in, $db, $col, $client);
-	my $obj = $obj_in->copy;
-	
+ 	check_type($obj, $db, $col, $client);
+
+	my $collection = get_collection($client, $db, $col);
+		
 	# get template object if not given by the options
 	my $temp;
+	my $output;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
 			$temp = get_full_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
-		$obj = adjust_properties($obj, $temp, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
-	}
-	
-	my $collection = get_collection($client, $db, $col);
-
-	my $json;
-	if ( $options->{use_template} or defined($temp = $options->{template}) ) {
-		$json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}, projection=>$temp->{'db_template'}});
+		$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} });
 	} else {
-		$json = PolyDB::DirectJSONwriter::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}});		
+		$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} });
 	}
-	my $output = $collection->insert(::JSON->new->utf8->decode($json));
 	return $output;
 }
 
@@ -96,8 +109,14 @@ user_function db_insert ($, $, $, {local => 0, \
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-# FIXME old version
-user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contrib => "", nonew => 0, use_template => 0, template => undef, client => undef, rem_props => undef}) {
+user_function db_insert_from_file($, $, $, {local => 0, \
+											username => $db_user, \
+											password => $db_pwd, \
+											id => "", \
+											contrib => "", \
+											nonew => 0, use_template => 0, template => undef,  template_key=> "default", keep_all_props=> 0,\
+											client => undef, \
+											rem_props => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
@@ -112,6 +131,122 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 	
 	return db_insert($obj, $db, $col, $options);
 }
+
+
+
+
+# @category Database Write Access
+# Adds a list of objects from a pdata file to the collection //col// in the database //db//. It assumes that the objects names can be used to generate unique ids. Objects with ids that are already contained in the database will be skipped.
+# 
+# TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
+# 
+# Note that you need write access to the database for this.
+# 
+# Contained in extension ''polyDB''.
+# @param String file pdata file (created with [[save_data]])
+# @param String db database name
+# @param String col collection name
+# @option String contrib
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option Bool use_template set to 1 to match properties with a template object.
+# @option Core::Object template (implies //use_templates//=>1)
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
+# @option Bool verbose print database output
+# @option MongoClient client
+# FIXME old version
+user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
+	my ($file, $db, $col, $options) = @_;
+	
+	# get client if not given by the options
+	my $client;
+	unless (defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+
+	my $collection = get_collection($client, $db, $col);
+	my $objects = User::load_data($file);
+
+	my $temp;
+	if ($options->{use_template} or defined($temp = $options->{template})) {
+		unless (defined($temp)) {
+			$temp = get_full_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+		}
+	}	
+		
+	print "inserting ...\n";
+	my $count = 0;
+	foreach my $obj (@$objects) {
+		my $id = generate_id($obj->name, $db, $col);
+		print "assigning id ", $id, "\n";
+		
+		if ($collection->find_one({'_id' => $id})) {	
+			if ($options->{verbose}) { print "id $id already exists\n"; }
+			next;
+		}
+
+		$options->{id} = $id;
+		
+		my $output;
+		if ( defined($temp) ) {
+			$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} });
+		} else {
+			$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} 	});
+		}				
+		if ( !$output->{acknowledged} ) {
+			print join "-", keys %$output;
+			croak("Error while inserting into database\n");
+		}
+		$count++;
+
+	}
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
+	print "Inserted $count objects.\n\n";
+}
+
+
+
+# @category Database Write Access
+# Removes the object with a given //id// from the collection //col// in the database //db//.
+# 
+# Note that you need write access to the database for this.
+# 
+# Contained in extension ''polyDB''.
+# @param String id
+# @param String db database name
+# @param String col collection name
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @option String username
+# @option String password
+# @option MongoClient client
+# @return String
+user_function db_remove ($, $, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
+	my ($id, $db_name, $col_name, $options) = @_;
+
+	# get client if not given by the options
+	my $client;
+	unless (defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+
+	my $col = get_collection($client, $db_name, $col_name);
+	
+	return $col->remove({'_id' => $id});
+}
+
+
+
+
+
+################################################################################################################
+################################################################################################################
+################################################################################################################
+
+
 
 
 # @category Database Write Access
@@ -136,6 +271,9 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option MongoClient client
 # FIXME old version
 user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
+	
+	croak("this function is currently not available\n");
+	
 	my ($files, $db_name, $collection, $options) = @_;
 	
 	my @files = @$files;
@@ -202,107 +340,5 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 }
 
 
-# @category Database Write Access
-# Adds a list of objects from a pdata file to the collection //col// in the database //db//. It assumes that the objects names can be used to generate unique ids. Objects with ids that are already contained in the database will be skipped.
-# 
-# TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
-# 
-# Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
-# @param String file pdata file (created with [[save_data]])
-# @param String db database name
-# @param String col collection name
-# @option String contrib
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @option Bool use_template set to 1 to match properties with a template object.
-# @option Core::Object template (implies //use_templates//=>1)
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
-# @option Bool verbose print database output
-# @option MongoClient client
-# FIXME old version
-user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, verbose => 0}){
-	my ($file, $db_name, $collection, $options) = @_;
-	
-	# get client if not given by the options
-	my $client;
-	unless (defined($client = $options->{client})) {
-		$client = get_client($options);
-	}
 
-	my $col = get_collection($client, $db_name, $collection);
-
-	# get template object if needed
-	my $temp;
-	if ($options->{use_template} || defined($options->{template})){
-		$temp = defined($options->{template}) ? $options->{template} : get_full_template($db_name, $collection, local => $options->{local}, client => $client);
-		unless ($temp) {croak("no template object\n");}
-	}
-
-	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
-
-	my $objects = User::load_data($file);
-		
-	print "inserting ...\n";
-	my $count = 0;
-	foreach my $obj (@$objects) {
-		$obj->CONE_DIM;
-		$obj->N_FACETS;
-
-		my $id = generate_id($obj->name, $db_name, $collection);
-		
-		if ($col->find_one({'_id' => $id})) {	
-			if ($options->{verbose}) { print "id $id already exists\n"; }
-			next;
-		}
-
-		if ($options->{use_template} && !$options->{nonew}) {
-			copy_properties($obj, $temp);
-		}
-
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
-		my $output = $col->insert($json);
-		if ($options->{verbose}) { print "$output "; }
-		$count++;
-
-	}
-	
-	unless (defined($options->{client})){
-		undef $client;
-	}
-	print "Inserted $count objects.\n\n";
-}
-
-
-
-# @category Database Write Access
-# Removes the object with a given //id// from the collection //col// in the database //db//.
-# 
-# Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
-# @param String id
-# @param String db database name
-# @param String col collection name
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @option MongoClient client
-# @return String
-# FIXME old version
-user_function db_remove ($, $, $, {local => 0, username => $db_user, password => $db_pwd, client => undef}) {
-	my ($id, $db_name, $col_name, $options) = @_;
-
-	# get client if not given by the options
-	my $client;
-	unless (defined($client = $options->{client})) {
-		$client = get_client($options);
-	}
-
-	my $col = get_collection($client, $db_name, $col_name);
-	
-	return $col->remove({'_id' => $id});
-}
 

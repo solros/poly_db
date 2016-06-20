@@ -80,7 +80,10 @@ user_function adjust_properties {
 		$p->begin_transaction;
 	} else {
 	# create a new polytope
-		$p=eval("new ".$t->{basic_type}.";");	
+		$p=eval("new ".$t->{basic_type}.";");
+		$p->name = $o->name;
+		$p->credits = $o->credits;
+		$p->description = $o->description;
 	}
 	
 	my $properties = $t->{'template'};
