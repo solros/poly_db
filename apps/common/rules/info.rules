@@ -74,7 +74,7 @@ user_function db_info ({db => undef, collection => undef, local => 0, username =
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @return Array
-function get_db_col_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
+user_function get_db_col_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
 	my $options = shift;
 	
 	my $client = get_client($options->{local},"","");
@@ -217,9 +217,9 @@ user_function set_db_info ($, $, {users => undef, local => 0, username => $db_us
 			$users = ["pm"];
 		}
 
-		my $output = $icol->save({'db'=>$db, 'col'=>"db_info", 'description'=>$desc, 'users'=>$users});
+		my $output = $icol->insert_one({'db'=>$db, 'col'=>"db_info", 'description'=>$desc, 'users'=>$users});
 
-		if ($output->{ok}) {
+		if ($output->acknowledged) {
 			print "Successfully set information for database $db:\n";
 			print "Description: $desc\n";
 			print "Users with read access: ".join(", ", @{$users})."\n\n";
