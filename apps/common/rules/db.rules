@@ -80,6 +80,36 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 
 
 
+# This is a helper function that transforms a database document into an object.
+# ADAPTED VERSION
+sub doc2object {
+	my ($doc, $t, $db_name, $col_name) = @_;
+	
+	# take application and type from the document, if defined
+	# otherwise use the information from the template
+	my $app  = defined($doc->{'app'})  ? $doc->{'app'}  : $t->{'app'};
+	my $type = defined($doc->{'type'}) ? $doc->{'type'} : $t->{'type'};
+
+	# FIXME currently unused
+	my $addprops;
+
+	
+	my $metadata;
+	if ( defined($doc->{"polyDB"}) ) {
+		$metadata = $doc->{"polyDB"};
+	}
+	
+	if ($db_name && !defined($metadata->{"database"}) ) {
+		$metadata->{"database"} = $db_name;
+	}	
+	
+	if ($col_name && !defined($metadata->{"collection"}) ) {
+		$metadata->{"collection"} = $col_name;
+	}		
+	
+	return PolyDB::DirectJSONwriter::read_db_hash($doc, $addprops, $metadata);
+}
+
 
 # @category Database
 # Returns one object in the database //db// in //collection// that matches the //query//.

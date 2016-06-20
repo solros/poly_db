@@ -386,16 +386,12 @@ sub json_save {
 	# create a perl hash that contains the data from the polymake object
 	# later, we use JSON::encode to convert this into a json object
     my $polymake_object = {};
-	print "storing object with name: ",$object->name,"\n";
-	
    
     # encode properties of the polytope
 	# we run through the top level and handle the rest recursively
     foreach my $pv (@{$object->contents}) {
-		print "encoding ".$pv."\n" if $DEBUG;
 		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
 		my $property = $pv->property->name;
-		print "encoding property $property\n" if $DEBUG;
 		$polymake_object->{$property} = property_toJSON($pv);
     }
 
@@ -404,29 +400,14 @@ sub json_save {
 	}
 	
 	# add the meta properties of the polytope
-	# FIXME we don't store xmlns, this needs to be restored during reading
+	# first those also contained in a polymake object
     $polymake_object->{"type"} = $object->type->qualified_name;
 	($polymake_object->{"app"}) = $polymake_object->{"type"} =~ /^(.+?)(?=::)/;
-	print "assigning name: ", $object->name, "\n";
     $polymake_object->{"name"} = $object->name;
-    $polymake_object->{"version"} = $Polymake::Version;
-    $polymake_object->{"tag"} = "object";
-	$polymake_object->{"creation_date"} = get_date();
-			
-	if ( $options ) {
-		if ( defined($options->{'id'}) ) {
-			$polymake_object->{'_id'} = $options->{'id'};
-		}
-		if ( defined($options->{'contributor'}) ) {
-			$polymake_object->{'contributor'} = $options->{'contributor'};
-		}
-	}
-    
 	# description is optional, so check
     if (length($object->description)) { 
     	   $polymake_object->{"description"} = $object->description;
     } 
-	
 	# an object may have multiple credits
     my @credits = ();
     while (my ($product, $credit_string)=each %{$object->credits}) {
@@ -435,8 +416,25 @@ sub json_save {
     	$credit{"product"} = $product;
     	push @credits, \%credit;
     }
-    $polymake_object->{"credits"} = \@credits;
-	
+    $polymake_object->{"credits"} = \@credits;	
+
+	# data base specific meta properties are stored in a separate hash
+	# will be added as attachment upon reeading
+	$polymake_object->{"polyDB"} = {};
+    $polymake_object->{"polyDB"}->{"tag"} = "object";
+	$polymake_object->{"polyDB"}->{"creation_date"} = get_date();
+    $polymake_object->{"polyDB"}->{"version"} = $Polymake::Version;
+			
+	if ( $options ) {
+		if ( defined($options->{'id'}) ) {
+			$polymake_object->{'_id'} = $options->{'id'};
+			$polymake_object->{"polyDB"}->{"id"} = $options->{'id'};
+		}
+		if ( defined($options->{'contributor'}) ) {
+			$polymake_object->{"polyDB"}->{'contributor'} = $options->{'contributor'};
+		}
+	}
+    	
 	print Dumper($polymake_object) if $DEBUG;
 	
 	my $xml = save Core::XMLstring($object);    
@@ -450,7 +448,7 @@ sub json_save {
 
 sub read_db_hash {
 	
-	my ($polymake_object, $addprops) = @_;
+	my ($polymake_object, $addprops, $metadata ) = @_;
 	
 	# create the polytope
 	my $p=eval("new ".$polymake_object->{'type'}.";");
@@ -474,6 +472,14 @@ sub read_db_hash {
 		foreach ( keys %$addprops ) {
 			$p->take($_, $addprops->{$_});
 		}
+	}
+	
+	if ( defined($metadata) ) {
+		my $MD = new Map<String,String>;
+		foreach ( keys %$metadata ) {
+			$MD->{$_} = $metadata->{$_};
+		};
+		$p->attach("polyDB", $MD);
 	}
 	
 	return $p;	

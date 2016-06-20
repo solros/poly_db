@@ -22,7 +22,6 @@ sub insert_into_col {
 	my ($obj_in, $collection, $options) = @_;
 
 	my $obj = $obj_in->copy;
-	print "inserting ", $options->{id}," with name ", $obj->name,"\n";
 	my $json;	
 	if ( defined(my $temp = $options->{template} ) ) {
 		$obj = adjust_properties($obj, $temp, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
@@ -82,9 +81,9 @@ user_function db_insert ($, $, $, {local => 0, \
 		unless (defined($temp)) {
 			$temp = get_full_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
-		$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} });
+		$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
 	} else {
-		$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} });
+		$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
 	}
 	return $output;
 }
@@ -175,11 +174,9 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 		}
 	}	
 		
-	print "inserting ...\n";
 	my $count = 0;
 	foreach my $obj (@$objects) {
 		my $id = generate_id($obj->name, $db, $col);
-		print "assigning id ", $id, "\n";
 		
 		if ($collection->find_one({'_id' => $id})) {	
 			if ($options->{verbose}) { print "id $id already exists\n"; }
@@ -190,9 +187,9 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 		
 		my $output;
 		if ( defined($temp) ) {
-			$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} });
+			$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
 		} else {
-			$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id} 	});
+			$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
 		}				
 		if ( !$output->{acknowledged} ) {
 			print join "-", keys %$output;

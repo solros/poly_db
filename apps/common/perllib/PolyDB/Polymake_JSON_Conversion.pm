@@ -71,26 +71,7 @@ sub cursor2stringarray {
 }
 
 
-# This is a helper function that transforms a database document into an object.
-# ADAPTED VERSION
-sub doc2object {
-	my ($doc, $t, $db_name, $col_name) = @_;
-	
-	# take application and type from the document, if defined
-	# otherwise use the information from the template
-	my $app  = defined($doc->{'app'})  ? $doc->{'app'}  : $t->{'app'};
-	my $type = defined($doc->{'type'}) ? $doc->{'type'} : $t->{'type'};
 
-	# TODO: add other properties from type entry
-	my $addprops;
-	if ($db_name && $col_name) {
-		$addprops = {"database" => $db_name, "collection" => $col_name};
-	}
-	
-	my $obj_type = User::application($app)->eval_type($type);
-	
-	return PolyDB::DirectJSONwriter::read_db_hash($doc, $addprops);
-}
 
 
 
