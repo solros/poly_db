@@ -107,7 +107,7 @@ sub doc2object {
 		$metadata->{"collection"} = $col_name;
 	}		
 	
-	return PolyDB::DirectJSONwriter::read_db_hash($doc, $addprops, $metadata);
+	return PolyDB::Polymake_JSON_Conversion::read_db_hash($doc, $addprops, $metadata);
 }
 
 

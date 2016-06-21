@@ -122,6 +122,8 @@ user_function db_update_one($, $, $, {local => 0, username => $db_user, password
 
 	my ($db_name, $col_name, $obj, $options) = @_;
 
+	croak("This function is currently not available\n");
+
 	my $t;
 	unless (defined($t = $options->{template})) {
 		$t = get_template_object($db_name, $col_name, local => $options->{local});
