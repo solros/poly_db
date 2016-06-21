@@ -524,7 +524,7 @@ sub cursor2array {
 	# TODO: add other properties from type entry
 	my $addprops = {"database" => $db_name, "collection" => $col_name};
 	foreach my $p (@objects) {		
-		$parray->[$i] = PolyDB::DirectJSONwriter::read_db_hash($p, $addprops);
+		$parray->[$i] = PolyDB::Polymake_JSON_Conversion::read_db_hash($p, $addprops);
 		++$i;
 	}
 	return $parray;

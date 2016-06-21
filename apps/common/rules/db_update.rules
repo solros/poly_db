@@ -31,6 +31,9 @@
 # @option String password
 # @option String contrib use this to update the [[contributor]]
 function db_batch_update(Array, $, $, {local => 0, username => "", password => "", contrib => ""}) {
+	
+	croak("This function is currently not available\n");	
+	
 	my ($obj_list, $db_name, $col_name, $options) = @_;
 	my $u = $options->{username};
 	my $p = $options->{password};
@@ -96,6 +99,8 @@ function db_batch_update(Array, $, $, {local => 0, username => "", password => "
 function db_update_id($, $, $, {local => 0, username => $db_user, password => $db_pwd, contrib => "", schedule => undef, template => undef}) {
 	
 	my ($db_name, $col_name, $id, $options) = @_;
+	
+	croak("This function is currently not available\n");	
 	
 	my $p;
 	unless ($p = poly_db_one({'_id' => $id}, lup($options), db => $db_name, collection => $col_name)) {croak("non-existent id: $id\n");}
