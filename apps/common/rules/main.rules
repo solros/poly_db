@@ -65,5 +65,3 @@ INCLUDE
 	db_update_client.rules # check
 	admin.rules            # check
 
-	#	property_types.rules
-	#	cursor_properties.rules
