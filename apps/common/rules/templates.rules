@@ -27,7 +27,7 @@
 # @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @return HASH
-user_function get_template($, $, {local => 0, client => undef, template_key => 'default'}) {
+user_function get_template_old($, $, {local => 0, client => undef, template_key => 'default'}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	
@@ -61,9 +61,11 @@ user_function get_db_template($, $, {local => 0, client => undef, template_key =
 }
 
 
-user_function get_full_template($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
+# returns the full template record for a given collection and a given key
+user_function get_template($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
+	my $content_record_key = $options->{"template_key"};
 	
 	my $client;
 	unless(defined($client = $options->{client})) {
@@ -71,12 +73,10 @@ user_function get_full_template($, $, {local => 0, tiny => 0, client => undef, t
 	}
 		
 	my $tcol = $client->get_database($db)->get_collection("type_information");
-
-	my $doc = $tcol->find({db => $db, col => $col, key=>$options->{template_key}})->next;
+	my $content_description_record = $tcol->find({db => $db, col => $col, key=>$options->{template_key}})->next;
+	unless ($content_description_record) {croak("no template data for collection $col in database $db with key $content_record_key");}
 	
-	unless ($doc) {croak("no template data for collection $col in database $db");}
-	
-	return $doc;
+	return $content_description_record;
 }
 
 

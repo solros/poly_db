@@ -17,8 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
+use Data::Dumper;
+use MongoDB;
+use MongoDB::OID;
+use PolyDB::DatabaseCursor;
+use Scalar::Util qw(looks_like_number);
 
 # polyDB: The hostname of the database, default 'polymake.org'
 custom $db_host = "db.polymake.org";
@@ -49,6 +52,38 @@ custom $db_name = "";
 custom $collection_name = "";
 
 
+sub fix_query {
+	
+	my $query = shift;
+	foreach my $key (keys %$query) {
+		print $key, "\n";
+		if ( ref($query->{$key}) eq "HASH" ) {
+			# recursion
+		} elsif ( ref($query->{$key}) eq "ARRAY" ) {
+			# recursion
+		} elsif ( looks_like_number($query->{$key}) ) {
+			$query->{$key} = "$query->{$key}";
+		}
+		
+	}
+	
+}
+
+sub prepare_query {
+	
+	my ($options) = @_;
+	
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+	# get one template entry of the collection
+	my $type = get_type($client, $options->{db}, $options->{collection});
+	# get the actual collection
+	my $col  = get_collection($client, $options->{db}, $options->{collection});	
+
+	return $client, $type, $col;
+}
 
 # @category Database
 # Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
@@ -63,15 +98,13 @@ custom $collection_name = "";
 # @option String password Some databases might have access control.
 # @return Array<Core::Object>
 # ADAPTED VERSION
-user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {_id => 1}}){
+user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, client => undef, skip => 0, sort_by => {_id => 1}}){
 	my ($query, $options) = @_;
 
 	check_options($options);
 
-	my $client = get_client($options);
-	my $type = get_type($client, $options->{db}, $options->{collection});
-	my $col = get_collection($client, $options->{db}, $options->{collection});	
-
+	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
+	
 	my $output = $col->find($query)->limit($options->{limit})->sort($options->{sort_by})->skip($options->{skip});
 	unless ($output) {print "No such object.\n"; return;}
 	
@@ -79,37 +112,6 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 	return cursor2array($output, $type, $options->{db}, $options->{collection});
 }
 
-
-
-# This is a helper function that transforms a database document into an object.
-# ADAPTED VERSION
-sub doc2object {
-	my ($doc, $t, $db_name, $col_name) = @_;
-	
-	# take application and type from the document, if defined
-	# otherwise use the information from the template
-	my $app  = defined($doc->{'app'})  ? $doc->{'app'}  : $t->{'app'};
-	my $type = defined($doc->{'type'}) ? $doc->{'type'} : $t->{'type'};
-
-	# FIXME currently unused
-	my $addprops;
-
-	
-	my $metadata;
-	if ( defined($doc->{"polyDB"}) ) {
-		$metadata = $doc->{"polyDB"};
-	}
-	
-	if ($db_name && !defined($metadata->{"database"}) ) {
-		$metadata->{"database"} = $db_name;
-	}	
-	
-	if ($col_name && !defined($metadata->{"collection"}) ) {
-		$metadata->{"collection"} = $col_name;
-	}		
-	
-	return PolyDB::Polymake_JSON_Conversion::read_db_hash($doc, $addprops, $metadata);
-}
 
 
 # @category Database
@@ -127,23 +129,24 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 
 	check_options($options);
 	
-	my $client;
-	unless(defined($client = $options->{client})) {
-		$client = get_client($options);
-	}
+	fix_query($query);
 
-	# get one template entry of the collection
-	my $type = get_type($client, $options->{db}, $options->{collection});
-	# get the actual collection
-	my $col  = get_collection($client, $options->{db}, $options->{collection});	
+	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
+
 	# query the database
 	# NOTE: the return is a perl hash of the json in the datatbase!
 	my $output = $col->find_one($query);
 	
 	unless ($output) { croak("No such object.\n"); }
-	return doc2object($output, $type, $options->{db}, $options->{collection});
+	return PolyDB::Polymake_JSON_Conversion::read_db_hash($output,$options->{db}, $options->{collection});
 }
 
+
+user_function database_cursor {
+	my ($database, $collection, %search_params) = @_;
+	my $dbc = new PolyDB::DBCursor($database, $collection, %search_params);
+	return $dbc;
+}
 
 # @category Database
 # Returns the number of objects in the database //db// in //collection// that match the //query//.
@@ -161,8 +164,8 @@ user_function poly_db_count($, {db => $db_name, collection => $collection_name, 
 	check_options($options);
 
 	my $client = get_client($options);
-	my $type = get_type($client, $options->{db}, $options->{collection});
-	my $col = get_collection($client, $options->{db}, $options->{collection});	
+	my $type   = get_type($client, $options->{db}, $options->{collection});
+	my $col    = get_collection($client, $options->{db}, $options->{collection});	
 
 	undef $client;
 	return $col->count($query);

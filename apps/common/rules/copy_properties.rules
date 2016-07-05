@@ -72,9 +72,9 @@ sub adjust_properties_at_level {
 }
 
 
-user_function adjust_properties {
+sub adjust_properties {
 	my ($o, $t, $options ) = @_;
-
+	
 	my $p;
 	if ( $options->{keep_all_props} ) {
 		$p = $o->copy;
@@ -86,7 +86,7 @@ user_function adjust_properties {
 		$p->credits = $o->credits;
 		$p->description = $o->description;
 	}
-	
+
 	my $properties = $t->{'template'};
 	adjust_properties_at_level("",$o,$p,$properties,$options);
 	

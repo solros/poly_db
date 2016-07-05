@@ -18,22 +18,121 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-sub insert_into_col {
-	my ($obj_in, $collection, $options) = @_;
+sub adjust_properties_at_level {
+	my ($prefix, $input_object, $output_object, $properties, $options) = @_;
 
-	my $obj = $obj_in->copy;
-	my $json;	
-	if ( defined(my $temp = $options->{template} ) ) {
-		$obj = adjust_properties($obj, $temp, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
-		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}, projection=>$temp->{'db_template'}});
+	my %knownproperties;
+	if ( $prefix eq "" ) {
+		%knownproperties = map { $_->property->name => 1 } @{$input_object->contents};	
 	} else {
-		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, {contributor => $options->{contrib}, id=>$options->{id}});		
+		%knownproperties = map { $_->property->name => 1 } @{$input_object->give($prefix)->contents};	
 	}
-	my $o = $collection->insert_one(::JSON->new->utf8->decode($json));
+	foreach my $pv (keys %$properties) {		
+		my $prop = $pv;
+		if ( $prefix ne "" ) {
+			$prop = $prefix.".".$pv;
+		}
+		if ( $properties->{$pv} == 1 ) {
+			if ( exists($knownproperties{$pv} ) ) {
+				if ( !$options->{keep_all_props} ) { # otherwise it is in $output_object already
+					# we get property from $input_object
+					my $val = $input_object->give($prop);
+					# and pass them on to $output_object
+					$output_object->take($prop,$val);
+					
+				}
+			} else { 
+				if ( !$options->{nonew} ) {
+					# FIXME using a schedule apparently does not work
+					# my $s = $input_object->get_schedule($pv);
+					# $s->apply($output_object);
+				
+					# we compute properties in $input_object
+					my $val = $input_object->give($prop);
+					# and pass them on to $output_object
+					$output_object->take($prop,$val);
+				}
+			}
+		} else {
+			if ( exists($knownproperties{$pv}) || !$options->{nonew} ) {
+				adjust_properties_at_level($prop, $input_object, $output_object, $properties->{$pv}, $options);
+			}
+		}
+	}	
 	
-	return $o;
 }
 
+sub adjust_properties {
+	my ($input_object, $properties, $type, $options ) = @_;
+	
+	my $output_object;
+	if ( $options->{keep_all_props} ) {
+		$output_object = $input_object->copy;
+		$output_object->begin_transaction;
+	} else {
+	# create a new polytope
+		$output_object=eval("new ".$type.";");
+		$output_object->name        = $input_object->name;
+		$output_object->credits     = $input_object->credits;
+		$output_object->description = $input_object->description;
+	}
+
+	adjust_properties_at_level("",$input_object,$output_object,$properties,$options);
+	
+	$output_object->commit;
+	return $output_object;
+}
+
+sub insert_into_col {
+	my ($obj, $collection, $id, $options) = @_;	
+	
+	my $use_template = 0;
+	my $temp;
+	if ( defined($temp = $options->{template}) ) {
+		$use_template = 1;
+	}
+	
+	# prepare metadata
+	my $metadata = {};
+	
+	# set the contributor, precedence is
+	# given in object > set as option > given in template
+	if ( defined($options->{"contributor"}) ) {
+		$metadata->{"contributor"} = $options->{"contributor"};
+	} else {
+		if ( defined($temp->{"contributor"}) ) {
+			$metadata->{"contributor"} = $options->{"contributor"};
+		}
+	}
+	
+
+	# check if polytope has a polyDB attachment
+	if ( !defined( my $polydb_attachment = $obj->get_attachment("polyDB") ) ) {
+		foreach (@{$polydb_attachment}) {
+			$metadata->{$_} = $polydb_attachment->{$_};
+		}
+	} 
+	
+	my $json;	
+	if ( $use_template ) {
+		# returns a new polymake object with the properties of $obj copied to it if all should be kept or in template, properties required by template computed and nonoew not set
+		$obj = adjust_properties($obj, $temp->{"xml_template"}, $temp->{"basic_type"}, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
+
+		# convert to json
+		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id, {projection=>$temp->{'db_template'}});
+	} else {
+		
+		# convert to json
+		# save the given polymake object as is
+		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id);		
+	}
+		
+	# insert into database
+	my $o = $collection->insert_one(::JSON->new->utf8->decode($json));
+	
+	# return success
+	return $o;
+}
 
 
 # @category Database Write Access
@@ -43,25 +142,20 @@ sub insert_into_col {
 # 
 # Contained in extension ''polyDB''.
 # @param Core::Object obj
-# @param String db database name
-# @param String col collection name
-# @option String id unique identifier
-# @option String contrib set the contributor
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @param  String db             database name
+# @param  String col            collection name
+# @option String id             unique identifier
+# @option String contrib        set the contributor
+# @option Bool local            set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template set to 1 to match properties with a template object  
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool use_template     set to 1 to match properties with a template object  
+# @option Bool nonew            set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool keep_all_props   keep all properties present in the polymake object (in the xml. not necessarily in the db representation)
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, {local => 0, \
-								   id => "", \
-								   contrib => "", \
-								   username => $db_user, password => $db_pwd, \
-								   client => undef, \
-								   use_template => 0, template => undef, template_key=> "default", \
-								   nonew => 0, keep_all_props=> 0, rem_props => undef}) {
+user_function db_insert ($, $, $, { local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, client => undef, use_template => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
 	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
@@ -69,21 +163,31 @@ user_function db_insert ($, $, $, {local => 0, \
 	unless (defined($client = $options->{client})) {
 		$client = get_client($options);
 	}
-	
- 	check_type($obj, $db, $col, $client);
-
 	my $collection = get_collection($client, $db, $col);
-		
+
+	# the objects needs an id
+	# FIXME currently no method implemented to generate one (could take the name)
+	my $id;
+	if ( !defined($options->{"id"}) ) {
+		croak("no id defined, currently no method to generate one implemented");
+	} else {
+		$id = $options->{"id"};
+	}
+	
 	# get template object if not given by the options
 	my $temp;
 	my $output;
+	# check if use of template is wanted
+	# check if template is given in the options, otherwise try to load one
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_full_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
-		$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
+		$output = insert_into_col($obj, $collection, $id, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contrib => $options->{contrib} });
+
 	} else {
-		$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
+
+		$output = insert_into_col($obj, $collection, $id, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contrib => $options->{contrib} });
 	}
 	return $output;
 }
@@ -170,7 +274,7 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_full_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
 	}	
 		
@@ -284,7 +388,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template}){
-		$temp = get_full_template($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = get_template($db_name, $collection, local => $options->{local}, client => $client);
 	}
 
 	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);

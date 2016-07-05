@@ -71,7 +71,26 @@ sub get_collection {
 	return $db->get_collection($collection);
 }
 
+
+
+# the current date as a string in the form yyyy-mm-dd
+sub get_date {
+	use DateTime;
+
+	my $dt = DateTime->today;
+	return $dt->date;
+}
+
+
+#### currently unused old functions
+
+
+
+
+
+
 # checks if there is a template for the db and checks whether input data adheres to this template
+# FIXME we might have more than one template
 sub check_type {
 	my ($obj, $db, $col, $client) = @_;
 	my $c = get_type($client, $db, $col);
@@ -87,24 +106,6 @@ sub check_type {
 	}
 	return 1;
 }
-
-
-# the current date as a string in the form yyyy-mm-dd
-sub get_date {
-	use DateTime;
-
-	my $dt = DateTime->today;
-	return $dt->date;
-}
-
-
-#### currently unused opld functions
-
-
-
-
-
-
 
 # generates a unique ID for the object from the name of the file
 # FIXME this has a rather restricted usecase

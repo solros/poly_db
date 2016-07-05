@@ -56,11 +56,9 @@ declare object DatabaseCursor;
 
 
 INCLUDE
-	copy_properties.rules  # done
 	templates.rules        # done
 	db.rules               # done
 	info.rules             # done
-	cursor.rules           # done (join with some other rule file)
 	db_insert.rules        # partially done
 	db_update.rules        # check
 	db_update_client.rules # check
