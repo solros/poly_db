@@ -101,13 +101,16 @@ sub insert_into_col {
 		$metadata->{"contributor"} = $options->{"contributor"};
 	} else {
 		if ( defined($temp->{"contributor"}) ) {
-			$metadata->{"contributor"} = $options->{"contributor"};
+			$metadata->{"contributor"} = $temp->{"contributor"};
 		}
 	}
-	
+
+	if ( defined($options->{template_key}) ) {
+		$metadata->{"template_key"} = $options->{template_key};
+	}
 
 	# check if polytope has a polyDB attachment
-	if ( !defined( my $polydb_attachment = $obj->get_attachment("polyDB") ) ) {
+	if ( defined( my $polydb_attachment = $obj->get_attachment("polyDB") ) ) {
 		foreach (@{$polydb_attachment}) {
 			$metadata->{$_} = $polydb_attachment->{$_};
 		}
@@ -145,7 +148,7 @@ sub insert_into_col {
 # @param  String db             database name
 # @param  String col            collection name
 # @option String id             unique identifier
-# @option String contrib        set the contributor
+# @option String contributor    set the contributor
 # @option Bool local            set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
@@ -155,7 +158,7 @@ sub insert_into_col {
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, { local => 0, id => "", contrib => "", username => $db_user, password => $db_pwd, client => undef, use_template => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
+user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, username => $db_user, password => $db_pwd, client => undef, use_template => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
 	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
@@ -183,13 +186,21 @@ user_function db_insert ($, $, $, { local => 0, id => "", contrib => "", usernam
 		unless (defined($temp)) {
 			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
-		$output = insert_into_col($obj, $collection, $id, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contrib => $options->{contrib} });
+		$output = insert_into_col($obj, $collection, $id, {template => $temp, template_key => $options->{template_key}, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 
 	} else {
 
-		$output = insert_into_col($obj, $collection, $id, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contrib => $options->{contrib} });
+		$output = insert_into_col($obj, $collection, $id, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 	}
-	return $output;
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
+	
+	if ( !$output->{acknowledged} ) {
+		print join "-", keys %$output;
+		croak("Error while inserting into database\n");
+	}
 }
 
 
@@ -203,7 +214,7 @@ user_function db_insert ($, $, $, { local => 0, id => "", contrib => "", usernam
 # @param String db database name
 # @param String col collection name
 # @option String id unique identifier, if you don't specify one, polyDB will try to create one from the object name or file name, if this does not work out one will be created automatically
-# @option String contrib set the contributor
+# @option String contributor set the contributor
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
@@ -212,14 +223,7 @@ user_function db_insert ($, $, $, { local => 0, id => "", contrib => "", usernam
 # @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert_from_file($, $, $, {local => 0, \
-											username => $db_user, \
-											password => $db_pwd, \
-											id => "", \
-											contrib => "", \
-											nonew => 0, use_template => 0, template => undef,  template_key=> "default", keep_all_props=> 0,\
-											client => undef, \
-											rem_props => undef}) {
+user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contributor => undef, nonew => 0, use_template => 0, template => undef,  template_key=> "default", keep_all_props=> 0, client => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
@@ -236,8 +240,6 @@ user_function db_insert_from_file($, $, $, {local => 0, \
 }
 
 
-
-
 # @category Database Write Access
 # Adds a list of objects from a pdata file to the collection //col// in the database //db//. It assumes that the objects names can be used to generate unique ids. Objects with ids that are already contained in the database will be skipped.
 # 
@@ -249,7 +251,7 @@ user_function db_insert_from_file($, $, $, {local => 0, \
 # @param String file pdata file (created with [[save_data]])
 # @param String db database name
 # @param String col collection name
-# @option String contrib
+# @option String contributor
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
@@ -259,7 +261,7 @@ user_function db_insert_from_file($, $, $, {local => 0, \
 # @option Bool verbose print database output
 # @option MongoClient client
 # FIXME old version
-user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
+user_function db_insert_pdata ($, $, $, {contributor => undef, local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
 	my ($file, $db, $col, $options) = @_;
 	
 	# get client if not given by the options
@@ -271,11 +273,13 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 	my $collection = get_collection($client, $db, $col);
 	my $objects = User::load_data($file);
 
+	my $use_tamplate = 0;
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
 			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
+		$use_tamplate = 1;
 	}	
 		
 	my $count = 0;
@@ -286,14 +290,12 @@ user_function db_insert_pdata ($, $, $, {contrib => "", local => 0, username => 
 			if ($options->{verbose}) { print "id $id already exists\n"; }
 			next;
 		}
-
-		$options->{id} = $id;
 		
 		my $output;
-		if ( defined($temp) ) {
-			$output = insert_into_col($obj, $collection, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
+		if ( $use_tamplate ) {
+			$output = insert_into_col($obj, $collection, $id, {template => $temp, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 		} else {
-			$output = insert_into_col($obj, $collection, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, id => $options->{id}, contrib => $options->{contrib} });
+			$output = insert_into_col($obj, $collection, $id, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 		}				
 		if ( !$output->{acknowledged} ) {
 			print join "-", keys %$output;
@@ -361,7 +363,7 @@ user_function db_remove ($, $, $, {local => 0, username => $db_user, password =>
 # @param Array<String> files list of file names
 # @param String db database name
 # @param String col collection name
-# @option String contrib
+# @option String contributor
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
@@ -371,7 +373,7 @@ user_function db_remove ($, $, $, {local => 0, username => $db_user, password =>
 # @option Bool verbose print database output
 # @option MongoClient client
 # FIXME old version
-user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
+user_function db_batch_insert ($, $, $, {contributor => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
 	
 	croak("this function is currently not available\n");
 	
@@ -424,7 +426,7 @@ user_function db_batch_insert ($, $, $, {contrib => "", local => 0, username => 
 			next;
 		}
 
-		my $json = pm2json($obj, {contributor => $options->{contrib}}, $rem_props, $id, 0, $temp);
+		my $json = pm2json($obj, {contributor => $options->{contributor}}, $rem_props, $id, 0, $temp);
 
 		my $output = $col->insert($json);
 		if ($options->{verbose}) {print "$output ";}
