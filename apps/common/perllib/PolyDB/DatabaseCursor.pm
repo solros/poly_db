@@ -19,7 +19,7 @@
 
 
 package PolyDB::DBCursor;
-
+use Data::Dumper;
 
 # search_params:
 # query
@@ -57,9 +57,6 @@ sub new {
 	$self->app = $app;
 	$self->type = $template;
 	
-	if ( !defined($self->search_params->{query}) ) {
-		$self->search_params->{query} = {"N_LATTICE_POINTS" => "67"};
-	}
 	if ( !defined($self->search_params->{sort_by}) ) {
 		$self->search_params->{sort_by} = {"_id" => 1};
 	}
@@ -81,10 +78,7 @@ sub next {
 	my $p = $self->cursor->next;
 	unless ($p) {print "no such object"; return;}
 
-	my $addprops;
-	$addprops = {"database" => $self->database, "collection" => $self->collection};
-
-	return doc2object($p, $self->type, $self->database, $self->collection)
+	return read_db_hash($p, $self->database, $self->collection)
 }
 
 sub has_next {
@@ -99,6 +93,8 @@ sub full_count {
 	return $self->cursor->count;
 };
 
+# The number of objects matching [[QUERY]] repecting the limit.
+# @return Int
 sub count {
 	my $self = shift;
 	return $self->cursor->count(1);
