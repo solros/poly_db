@@ -422,6 +422,11 @@ sub property_toJSON {
 	return ($content,$attributes);
 }
 
+sub prepare_for_db {
+	my $po = shift;
+	$po->{"LATTICE_POINTS"} = $po->{"LATTICE_POINTS_GENERATORS"}->[0]; delete($po->{"LATTICE_POINTS_GENERATORS"});
+}
+
 
 ##*************************************************************
 ##*************************************************************
@@ -510,6 +515,11 @@ sub json_save {
 	$object->remove_attachment("polyDB");
 	my $xml = save Core::XMLstring($object);
 	$polymake_object->{"polyDB"}->{'xml'} = $xml;
+	
+	if ( defined($options->{'modifier'}) ) {
+		my $func = eval($options->{'modifier'});
+		$func->($polymake_object);
+	}
 	
 	# finally, convert the perl hash into a json object
 	my $json = ::JSON->new;

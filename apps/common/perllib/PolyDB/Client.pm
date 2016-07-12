@@ -23,7 +23,7 @@ require Exporter;
 use vars qw(@ISA @EXPORT);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(get_client get_type get_collection get_date generate_id remove_props_insert check_type);
+@EXPORT = qw(get_client get_type get_collection get_date generate_id check_type);
 
 use Term::ReadKey;
 
@@ -60,8 +60,8 @@ sub get_client {
 
 # returns the database entry with the type information for a given collection
 sub get_type {
-	my ($client, $db_name, $collection) = @_;
-	return $client->get_database($db_name)->get_collection("type_information")->find_one({db => $db_name, col => $collection});
+	my ($client, $db_name, $collection, $template_key) = @_;
+	return $client->get_database($db_name)->get_collection("type_information")->find_one({db => $db_name, col => $collection, template_key => $template_key});
 }
 
 # returns a collection object
@@ -70,8 +70,6 @@ sub get_collection {
 	my $db = $client->get_database($db_name);
 	return $db->get_collection($collection);
 }
-
-
 
 # the current date as a string in the form yyyy-mm-dd
 sub get_date {
@@ -82,30 +80,50 @@ sub get_date {
 }
 
 
-#### currently unused old functions
-
-
-
-
-
-
 # checks if there is a template for the db and checks whether input data adheres to this template
 # FIXME we might have more than one template
 sub check_type {
-	my ($obj, $db, $col, $client) = @_;
-	my $c = get_type($client, $db, $col);
-
-	unless ($c) {
-		return 1;
-	}
+	my ($obj, $db, $col, $template) = @_;
+#	my $template = get_type($client, $db, $col);
 	
 	my $col_type = $c->{type};
 
-	unless ($obj->type->isa($c->{app}."::".$col_type) || grep $col_type, {map {$_->name} keys %{$obj->type->auto_casts}}) {
+	unless ($obj->type->isa($template->{app}."::".$col_type) || grep $col_type, {map {$_->name} keys %{$obj->type->auto_casts}}) {
 		croak("Type mismatch: Collection $db.$col only takes objects of type $col_type; given object is of type ".$obj->type->full_name."\n");
 	}
 	return 1;
 }
+
+# FIXME currently this function is unused
+sub get_credentials {
+	# TODO: cache, key chain??
+	print "user name: ";
+	my $u= <STDIN>;
+	ReadMode 2;
+	print "password: ";
+	my $p= <STDIN>;
+	ReadMode 0;
+	print "\n";
+	chomp($u);
+	chomp($p);
+	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
+	my $answer = <STDIN>;
+	chomp($answer);
+	print "\n";
+	if ($answer == "yes") {
+		Polymake::User::set_custom $db_user = $u;
+		Polymake::User::set_custom $db_pwd = $p;
+		print "user settings will be saved at exit\n";
+	}
+	print "Successfully set user and password for $u.\n";
+	return ($u,$p);
+}
+
+
+#### currently unused old functions
+
+
+
 
 # generates a unique ID for the object from the name of the file
 # FIXME this has a rather restricted usecase
@@ -146,43 +164,7 @@ sub lup {
 
 
 
-sub remove_props_insert {
-	my ($db, $col, $client, $options) = @_;
-	my $rem_props;
-	unless (defined($rem_props = $options->{rem_props})) {
-		$rem_props = ["database","collection"];
-		if (my $type = get_type($client, $db, $col)) {
-			push @$rem_props, keys %$type;
-		}
-	}
-	return $rem_props;
-}
 
-
-
-
-sub get_credentials {
-	# TODO: cache, key chain??
-	print "user name: ";
-	my $u= <STDIN>;
-	ReadMode 2;
-	print "password: ";
-	my $p= <STDIN>;
-	ReadMode 0;
-	print "\n";
-	chomp($u);
-	chomp($p);
-	print "Do you want to save these credentials in your custom settings? (This will overwrite any current user and password settings.) [yes/NO]: ";
-	my $answer = <STDIN>;
-	chomp($answer);
-	print "\n";
-	if ($answer == "yes") {
-		set_custom $db_user = $u;
-		set_custom $db_pwd = $p;
-	}
-	print "Successfully saved user settings for $u.\n";
-	return ($u,$p);
-}
 
 
 1;

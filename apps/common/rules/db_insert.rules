@@ -122,7 +122,7 @@ sub insert_into_col {
 		$obj = adjust_properties($obj, $temp->{"xml_template"}, $temp->{"basic_type"}, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
 
 		# convert to json
-		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id, {projection=>$temp->{'db_template'}});
+		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id, {projection=>$temp->{'db_template'}, modifier=>$temp->{'modifier'} });
 	} else {
 		
 		# convert to json
@@ -392,8 +392,6 @@ user_function db_batch_insert ($, $, $, {contributor => "", local => 0, username
 	if ($options->{use_template}){
 		$temp = get_template($db_name, $collection, local => $options->{local}, client => $client);
 	}
-
-	my $rem_props = remove_props_insert($db_name, $collection, $client, $options);
 
 		
 	print "inserting ...\n";
