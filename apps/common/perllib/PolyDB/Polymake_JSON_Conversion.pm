@@ -38,7 +38,7 @@ use vars qw(@ISA @EXPORT @EXPORT_OK);
 @EXPORT = qw(json_save read_db_hash cursor2array cursor2stringarray);
 
 
-my $DEBUG=1;
+my $DEBUG=0;
 
 
  my $pmns="http://www.math.tu-berlin.de/polymake/#3";
@@ -85,10 +85,6 @@ sub vector_toJSON {
 	my ($pv, $projection) = @_;
 	my $content = [];
 
-	if ( defined($projection) ) {
-		print "[vector_toJSON] storing as $projection\n";
-	}
-	
 	# get type description
 	my $descr = $pv->type->cppoptions->descr;
 	my $sparse = $descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container;
@@ -126,7 +122,6 @@ sub vector_toJSON {
 		}
 	}
 
-	print "[vector_toJSON] returning content: ", Dumper($content), "\n";
 	return $content;
 }
 
@@ -253,8 +248,6 @@ sub handle_cpp_content {
 	my $descr=$pv->type->cppoptions->descr;
 	my $kind=$descr->kind & $Polymake::Core::CPlusPlus::class_is_kind_mask;
 
-	print "[handle_cpp_content] storing property as ", $projection, "\n";
-
 	if ( $DEBUG ) {
 		if ($kind==$Polymake::Core::CPlusPlus::class_is_container) {		
 			print $qualified_value_name, " class is container\n";
@@ -317,8 +310,6 @@ sub value_toJSON {
 
 	my ($val, $type, $projection) = @_;
 	my $content;
-
-	print "[value_toJSON] storing property as ", $projection, "\n";
 
 	my $attributes = {};
 	$attributes->{"type"} = $type->qualified_name;
@@ -398,8 +389,6 @@ sub property_toJSON {
 	my $content;
 	my $attributes = {};
 	
-	print "[property_toJSON] storing property as ", $projection, "\n";	
-
 	# multiple subobjects are stored as an array of objects
 	# in this case we know from the start that the value of this 
 	# property is a polymake object, hence no need to detect this as
