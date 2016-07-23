@@ -26,6 +26,7 @@ use JSON;
 use XML::Simple;
 use Data::Dumper;
 use strict;
+use Math::BigInt try => 'GMP';
 
 require Cwd;
 require Exporter;
@@ -40,12 +41,30 @@ my $pmns="http://www.math.tu-berlin.de/polymake/#3";
 my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String|Float)$};
 my $builtin_numbertype_re = qr{^common::(Int)$};
 my $bigint_numbertype_re = qr{^common::(Integer)$};
+my $rational_numbertype_re = qr{^common::(Rational)$};
 my $float_numbertype_re = qr{^common::(Float)$};
 my $unhandled = "this property is still unhandled";
 
 sub type_attr {
 	my ($type, $owner)=@_;
 	( type => $type->qualified_name(defined($owner) ? $owner->type->application : undef) )
+}
+
+# FIXME find better conversion method
+# Integer/Rational is converted to int via string to allow for int64
+sub try_to_save_as_int {
+	my ($type, $qual_name, $val) = @_;
+	my $content;
+	if ( $qual_name =~ $builtin_numbertype_re ) {
+		$content = $val;
+	} elsif ( $qual_name =~ $bigint_numbertype_re ) {
+		$content = int($type->toString->($val));
+	} elsif ( $qual_name =~ $rational_numbertype_re ) {
+		$content = int($type->toString->($val));
+	} else {
+		$content = $type->toString->($val);
+	}
+	return $content;
 }
 
 ##*************************************************************
@@ -102,10 +121,20 @@ sub vector_toJSON {
 			$content->{'sparse'} = 1;
 			$content->{'data'} = {};
 			for (my $it=args::entire($pv); $it; ++$it) {
-				$content->{'data'}->{$it->index} = $val_type->toString->($it->deref);
+				if ( $store_as_int ) {
+					$content->{'data'}->{$it->index} = try_to_save_as_int($val_type,$sub_qual_name,$it->deref);
+				} else {
+					$content->{'data'}->{$it->index} = $val_type->toString->($it->deref);
+				}
 			}
 		} else {
-			my @pv_copy = map { $val_type->toString->($_) } @$pv;
+			my @pv_copy = map { 
+				if ( $store_as_int ) {
+					try_to_save_as_int($val_type,$sub_qual_name,$_);
+				} else {
+					$val_type->toString->($_);
+				}
+			} @$pv;
 			$content = \@pv_copy;
 		}
 	} else {
@@ -313,7 +342,12 @@ sub value_toJSON {
 	}
 	
 	if ( $type->qualified_name =~ $simpletype_re ) {
-		$content = $type->toString->($val);
+		# check whether we want to store the value as int
+		if ( defined($projection) && ref($projection) eq "HASH" && defined($projection->{"int"}) ) {
+			$content = try_to_save_as_int($type,$type->qualified_name,$val);
+		} else {
+			$content = $type->toString->($val);
+		}
 	} else {  # now we are dealing with a C++ type
 		$content = handle_cpp_content($val, $projection);
 	}
