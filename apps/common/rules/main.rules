@@ -21,19 +21,8 @@
 
 
 use PolyDB;
-
-#use lib "/Users/silke/.cpan/build/MongoDB-0.701.4-7VQ1aD/lib";
-
-#use lib "/Users/silke/.cpan/build/boolean-0.30-hRbUto/lib";
-
-#use lib "/Users/silke/.cpan/build/Tie-IxHash-1.23-xw6ZmS/lib";
-
-#use lib "/Library/Perl/5.12/darwin-thread-multi-2level";
-
-
 use MongoDB;
 use MongoDB::OID;
-
 
 
 # A database cursor. Initialize it with a [[DATABASE]] name, a [[COLLECTION]] name and a [[QUERY]]. You can then iterate over the objects matching the [[QUERY]] with [[next]]. It lazily fetches more objects from the database server. (Note that you have to create a new cursor if you want to start from the beginning.)

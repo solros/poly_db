@@ -25,37 +25,28 @@ use Scalar::Util qw(looks_like_number);
 use JSON;
 use XML::Simple;
 use Data::Dumper;
-
-require Cwd;
-
 use strict;
 
-
+require Cwd;
 require Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 @ISA = qw(Exporter);
 @EXPORT = qw(json_save read_db_hash cursor2array cursor2stringarray);
 
-
 my $DEBUG=0;
 
-
- my $pmns="http://www.math.tu-berlin.de/polymake/#3";
- my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String|Float)$};
- my $builtin_numbertype_re = qr{^common::(Int)$};
- my $bigint_numbertype_re = qr{^common::(Integer)$};
- my $float_numbertype_re = qr{^common::(Float)$};
- my $unhandled = "this property is still unhandled";
- 
- 
+my $pmns="http://www.math.tu-berlin.de/polymake/#3";
+my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String|Float)$};
+my $builtin_numbertype_re = qr{^common::(Int)$};
+my $bigint_numbertype_re = qr{^common::(Integer)$};
+my $float_numbertype_re = qr{^common::(Float)$};
+my $unhandled = "this property is still unhandled";
 
 sub type_attr {
-   my ($type, $owner)=@_;
-   ( type => $type->qualified_name(defined($owner) ? $owner->type->application : undef) )
+	my ($type, $owner)=@_;
+	( type => $type->qualified_name(defined($owner) ? $owner->type->application : undef) )
 }
-
-
 
 ##*************************************************************
 ##*************************************************************
@@ -88,7 +79,8 @@ sub vector_toJSON {
 	# get type description
 	my $descr = $pv->type->cppoptions->descr;
 	my $sparse = $descr->kind & $Polymake::Core::CPlusPlus::class_is_sparse_container;
-	my $dense = defined($projection) && $projection == "dense";
+	my $dense = defined($projection) && ref($projection) eq "HASH" && defined($projection->{"dense"});
+	my $store_as_int = defined($projection) && ref($projection) eq "HASH" && defined($projection->{"int"});
 	my $value;
 	if ( $dense ) {
 		$value = dense($pv);
@@ -182,6 +174,7 @@ sub nodeMap_toJSON {
 	return $content;
 }
 
+
 ##*************************************************************
 ##*************************************************************
 sub map_toJSON {
@@ -226,6 +219,7 @@ sub quadraticExtension_toJSON {
     return $content;
 }
 
+
 ##*************************************************************
 ##*************************************************************
 sub tropicalNumber_toJSON {
@@ -234,6 +228,7 @@ sub tropicalNumber_toJSON {
     my $content = $type->toString->($pv);
     return $content;
 }
+
 
 ##*************************************************************
 ##*************************************************************
@@ -296,11 +291,6 @@ sub handle_cpp_content {
 }
 
 
-
-
-
-
-
 ##*************************************************************
 ##*************************************************************
 # this is only a distributor function that calls the 
@@ -330,8 +320,6 @@ sub value_toJSON {
 
 	return ($content,$attributes);
 }
-
-
 
 
 ##*************************************************************
@@ -373,12 +361,17 @@ sub subobject_toJSON {
 		$attributes->{$property} = {};
 		print "encoding property $property in subobject\n" if $DEBUG;
 		print "defined projection: ", $projection if $DEBUG;
-		($content->{$property},$attributes->{$property}) = property_toJSON($pv,$projection->{$property});
+		if ( defined($projection) ) {
+			
+			next if !defined($projection->{$property}) || $projection->{$property} == 0 ;
+			($content->{$property},$attributes->{$property}) = property_toJSON($pv,$projection->{$property});
+		} else {
+			($content->{$property},$attributes->{$property}) = property_toJSON($pv);
+		}
 	}
 
 	return ($content,$attributes);
 }
-
 
 
 ##*************************************************************
@@ -411,14 +404,14 @@ sub property_toJSON {
 	return ($content,$attributes);
 }
 
-sub prepare_for_db {
-	my $po = shift;
-	$po->{"LATTICE_POINTS"} = $po->{"LATTICE_POINTS_GENERATORS"}->[0]; delete($po->{"LATTICE_POINTS_GENERATORS"});
-}
-
 
 ##*************************************************************
 ##*************************************************************
+## object: the polymake object
+## metadata: 
+## id: the id that should be assigned to the object
+## options:
+##     projection: hash specifying what should be stored in the db
 sub json_save {
     my ($object, $metadata, $id, $options)=@_;
 
@@ -450,7 +443,8 @@ sub json_save {
 		# 1 just means to store the property (which then has a builtin od C++ type)
 		# dense is a special marker for Matrices, Vectors to convert sparse into dense notation
 		if ( defined($options->{'projection'}) ) {
-			next if !defined($options->{'projection'}->{$property});
+			
+			next if !defined($options->{'projection'}->{$property}) || $options->{'projection'}->{$property} == 0 ;
 			($polymake_object->{$property}, $attr) = property_toJSON($pv,$options->{'projection'}->{$property});
 		} else {
 			($polymake_object->{$property}, $attr) = property_toJSON($pv);
@@ -567,6 +561,7 @@ sub read_db_hash {
 	return $p;	
 }
 
+
 # This is a helper function that transforms a database cursor into an array of polymake objects.
 sub cursor2array {
 	my ($cursor, $t, $db_name, $col_name) = @_;
@@ -590,6 +585,7 @@ sub cursor2array {
 	return $parray;
 }
 
+
 # This is a helper function that transforms a database cursor into an array of strings (IDs).
 sub cursor2stringarray {
 	my $cursor = shift;
@@ -601,8 +597,6 @@ sub cursor2stringarray {
 	return @parray;
 
 }
-
-
 
 
 1;

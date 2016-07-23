@@ -32,7 +32,8 @@ sub adjust_properties_at_level {
 		if ( $prefix ne "" ) {
 			$prop = $prefix.".".$pv;
 		}
-		if ( $properties->{$pv} == 1 ) {
+		
+		if ( defined($properties->{$pv}) ) {
 			if ( exists($knownproperties{$pv} ) ) {
 				if ( !$options->{keep_all_props} ) { # otherwise it is in $output_object already
 					# we get property from $input_object
@@ -78,7 +79,7 @@ sub adjust_properties {
 	}
 
 	adjust_properties_at_level("",$input_object,$output_object,$properties,$options);
-	
+
 	$output_object->commit;
 	return $output_object;
 }
@@ -119,10 +120,10 @@ sub insert_into_col {
 	my $json;	
 	if ( $use_template ) {
 		# returns a new polymake object with the properties of $obj copied to it if all should be kept or in template, properties required by template computed and nonoew not set
-		$obj = adjust_properties($obj, $temp->{"xml_template"}, $temp->{"basic_type"}, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
+		$obj = adjust_properties($obj, $temp->{"template"}, $temp->{"basic_type"}, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
 
 		# convert to json
-		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id, {projection=>$temp->{'db_template'}, modifier=>$temp->{'modifier'} });
+		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id, {projection=>$temp->{'template'}, modifier=>$temp->{'modifier'} });
 	} else {
 		
 		# convert to json
