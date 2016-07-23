@@ -54,11 +54,52 @@ user_function get_db_template($, $, {local => 0, client => undef, template_key =
 	}
 		
 	my $tcol = $client->get_database($db)->get_collection("type_information");
-	my $r = $tcol->find_one({db => $db, col => $col, template_key => 'default'});
+	my $r = $tcol->find_one({db => $db, col => $col, key => $options->{template_key}});
 	unless ($r) { croak("no template data for collection $col in database $db"); }
 	
-	return $r->{'db_template'};
+	return $r->{'template'};
 }
+
+sub add_properties {
+	my ($flat_properties, $initial, $t) = @_;
+	foreach (keys %$t ) {
+		if ( ref($t->{$_}) eq "HASH" ) {
+			my @k = keys %{$t->{$_}};
+			if ( $k[0] =~ /[A-Z]+/ ) {
+				my $ini = $initial.".".$_;
+				add_properties($flat_properties, $ini, $t->{$_});
+			} else {
+				my $props = " [";
+				foreach ( keys %{$t->{$_}} ) {
+					$props .= ", ".$_;
+				}
+				$props =~ s/, (.*)/$1/;
+				$props .= "]";
+				push @{$flat_properties}, $initial.".".$_." ".$props;
+			}
+		} else {
+			if ( $t->{$_} != 0 ) {
+				push @{$flat_properties}, $initial.".".$_;
+			}
+		}
+	}
+}
+
+
+user_function polyDB_searchable_fields ($, $, {local => 0, client => undef, template_key => 'default'}) {
+	my ($db, $col, $options) = @_;
+	
+	my $t = get_db_template ( $db, $col, $options);
+	
+	my $flat_properties = [];
+	add_properties($flat_properties,"",$t);
+	foreach (@$flat_properties) {
+		s/.(.*)/$1/;
+	}
+	
+	return new Array<String>(@{$flat_properties});
+}
+
 
 
 # returns the full template record for a given collection and a given key
