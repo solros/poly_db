@@ -52,23 +52,6 @@ custom $db_name = "";
 custom $collection_name = "";
 
 
-sub fix_query {
-	
-	my $query = shift;
-	foreach my $key (keys %$query) {
-		print $key, "\n";
-		if ( ref($query->{$key}) eq "HASH" ) {
-			# recursion
-		} elsif ( ref($query->{$key}) eq "ARRAY" ) {
-			# recursion
-		} elsif ( looks_like_number($query->{$key}) ) {
-			$query->{$key} = "$query->{$key}";
-		}
-		
-	}
-	
-}
-
 sub prepare_query {
 	
 	my ($options) = @_;
@@ -129,8 +112,6 @@ user_function poly_db_one ($, {db => $db_name, collection => $collection_name, l
 
 	check_options($options);
 	
-	fix_query($query);
-
 	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
 
 	# query the database

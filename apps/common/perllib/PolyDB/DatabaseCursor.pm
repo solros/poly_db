@@ -76,7 +76,10 @@ sub new {
 sub next {
 	my $self = shift;
 	my $p = $self->cursor->next;
-	unless ($p) {print "no such object"; return;}
+	unless ($p) {
+		print "no further object in query"; 
+		return;
+	}
 
 	return read_db_hash($p, $self->database, $self->collection)
 }

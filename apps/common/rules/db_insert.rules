@@ -273,16 +273,18 @@ user_function db_insert_pdata ($, $, $, {contributor => undef, local => 0, usern
 
 	my $collection = get_collection($client, $db, $col);
 	my $objects = User::load_data($file);
-
 	my $use_tamplate = 0;
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
 			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			if ( !$temp ) {
+				croak("Template requested but not loaded\n");
+			}
 		}
 		$use_tamplate = 1;
 	}	
-		
+	
 	my $count = 0;
 	foreach my $obj (@$objects) {
 		my $id = generate_id($obj->name, $db, $col);
