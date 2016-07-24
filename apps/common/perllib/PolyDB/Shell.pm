@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2014 Silke Horn, Andreas Paffenholz
+# Copyright (c) 2013-2016 Silke Horn, Andreas Paffenholz
 # http://solros.de/polymake/poly_db
 # http://www.mathematik.tu-darmstadt.de/~paffenholz
 # 

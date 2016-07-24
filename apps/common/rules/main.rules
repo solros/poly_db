@@ -50,6 +50,7 @@ INCLUDE
 	info.rules             # done
 	db_insert.rules        # partially done
 	db_update.rules        # check
-	db_update_client.rules # check
 	admin.rules            # check
 
+
+#	db_update_client.rules # check

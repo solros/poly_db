@@ -17,49 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-
-
-# @category Database Write Access
-# Returns the template object for the collection //col// of the database //db// (if this is set).
-# 
-# Contained in extension ''polyDB''.
-# @param String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
-# @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @return HASH
-user_function get_template_old($, $, {local => 0, client => undef, template_key => 'default'}) {
-	my ($db, $col, $options) = @_;
-	my $local = $options->{local};
-	
-	my $client;
-	unless(defined($client = $options->{client})) {
-		$client	= get_client($local, "", "");
-	}
-		
-	my $tcol = $client->get_database($db)->get_collection("type_information");
-	my $r = $tcol->find_one({db => $db, col => $col, template_key => 'default'});
-	unless ($r) { croak("no template data for collection $col in database $db"); }
-
-	return $r->{'template'};
-}
-
-
-user_function get_db_template($, $, {local => 0, client => undef, template_key => 'default'}) {
-	my ($db, $col, $options) = @_;
-	my $local = $options->{local};
-	
-	my $client;
-	unless(defined($client = $options->{client})) {
-		$client	= get_client($local, "", "");
-	}
-		
-	my $tcol = $client->get_database($db)->get_collection("type_information");
-	my $r = $tcol->find_one({db => $db, col => $col, key => $options->{template_key}});
-	unless ($r) { croak("no template data for collection $col in database $db"); }
-	
-	return $r->{'template'};
-}
-
 sub add_properties {
 	my ($flat_properties, $initial, $t) = @_;
 	foreach (keys %$t ) {
@@ -86,24 +43,16 @@ sub add_properties {
 }
 
 
-user_function polyDB_searchable_fields ($, $, {local => 0, client => undef, template_key => 'default'}) {
-	my ($db, $col, $options) = @_;
-	
-	my $t = get_db_template ( $db, $col, $options);
-	
-	my $flat_properties = [];
-	add_properties($flat_properties,"",$t);
-	foreach (@$flat_properties) {
-		s/.(.*)/$1/;
-	}
-	
-	return new Array<String>(@{$flat_properties});
-}
-
-
-
+# @category Database Write Access
+# Returns the template object for the collection //col// of the database //db// (if this is set).
 # returns the full template record for a given collection and a given key
-user_function get_template($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
+# 
+# Contained in extension ''polyDB''.
+# @param String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
+# @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
+# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
+# @return HASH
+user_function db_get_template($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $template_key = $options->{"template_key"};
@@ -121,6 +70,19 @@ user_function get_template($, $, {local => 0, tiny => 0, client => undef, templa
 }
 
 
+user_function db_searchable_fields ($, $, {local => 0, client => undef, template_key => 'default'}) {
+	my ($db, $col, $options) = @_;
+	
+	my $t = get_db_template ( $db, $col, $options);
+	
+	my $flat_properties = [];
+	add_properties($flat_properties,"",$t);
+	foreach (@$flat_properties) {
+		s/.(.*)/$1/;
+	}
+	
+	return new Array<String>(@{$flat_properties});
+}
 
 # @category Database Admin
 # Set or update type (and template) information for collection //col// in the database //db//.

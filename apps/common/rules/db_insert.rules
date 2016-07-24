@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2014 Silke Horn, Andreas Paffenholz
+# Copyright (c) 2013-2016 Silke Horn, Andreas Paffenholz
 # http://solros.de/polymake/poly_db
 # http://www.mathematik.tu-darmstadt.de/~paffenholz
 # 
@@ -185,7 +185,7 @@ user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, 
 	# check if template is given in the options, otherwise try to load one
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = db_get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
 		$output = insert_into_col($obj, $collection, $id, {template => $temp, template_key => $options->{template_key}, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 
@@ -277,7 +277,7 @@ user_function db_insert_pdata ($, $, $, {contributor => undef, local => 0, usern
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = db_get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 			if ( !$temp ) {
 				croak("Template requested but not loaded\n");
 			}
@@ -393,7 +393,7 @@ user_function db_batch_insert ($, $, $, {contributor => "", local => 0, username
 	# get template object if needed
 	my $temp;
 	if ($options->{use_template}){
-		$temp = get_template($db_name, $collection, local => $options->{local}, client => $client);
+		$temp = db_get_template($db_name, $collection, local => $options->{local}, client => $client);
 	}
 
 		

@@ -1,4 +1,4 @@
-# Copyright (c) 2013-2014 Silke Horn, Andreas Paffenholz
+# Copyright (c) 2013-2016 Silke Horn, Andreas Paffenholz
 # http://solros.de/polymake/poly_db
 # http://www.mathematik.tu-darmstadt.de/~paffenholz
 # 
@@ -75,7 +75,7 @@ user_function db_info ({db => undef, collection => undef, local => 0, username =
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @return Array
-user_function get_db_col_list ({db => undef, collection => undef, local => 0, username => $db_user}) {
+user_function db_get_list_db_col ({db => undef, collection => undef, local => 0, username => $db_user}) {
 	my $options = shift;
 	
 	my $client = get_client($options->{local},"","");
@@ -120,7 +120,7 @@ user_function get_db_col_list ({db => undef, collection => undef, local => 0, us
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @return Array
-user_function get_db_list ({local => 0, username => $db_user}) {
+user_function db_get_list_db ({local => 0, username => $db_user}) {
 	my $options = shift;
 	
 	my $client = get_client($options->{local},"","");
@@ -151,7 +151,7 @@ user_function get_db_list ({local => 0, username => $db_user}) {
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @return Array
-user_function get_col_list ($, {local => 0, username => $db_user}) {
+user_function db_get_list_col_for_db ($, {local => 0, username => $db_user}) {
 	my ($db, $options) = @_;
 	
 	my $client = get_client($options->{local},"","");

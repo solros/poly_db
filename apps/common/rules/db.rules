@@ -81,7 +81,7 @@ sub prepare_query {
 # @option String password Some databases might have access control.
 # @return Array<Core::Object>
 # ADAPTED VERSION
-user_function poly_db ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, client => undef, skip => 0, sort_by => {_id => 1}}){
+user_function db_query ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, client => undef, skip => 0, sort_by => {_id => 1}}){
 	my ($query, $options) = @_;
 
 	check_options($options);
@@ -107,7 +107,7 @@ user_function poly_db ($, {db => $db_name, collection => $collection_name, local
 # @option String password Some databases might have access control.
 # @return Core::Object
 # ADAPTED VERSION
-user_function poly_db_one ($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd, client => undef}){
+user_function db_query_one ($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd, client => undef}){
 	my ($query, $options) = @_;
 
 	check_options($options);
@@ -139,7 +139,7 @@ user_function database_cursor {
 # @option String password Some databases might have access control.
 # @return Int
 # ADAPTED VERSION
-user_function poly_db_count($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}) {
+user_function db_count($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}) {
 	my ($query, $options) = @_;
 
 	check_options($options);
@@ -166,7 +166,7 @@ user_function poly_db_count($, {db => $db_name, collection => $collection_name, 
 # @option String password Some databases might have access control.
 # @return Array<String>
 # ADAPTED VERSION
-user_function poly_db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
+user_function db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
 	my ($query, $options) = @_;
 
 	check_options($options);
