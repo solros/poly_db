@@ -262,8 +262,8 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option Bool verbose print database output
 # @option MongoClient client
 # FIXME old version
-user_function db_insert_pdata ($, $, $, {contributor => undef, local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
-	my ($file, $db, $col, $options) = @_;
+user_function db_insert_array ($, $, $, {contributor => undef, local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
+	my ($objects, $db, $col, $options) = @_;
 	
 	# get client if not given by the options
 	my $client;
@@ -272,7 +272,6 @@ user_function db_insert_pdata ($, $, $, {contributor => undef, local => 0, usern
 	}
 
 	my $collection = get_collection($client, $db, $col);
-	my $objects = User::load_data($file);
 	my $use_tamplate = 0;
 	my $temp;
 	if ($options->{use_template} or defined($temp = $options->{template})) {
