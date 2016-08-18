@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
+use Data::Dumper;
 
 sub adjust_properties_at_level {
 	my ($prefix, $input_object, $output_object, $properties, $options) = @_;
@@ -117,25 +118,39 @@ sub insert_into_col {
 		}
 	} 
 	
-	my $json;	
+	my $polymake_object;	
 	if ( $use_template ) {
 		# returns a new polymake object with the properties of $obj copied to it if all should be kept or in template, properties required by template computed and nonoew not set
 		$obj = adjust_properties($obj, $temp->{"template"}, $temp->{"basic_type"}, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
 
-		# convert to json
-		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id, {projection=>$temp->{'template'}, modifier=>$temp->{'modifier'} });
+		# convert to perl array
+		$polymake_object = PolyDB::PolymakeDatabaseConversion::polymake_to_array($obj, $metadata, $id, {projection=>$temp->{'template'}, modifier=>$temp->{'modifier'} });
 	} else {
 		
-		# convert to json
+		# convert to perl array
 		# save the given polymake object as is
-		$json = PolyDB::Polymake_JSON_Conversion::json_save($obj, $metadata, $id);		
+		$polymake_object = PolyDB::PolymakeDatabaseConversion::polymake_to_array($obj, $metadata, $id);		
 	}
 		
 	# insert into database
-	my $o = $collection->insert_one(::JSON->new->utf8->decode($json));
+	my $o = $collection->insert_one($polymake_object);
 	
 	# return success
 	return $o;
+}
+
+sub set_entry_id {
+	my ($name,$id) = @_;
+	
+	if ( !defined($id) ) {
+		if ( !defined($name) ) {
+			croak("no id defined, currently no method to generate one implemented");
+		} else {
+			$id = $name;
+		}
+	}
+	
+	return $id;
 }
 
 
@@ -154,12 +169,12 @@ sub insert_into_col {
 # @option String username
 # @option String password
 # @option Bool use_template     set to 1 to match properties with a template object  
+# @option Core::Object template 
 # @option Bool nonew            set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
 # @option Bool keep_all_props   keep all properties present in the polymake object (in the xml. not necessarily in the db representation)
-# @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, username => $db_user, password => $db_pwd, client => undef, use_template => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
+user_function db_insert ($, $, $, { local => 0, id => undef, contributor => undef, username => $db_user, password => $db_pwd, client => undef, use_template => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
 	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
@@ -168,15 +183,8 @@ user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, 
 		$client = get_client($options);
 	}
 	my $collection = get_collection($client, $db, $col);
+	my $id = set_entry_id($obj->name,$options->{"id"});
 
-	# the objects needs an id
-	# FIXME currently no method implemented to generate one (could take the name)
-	my $id;
-	if ( !defined($options->{"id"}) ) {
-		croak("no id defined, currently no method to generate one implemented");
-	} else {
-		$id = $options->{"id"};
-	}
 	
 	# get template object if not given by the options
 	my $temp;
@@ -190,7 +198,6 @@ user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, 
 		$output = insert_into_col($obj, $collection, $id, {template => $temp, template_key => $options->{template_key}, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 
 	} else {
-
 		$output = insert_into_col($obj, $collection, $id, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 	}
 	
@@ -198,8 +205,8 @@ user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, 
 		undef $client;
 	}
 	
-	if ( !$output->{acknowledged} ) {
-		print join "-", keys %$output;
+	if ( !$output->acknowledged ) {
+		print Dumper($output);
 		croak("Error while inserting into database\n");
 	}
 }
@@ -220,23 +227,14 @@ user_function db_insert ($, $, $, { local => 0, id => "", contributor => undef, 
 # @option String username
 # @option String password
 # @option Bool use_template set to 1 to match properties with a template object. 
+# @option Core::Object template
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
-# @option Core::Object template can be precomputed for better performance when applying to multiple objects (implies use_template => 1)
 # @option MongoClient client
 # @return String
 user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contributor => undef, nonew => 0, use_template => 0, template => undef,  template_key=> "default", keep_all_props=> 0, client => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
-	
-	my $id = $options->{id};
-	
-	unless ($id) {
-		if ($id = generate_id($file, $db, $col)) {
-			$options->{"id"} = $id;
-		}
-	}
-	
 	return db_insert($obj, $db, $col, $options);
 }
 
@@ -286,8 +284,8 @@ user_function db_insert_array ($, $, $, {contributor => undef, local => 0, usern
 	
 	my $count = 0;
 	foreach my $obj (@$objects) {
-		my $id = generate_id($obj->name, $db, $col);
-		
+		my $id = set_entry_id($obj->name);
+
 		if ($collection->find_one({'_id' => $id})) {	
 			if ($options->{verbose}) { print "id $id already exists\n"; }
 			next;
@@ -299,8 +297,8 @@ user_function db_insert_array ($, $, $, {contributor => undef, local => 0, usern
 		} else {
 			$output = insert_into_col($obj, $collection, $id, { nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 		}				
-		if ( !$output->{acknowledged} ) {
-			print join "-", keys %$output;
+		if ( !$output->acknowledged ) {
+			print Dumper($output);
 			croak("Error while inserting into database\n");
 		}
 		$count++;
@@ -342,106 +340,4 @@ user_function db_remove ($, $, $, {local => 0, username => $db_user, password =>
 	
 	return $col->remove({'_id' => $id});
 }
-
-
-
-
-
-################################################################################################################
-################################################################################################################
-################################################################################################################
-
-
-
-
-# @category Database Write Access
-# Adds a list of objects from files to the collection //col// in the database //db//. It assumes that the objects names can be used to generate unique ids. Objects with ids that are already contained in the database will be skipped (and moved to //move_dir// if indicated).
-# 
-# TODO: It still processes (and inserts) the files one by one (which is fine if the objects are relatively large). If one wants to insert a large number of very small objects there is a more efficient way of doing this.
-# 
-# Note that you need write access to the database for this.
-# 
-# Contained in extension ''polyDB''.
-# @param Array<String> files list of file names
-# @param String db database name
-# @param String col collection name
-# @option String contributor
-# @option Bool local set to 1 if you want to use a local database (on localhost), default 0
-# @option String username
-# @option String password
-# @option Bool use_template set to 1 to match properties with a template object. 
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
-# @option String move_dir directory in which processed files are moved
-# @option Bool verbose print database output
-# @option MongoClient client
-# FIXME old version
-user_function db_batch_insert ($, $, $, {contributor => "", local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef}){
-	
-	croak("this function is currently not available\n");
-	
-	my ($files, $db_name, $collection, $options) = @_;
-	
-	my @files = @$files;
-	
-	# get client if not given by the options
-	my $client;
-	unless (defined($client = $options->{client})) {
-		$client = get_client($options);
-	}
-
-	# get template object if needed
-	my $temp;
-	if ($options->{use_template}){
-		$temp = db_get_template($db_name, $collection, local => $options->{local}, client => $client);
-	}
-
-		
-	print "inserting ...\n";
-	foreach (@files) {
-		my $obj = User::load($_);
-		$obj->CONE_DIM;
-		if ($options->{use_template} && !$options->{nonew}) {
-			copy_properties($obj, $temp);
-		}
-	}
-
-	my $col = get_collection($client, $db_name, $collection);
-	
-	my $md = $options->{move_dir};
-	if ($md) {
-		system("mkdir -p $md");
-	}
-	
-	foreach my $file (@files) {
-		my $obj = User::load($file);
-
-	 	#check_type($obj, $db_name, $collection, $client);
-
-		my $id = generate_id($obj->name, $db_name, $collection);
-		
-		if ($col->find_one({'_id'=>$id})) {
-			if ($md) {
-				system("mv $file $md");
-			}	
-			next;
-		}
-
-		my $json = pm2json($obj, {contributor => $options->{contributor}}, $rem_props, $id, 0, $temp);
-
-		my $output = $col->insert($json);
-		if ($options->{verbose}) {print "$output ";}
-
-		if ($md) {
-			system("mv $file $md");
-		}
-	}
-	
-	unless (defined($options->{client})){
-		undef $client;
-	}
-	print "\n";
-}
-
-
-
 

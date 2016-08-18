@@ -119,6 +119,26 @@ sub get_credentials {
 	return ($u,$p);
 }
 
+sub prepare_query {
+	my ($options) = @_;
+	
+	my $client;
+	unless(defined($client = $options->{client})) {
+		$client = get_client($options);
+	}
+	# get one template entry of the collection
+	my $type = get_type($client, $options->{db}, $options->{collection});
+	# get the actual collection
+	my $col  = get_collection($client, $options->{db}, $options->{collection});	
+
+	return $client, $type, $col;
+}
+
+sub check_options {
+	my $options = shift;
+	unless ($options->{db}) { croak("Please specify a database.\n"); }
+	unless ($options->{collection}) { croak("Please specify a collection.\n"); }
+}
 
 #### currently unused old functions
 

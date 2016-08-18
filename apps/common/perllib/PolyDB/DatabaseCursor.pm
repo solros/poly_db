@@ -81,7 +81,7 @@ sub next {
 		return;
 	}
 
-	return read_db_hash($p, $self->database, $self->collection)
+	return db_data_to_polymake($p, $self->database, $self->collection)
 }
 
 sub has_next {

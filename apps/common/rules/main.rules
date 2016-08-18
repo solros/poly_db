@@ -49,8 +49,8 @@ INCLUDE
 	db.rules               # done
 	info.rules             # done
 	db_insert.rules        # partially done
-	db_update.rules        # check
 	admin.rules            # check
+	cursor.rules
 
 
 #	db_update_client.rules # check

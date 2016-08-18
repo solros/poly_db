@@ -63,7 +63,8 @@ user_function db_get_template($, $, {local => 0, tiny => 0, client => undef, tem
 	}
 		
 	my $tcol = $client->get_database($db)->get_collection("type_information");
-	my $template = $tcol->find({db => $db, col => $col, key=>$options->{template_key}})->next;
+	unless ($tcol) {croak("No connection to database type_information"); }
+	my $template = $tcol->find({db => $db, col => $col, key=>$template_key })->next;
 	unless ($template) {croak("no template data for collection $col in database $db with key $template_key");}
 	
 	return $template;
@@ -73,7 +74,7 @@ user_function db_get_template($, $, {local => 0, tiny => 0, client => undef, tem
 user_function db_searchable_fields ($, $, {local => 0, client => undef, template_key => 'default'}) {
 	my ($db, $col, $options) = @_;
 	
-	my $t = get_db_template ( $db, $col, $options);
+	my $t = db_get_template ( $db, $col, $options);
 	
 	my $flat_properties = [];
 	add_properties($flat_properties,"",$t);

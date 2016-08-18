@@ -17,18 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
-use Data::Dumper;
 use MongoDB;
 use MongoDB::OID;
-use PolyDB::DatabaseCursor;
-use Scalar::Util qw(looks_like_number);
 
 # polyDB: The hostname of the database, default 'polymake.org'
 custom $db_host = "db.polymake.org";
 #custom $db_host = "130.83.68.137";
 
 # polyDB: The port of the database, default 27017
-custom $db_port = "27017";
+custom $db_port = "27027";
 
 # polyDB: The database username, default 'polymake'
 custom $db_user = "polymake";
@@ -52,46 +49,32 @@ custom $db_name = "";
 custom $collection_name = "";
 
 
-sub prepare_query {
-	
-	my ($options) = @_;
-	
-	my $client;
-	unless(defined($client = $options->{client})) {
-		$client = get_client($options);
-	}
-	# get one template entry of the collection
-	my $type = get_type($client, $options->{db}, $options->{collection});
-	# get the actual collection
-	my $col  = get_collection($client, $options->{db}, $options->{collection});	
-
-	return $client, $type, $col;
-}
-
 # @category Database
-# Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead construct a [[DatabaseCursor]].
+# Returns all objects in the database //db// in //collection// that match the //query//. This is only recommended for a reasonably small number of matching objects. If you expect many such objects you should instead use a database cursor.
 # @param HASH query
 # @option String db name of the database, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available databases
 # @option String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option Int limit limit the number of objects that will be returned (default: no limit)
-# @option HASH sort_by specify a sorting order
-# @option Int skip skip the first elements, default: 0
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
+# @option String client
+# @option Int skip skip the first elements, default: 0
+# @option HASH sort_by specify a sorting order
 # @return Array<Core::Object>
-# ADAPTED VERSION
 user_function db_query ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, client => undef, skip => 0, sort_by => {_id => 1}}){
 	my ($query, $options) = @_;
 
 	check_options($options);
-
 	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
 	
 	my $output = $col->find($query)->limit($options->{limit})->sort($options->{sort_by})->skip($options->{skip});
-	unless ($output) {print "No such object.\n"; return;}
+	unless ($output) { croak("No such object.\n"); }
+
 	
-	undef $client;
+	unless (defined($options->{client})){
+		undef $client;
+	}
 	return cursor2array($output, $type, $options->{db}, $options->{collection});
 }
 
@@ -105,29 +88,27 @@ user_function db_query ($, {db => $db_name, collection => $collection_name, loca
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
+# @option String client
 # @return Core::Object
-# ADAPTED VERSION
 user_function db_query_one ($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd, client => undef}){
 	my ($query, $options) = @_;
 
 	check_options($options);
-	
 	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
 
 	# query the database
 	# NOTE: the return is a perl hash of the json in the datatbase!
 	my $output = $col->find_one($query);
-	
 	unless ($output) { croak("No such object.\n"); }
-	return PolyDB::Polymake_JSON_Conversion::read_db_hash($output,$options->{db}, $options->{collection});
+
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
+	return PolyDB::PolymakeDatabaseConversion::read_db_hash($output,$options->{db}, $options->{collection});
 }
 
 
-user_function database_cursor {
-	my ($database, $collection, %search_params) = @_;
-	my $dbc = new PolyDB::DBCursor($database, $collection, %search_params);
-	return $dbc;
-}
 
 # @category Database
 # Returns the number of objects in the database //db// in //collection// that match the //query//.
@@ -137,19 +118,21 @@ user_function database_cursor {
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
+# @option String client
 # @return Int
-# ADAPTED VERSION
-user_function db_count($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd}) {
+user_function db_count($, {db => $db_name, collection => $collection_name, local => 0, username => $db_user, password => $db_pwd, client => undef}) {
 	my ($query, $options) = @_;
 
 	check_options($options);
-
-	my $client = get_client($options);
-	my $type   = get_type($client, $options->{db}, $options->{collection});
-	my $col    = get_collection($client, $options->{db}, $options->{collection});	
-
-	undef $client;
-	return $col->count($query);
+	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
+	my $output = $col->count($query);
+	unless ($output) { croak("No such object.\n"); }
+	
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
+	return $output;
 }
 
 
@@ -164,27 +147,22 @@ user_function db_count($, {db => $db_name, collection => $collection_name, local
 # @option Int skip skip the first elements, default: 0
 # @option String username Some databases might have access control.
 # @option String password Some databases might have access control.
+# @option String client
 # @return Array<String>
-# ADAPTED VERSION
-user_function db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, skip => 0, sort_by => {}}){
+user_function db_ids ($, {db => $db_name, collection => $collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, client => undef, skip => 0, sort_by => {}}){
 	my ($query, $options) = @_;
 
 	check_options($options);
-
-	my $client = get_client($options);
-	my $type = get_type($client, $options->{db}, $options->{collection});
-	my $col = get_collection($client, $options->{db}, $options->{collection});	
+	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
 
 	my $output = $col->find($query)->fields({'_id'=>1})->limit($options->{limit})->sort($options->{sort_by})->skip($options->{skip});
-	unless ($output) {print "No such object.\n"; return;}
+	unless ($output) { croak("No such object.\n"); }
 	
-	undef $client;
+	
+	unless (defined($options->{client})){
+		undef $client;
+	}
 	return new Array<String>(cursor2stringarray($output));
 }
 
 
-sub check_options {
-	my $options = shift;
-	unless ($options->{db}) { croak("Please specify a database.\n"); }
-	unless ($options->{collection}) { croak("Please specify a collection.\n"); }
-}

@@ -35,7 +35,7 @@ user_function db_info ({db => undef, collection => undef, local => 0, username =
 	my $icol = $idb->get_collection("Info");
 
 	my %query = ();
-	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"pm"}] );
+	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"polymake"}] );
 	$db_query{"col"} = "db_info";
 	if (defined($options->{db})) {
 		$db_query{"db"} = $options->{db};

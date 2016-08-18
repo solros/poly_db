@@ -18,28 +18,29 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 
-package PolyDB::Polymake_JSON_Conversion;
+package PolyDB::PolymakeDatabaseConversion;
 use Scalar::Util qw(looks_like_number);
 
 
-use JSON;
 use XML::Simple;
 use Data::Dumper;
 use strict;
 use Math::BigInt try => 'GMP';
+use boolean;
 
 require Cwd;
 require Exporter;
 use vars qw(@ISA @EXPORT @EXPORT_OK);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(json_save read_db_hash cursor2array cursor2stringarray);
+@EXPORT = qw(polymake_to_array db_data_to_polymake cursor2array cursor2stringarray);
 
 my $DEBUG=0;
 
 my $pmns="http://www.math.tu-berlin.de/polymake/#3";
 my $simpletype_re = qr{^common::(Int|Integer|Rational|Bool|String|Float)$};
 my $builtin_numbertype_re = qr{^common::(Int)$};
+my $builtin_booltype_re = qr{^common::(Bool)$};
 my $bigint_numbertype_re = qr{^common::(Integer)$};
 my $rational_numbertype_re = qr{^common::(Rational)$};
 my $float_numbertype_re = qr{^common::(Float)$};
@@ -67,12 +68,25 @@ sub try_to_save_as_int {
 	return $content;
 }
 
+# FIXME find better conversion method
+sub try_to_save_as_bool {
+	my ($type, $qual_name, $val) = @_;
+	my $content;
+	
+	if ( $qual_name =~ $builtin_booltype_re ) {
+		$content = $val == "true"? boolean::true : boolean::false;
+	} else {
+		$content = $type->toString->($val);
+	}
+	return $content;
+}
+
 ##*************************************************************
 ##*************************************************************
 # we always need to store the number of columns as this is not reconstructible from the 
 # data even for dense matrices, if they are empty
 # FIXME for reconstruction: a SparseMatrix can have dense rows, so cannot rely on sparse attribute of matrix
-sub matrix_toJSON {
+sub matrix_toARRAY {
 	my ($pv, $projection) = @_;
 	my $content = {};
 	my $descr=$pv->type->cppoptions->descr;
@@ -91,7 +105,7 @@ sub matrix_toJSON {
 ##*************************************************************
 # FIXME in analogy to matrices a vector could always record its type
 # then a vector would always be an object with fields type, dim, sparse, data
-sub vector_toJSON {
+sub vector_toARRAY {
 	my ($pv, $projection) = @_;
 	my $content = [];
 
@@ -149,7 +163,7 @@ sub vector_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub array_toJSON {
+sub array_toARRAY {
 
 	my ($pv,$projection) = @_;
 	my $content = [];
@@ -173,15 +187,15 @@ sub array_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub graph_toJSON {
+sub graph_toARRAY {
 	
 	my ($pv, $projection) = @_;
 	my $content = {};
 	
-	print "[graph_toJSON] called\n" if $DEBUG;
+	print "[graph_toARRAY] called\n" if $DEBUG;
 
 	if ($pv->has_gaps) {
-		print "[graph_toJSON] graphs with gaps are still unhandled\n" if $DEBUG;
+		print "[graph_toARRAY] graphs with gaps are still unhandled\n" if $DEBUG;
 		$content = \$unhandled;
 	} else {
 		$content = handle_cpp_content(adjacency_matrix($pv), $projection);
@@ -193,7 +207,7 @@ sub graph_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub nodeMap_toJSON {
+sub nodeMap_toARRAY {
 	my ($pv,$projection) = @_;
 	my $content = [];
 	foreach (@$pv) {
@@ -206,7 +220,7 @@ sub nodeMap_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub map_toJSON {
+sub map_toARRAY {
 	my $pv=shift;
 	my $content = [];
 
@@ -215,8 +229,8 @@ sub map_toJSON {
 
 	foreach (keys %$pv) {
 		my $val = [];
-		push @$val, value_toJSON($_,$kv_type[0]);
-		push @$val, value_toJSON($pv->{$_},$kv_type[1]);
+		push @$val, value_toARRAY($_,$kv_type[0]);
+		push @$val, value_toARRAY($pv->{$_},$kv_type[1]);
 		push @$content, $val;
 	}
 	
@@ -226,22 +240,22 @@ sub map_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub pair_toJSON {
+sub pair_toARRAY {
     my $pv=shift;
     my $content = [];
     
     my $descr=$pv->type->cppoptions->descr;
     my $types = Polymake::Core::CPlusPlus::get_type_proto($descr->vtbl, 2);
     
-    push @$content, value_toJSON($pv->first,$types->[0]);
-    push @$content, value_toJSON($pv->second,$types->[1]);
+    push @$content, value_toARRAY($pv->first,$types->[0]);
+    push @$content, value_toARRAY($pv->second,$types->[1]);
     return $content;
 }
 
 
 ##*************************************************************
 ##*************************************************************
-sub quadraticExtension_toJSON {
+sub quadraticExtension_toARRAY {
     my $pv=shift;
     my $type = $pv->type;
     my $content = $type->toString->($pv);
@@ -251,7 +265,7 @@ sub quadraticExtension_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub tropicalNumber_toJSON {
+sub tropicalNumber_toARRAY {
     my $pv=shift;
     my $type = $pv->type;
     my $content = $type->toString->($pv);
@@ -286,31 +300,31 @@ sub handle_cpp_content {
 	}
 
 	if( $qualified_value_name =~ /^common::(SparseMatrix|Matrix|IncidenceMatrix)/ ) {
-		$content = matrix_toJSON($pv, $projection);
+		$content = matrix_toARRAY($pv, $projection);
 
 	} elsif( $qualified_value_name =~ /^common::(Array|Set)/ ) {
-		$content = array_toJSON($pv, $projection);
+		$content = array_toARRAY($pv, $projection);
 	
 	} elsif( $qualified_value_name =~ /^common::(SparseVector|Vector)/ ) {
-		$content = vector_toJSON($pv, $projection);
+		$content = vector_toARRAY($pv, $projection);
 	
 	} elsif( $qualified_value_name =~ /^common::Graph/ ) {
-		$content = graph_toJSON($pv, $projection);
+		$content = graph_toARRAY($pv, $projection);
 
 	} elsif( $qualified_value_name =~ /^common::NodeMap/ ) {
-		$content = nodeMap_toJSON($pv, $projection);
+		$content = nodeMap_toARRAY($pv, $projection);
 
 	} elsif( $qualified_value_name =~ /^common::Map/ ) {
-		$content = map_toJSON($pv);
+		$content = map_toARRAY($pv);
 
 	} elsif( $qualified_value_name =~ /^common::Pair/ ) {
-		$content = pair_toJSON($pv);
+		$content = pair_toARRAY($pv);
 
 	} elsif( $qualified_value_name =~ /^common::QuadraticExtension/ ) {
-		$content = quadraticExtension_toJSON($pv);
+		$content = quadraticExtension_toARRAY($pv);
 
 	} elsif( $qualified_value_name =~ /^common::TropicalNumber/ ) {
-		$content = tropicalNumber_toJSON($pv);
+		$content = tropicalNumber_toARRAY($pv);
 	} else {
 		print $qualified_value_name, "is still unhandled\n" if $DEBUG;
 		$content = $qualified_value_name." ".$unhandled;
@@ -325,7 +339,7 @@ sub handle_cpp_content {
 # this is only a distributor function that calls the 
 # correct handler depending on whether the value is a 
 # polymake object, builtin type, or C++ type
-sub value_toJSON {
+sub value_toARRAY {
 
 	my ($val, $type, $projection) = @_;
 	my $content;
@@ -343,8 +357,14 @@ sub value_toJSON {
 	
 	if ( $type->qualified_name =~ $simpletype_re ) {
 		# check whether we want to store the value as int
-		if ( defined($projection) && ref($projection) eq "HASH" && defined($projection->{"int"}) ) {
-			$content = try_to_save_as_int($type,$type->qualified_name,$val);
+		if ( defined($projection) && ref($projection) eq "HASH" ) {
+			if ( defined($projection->{"int"}) ) {
+				$content = try_to_save_as_int($type,$type->qualified_name,$val);
+			} elsif ( defined($projection->{"bool"}) ) {
+				$content = try_to_save_as_bool($type,$type->qualified_name,$val);
+			} else {
+				$content = $type->toString->($val);
+			}
 		} else {
 			$content = $type->toString->($val);
 		}
@@ -358,7 +378,7 @@ sub value_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub subobject_toJSON {
+sub subobject_toARRAY {
 
 	my ($pv, $projection) = @_;
 	my $main_type=$pv->type->qualified_name;
@@ -398,9 +418,9 @@ sub subobject_toJSON {
 		if ( defined($projection) ) {
 			
 			next if !defined($projection->{$property}) || $projection->{$property} == 0 ;
-			($content->{$property},$attributes->{$property}) = property_toJSON($pv,$projection->{$property});
+			($content->{$property},$attributes->{$property}) = property_toARRAY($pv,$projection->{$property});
 		} else {
-			($content->{$property},$attributes->{$property}) = property_toJSON($pv);
+			($content->{$property},$attributes->{$property}) = property_toARRAY($pv);
 		}
 	}
 
@@ -410,7 +430,7 @@ sub subobject_toJSON {
 
 ##*************************************************************
 ##*************************************************************
-sub property_toJSON {
+sub property_toARRAY {
 	my ($pv, $projection) = @_;
 	my $type= $pv->property->type;
 	my $content;
@@ -424,15 +444,15 @@ sub property_toJSON {
 		$content = [];
 		$attributes = [];
 		foreach (@{$pv->values}) {
-			my ($c,$a) = subobject_toJSON($_,$projection);
+			my ($c,$a) = subobject_toARRAY($_,$projection);
 			push @$content, $c;
 			push @$attributes, $a;
 		}
 	} elsif ( instanceof Polymake::Core::Object($pv->value) ) {
-		($content,$attributes) = subobject_toJSON($pv->value, $projection);
+		($content,$attributes) = subobject_toARRAY($pv->value, $projection);
 	} else {
 		# can be a builtin or a C++ type
-		($content,$attributes) = value_toJSON($pv->value,$type,$projection);
+		($content,$attributes) = value_toARRAY($pv->value,$type,$projection);
 	}
 
 	return ($content,$attributes);
@@ -446,11 +466,10 @@ sub property_toJSON {
 ## id: the id that should be assigned to the object
 ## options:
 ##     projection: hash specifying what should be stored in the db
-sub json_save {
+sub polymake_to_array {
     my ($object, $metadata, $id, $options)=@_;
 
 	# create a perl hash that contains the data from the polymake object
-	# later, we use JSON::encode to convert this into a json object
 	my $polymake_object = {"_id"=>$id};
 
 	# extra structure for types of properties and maybe additional information
@@ -461,7 +480,7 @@ sub json_save {
 	foreach my $pv (@{$object->contents}) {
 		
 		# advance to next prop if property is non-storable
-		# FIXME we might still store it in json, if wanted for database search?
+		# FIXME we might still store it in db, if wanted for database search?
 		next if !defined($pv) || $pv->property->flags & $Property::is_non_storable;
 
 		# get the name of the property
@@ -470,7 +489,7 @@ sub json_save {
 		# we need a variable to catch the attributes collected during recursion
 		my $attr;
 		
-		# projection is a hash that specifies which properties we actually want to keep in the json
+		# projection is a hash that specifies which properties we actually want to keep in the db json
 		# format: 
 		# PROPERTY : 1|dense|{ PROPERTY : ... }
 		# where subobjects get heir own hash of the same format,
@@ -479,9 +498,9 @@ sub json_save {
 		if ( defined($options->{'projection'}) ) {
 			
 			next if !defined($options->{'projection'}->{$property}) || $options->{'projection'}->{$property} == 0 ;
-			($polymake_object->{$property}, $attr) = property_toJSON($pv,$options->{'projection'}->{$property});
+			($polymake_object->{$property}, $attr) = property_toARRAY($pv,$options->{'projection'}->{$property});
 		} else {
-			($polymake_object->{$property}, $attr) = property_toJSON($pv);
+			($polymake_object->{$property}, $attr) = property_toARRAY($pv);
 		}
 		# now deal with the attributes
 		# first create an empty hash for them
@@ -538,13 +557,11 @@ sub json_save {
 		$func->($polymake_object);
 	}
 	
-	# finally, convert the perl hash into a json object
-	my $json = ::JSON->new;
-	$json->pretty->encode($polymake_object);
+	return $polymake_object;
 }
 
 
-sub read_db_hash {
+sub db_data_to_polymake {
 	
 	my ($polymake_object, $db_name, $col_name ) = @_;
 	
@@ -613,7 +630,7 @@ sub cursor2array {
 	my $i = 0;
 	
 	foreach my $p (@objects) {		
-		$parray->[$i] = PolyDB::Polymake_JSON_Conversion::read_db_hash($p, $db_name, $col_name);
+		$parray->[$i] = PolyDB::PolymakeDatabaseConversion::db_data_to_polymake($p, $db_name, $col_name);
 		++$i;
 	}
 	return $parray;

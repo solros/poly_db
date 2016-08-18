@@ -18,7 +18,7 @@
 # along with polyDB.  If not, see <http://www.gnu.org/licenses/>.
 
 use PolyDB::Client;
-use PolyDB::Polymake_JSON_Conversion;
+use PolyDB::PolymakeDatabaseConversion;
 use PolyDB::Shell;
 use PolyDB::DatabaseCursor;
 
