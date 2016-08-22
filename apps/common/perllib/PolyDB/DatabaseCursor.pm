@@ -66,7 +66,7 @@ sub new {
 
 	print "connection established as user ".$self->username."\n";
 	my $col = $client->get_database($self->database)->get_collection($self->collection);
-	$self->cursor = $col->find($self->search_params->{query})->sort($self->search_params->{sort_by})->skip($self->search_params->{skip});
+	$self->cursor = $col->find($self->search_params->{query})->sort($self->search_params->{sort_by})->limit($self->search_params->{limit})->skip($self->search_params->{skip});
 	$self->cursor->immortal(1);
 	$self->cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
 
