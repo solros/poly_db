@@ -605,7 +605,7 @@ sub db_data_to_polymake {
 	my $MD = new Map<String,String>;
 	$MD->{"id"} = $polymake_object->{"_id"};
 	foreach ( keys %$metadata ) {
-		$MD->{$_} = $metadata->{$_};
+		$MD->{$_} = "'".$metadata->{$_}."'";
 	}
 	$p->attach("polyDB", $MD);
 	

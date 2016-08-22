@@ -71,12 +71,12 @@ sub poly_db_tab_completion {
 
 sub list_db_completions {
 	my $prefix = shift;
-	grep { /^\Q$prefix\E/ } @{common::get_db_list()};
+	grep { /^\Q$prefix\E/ } @{common::db_get_list_db()};
 }
 sub list_col_completions {
 	my $db = shift;
 	my $prefix = shift;
-	grep { /^\Q$prefix\E/ } @{common::get_col_list($db)};
+	grep { /^\Q$prefix\E/ } @{common::db_get_list_col($db)};
 }
 
 
