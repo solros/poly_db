@@ -23,7 +23,7 @@ require Exporter;
 use vars qw(@ISA @EXPORT);
 
 @ISA = qw(Exporter);
-@EXPORT = qw(get_client get_type get_collection get_date generate_id check_type);
+@EXPORT = qw(get_client get_type get_collection get_date generate_id check_type check_options prepare_query);
 
 use Term::ReadKey;
 

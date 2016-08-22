@@ -19,6 +19,7 @@
 
 use MongoDB;
 use MongoDB::OID;
+use PolyDB;
 
 # polyDB: The hostname of the database, default 'polymake.org'
 custom $db_host = "db.polymake.org";
@@ -105,7 +106,7 @@ user_function db_query_one ($, {db => $db_name, collection => $collection_name, 
 	unless (defined($options->{client})){
 		undef $client;
 	}
-	return PolyDB::PolymakeDatabaseConversion::read_db_hash($output,$options->{db}, $options->{collection});
+	return db_data_to_polymake($output,$options->{db}, $options->{collection});
 }
 
 
