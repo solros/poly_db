@@ -557,7 +557,7 @@ sub polymake_to_array {
 	my $xml = save Core::XMLstring($object);
 	
 	if ( defined($options->{'version'}) ) {
-		$xml =~ s/version="(\d+.)+\d+" /version=\"$version\" /g;
+		$xml =~ s/version="(\d+.)+\d+" xmlns/version=\"$version\" xmlns/g;
 	}	
 	$polymake_object->{"polyDB"}->{'xml'} = $xml;
 	
