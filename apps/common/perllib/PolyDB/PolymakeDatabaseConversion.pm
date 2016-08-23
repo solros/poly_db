@@ -614,7 +614,7 @@ sub db_data_to_polymake {
 	my $MD = new Map<String,String>;
 	$MD->{"id"} = $polymake_object->{"_id"};
 	foreach ( keys %$metadata ) {
-		$MD->{$_} = "'".$metadata->{$_}."'";
+		$MD->{$_} = $metadata->{$_};
 	}
 	$p->attach("polyDB", $MD);
 	
@@ -639,7 +639,7 @@ sub cursor2array {
 	my $i = 0;
 	
 	foreach my $p (@objects) {		
-		$parray->[$i] = PolyDB::PolymakeDatabaseConversion::db_data_to_polymake($p, $db_name, $col_name);
+		$parray->[$i] = db_data_to_polymake($p, $db_name, $col_name);
 		++$i;
 	}
 	return $parray;
