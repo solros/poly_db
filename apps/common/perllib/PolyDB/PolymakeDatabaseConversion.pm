@@ -540,16 +540,25 @@ sub polymake_to_array {
 	
 	# FIXME deal with extensions
 	
+	my $version = $Polymake::Version;
+	if ( defined($options->{'version'}) ) {
+		$version = $options->{'version'};
+	}
+	
 	# data base specific meta properties are stored in a separate hash
 	# will be added as attachment upon reeading
 	$metadata->{'attributes'}    = $attributes;
 	$metadata->{"tag"}           = "object";
 	$metadata->{"creation_date"} = get_date();
-	$metadata->{"version"}       = $Polymake::Version;
+	$metadata->{"version"}       = $version;
 	$polymake_object->{"polyDB"} = $metadata;
 
 	$object->remove_attachment("polyDB");
 	my $xml = save Core::XMLstring($object);
+	
+	if ( defined($options->{'version'}) ) {
+		$xml =~ s/version="(\d+.)+\d+" /version=\"$version\" /g;
+	}	
 	$polymake_object->{"polyDB"}->{'xml'} = $xml;
 	
 	if ( defined($options->{'modifier'}) ) {
