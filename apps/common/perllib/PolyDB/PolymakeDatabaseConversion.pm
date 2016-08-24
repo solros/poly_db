@@ -591,10 +591,8 @@ sub db_data_to_polymake {
 		$metadata->{"collection"} = $col_name;	
 	}
 		
-	# create the polytope
-	my $p=eval("new ".$polymake_object->{'type'}.";");
-
 	# read the polytope from the xml of the db
+	my $p = new Core::Object();
 	load Core::XMLstring($p,$metadata->{'xml'});	
 	delete $metadata->{'xml'};
 	delete $metadata->{'attributes'};
