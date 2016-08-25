@@ -21,7 +21,9 @@
 package PolyDB::DBCursor;
 use Data::Dumper;
 
-# search_params:
+# options:
+# db
+# collection
 # query
 # local
 # username
@@ -33,10 +35,11 @@ use Data::Dumper;
 # app
 use Polymake::Struct (
    [ new => '$$@' ],
-   [ '$database' => '#1' ],
-   [ '$collection' => '#2' ],
-   [ '%search_params' => '@' ],
+   [ '$query' => '#1' ],
+   [ '%options' => '#2' ],
    '$local',
+   '$database',
+   '$collection',
    '$username',
    '$password',
    '$app',
@@ -49,6 +52,9 @@ sub new {
 	$self->local = 0;
 	$self->username = $db_user;
 	$self->password = $db_pwd;
+	$self->database = defined($self->options->{db}) ? $self->options->{db} : $db_database_name;
+	$self->collection = defined($self->options->{collection}) ? $self->options->{collection} : $db_database_name;
+
 	
 	my $client = get_client($self->local, $self->username, $self->password);
 	my $template = get_type($client, $self->database, $self->collection);
@@ -57,16 +63,17 @@ sub new {
 	$self->app = $app;
 	$self->type = $template;
 	
-	if ( !defined($self->search_params->{sort_by}) ) {
-		$self->search_params->{sort_by} = {"_id" => 1};
+	if ( !defined($self->options->{sort_by}) ) {
+		$self->options->{sort_by} = {"_id" => 1};
 	}
-	if ( !defined($self->search_params->{skip}) ) {
-		$self->search_params->{skip} = 0;
+	if ( !defined($self->options->{skip}) ) {
+		$self->options->{skip} = 0;
 	}
 
 	print "connection established as user ".$self->username."\n";
+	print "using database ".$self->database." and collection ".$self->collection."\n";
 	my $col = $client->get_database($self->database)->get_collection($self->collection);
-	$self->cursor = $col->find($self->search_params->{query})->sort($self->search_params->{sort_by})->limit($self->search_params->{limit})->skip($self->search_params->{skip});
+	$self->cursor = $col->find($self->query)->sort($self->options->{sort_by})->limit($self->options->{limit})->skip($self->options->{skip});
 	$self->cursor->immortal(1);
 	$self->cursor->has_next; # this seems to be necessary to circumvent restricted hash problems...
 

@@ -50,9 +50,9 @@ sub get_client {
 	if ($local) {
 		$client = MongoDB::MongoClient->new;
 	} elsif (!$u || !$p) {
-		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$db_user, password=>$db_pwd);
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$db_auth_db, username=>$db_user, password=>$db_pwd);
 	} else {
-		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$auth_db, username=>$u, password=>$p);
+		$client = MongoDB::MongoClient->new(host=>$db_host.":".$db_port, db_name=>$db_auth_db, username=>$u, password=>$p);
 	}
 	return $client;
 }

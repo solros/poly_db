@@ -22,8 +22,8 @@ use MongoDB::OID;
 
 # @category Database
 # Returns a cursor on the entries for the database //db// in //collection// that match the //query//.
-user_function database_cursor ($, $, $ ) {
-	my ($database, $collection, $search_params) = @_;
-	my $dbc = new PolyDB::DBCursor($database, $collection, $search_params);
+user_function database_cursor ($; {db => $db_database_name, collection => $db_collection_name, local => 0, limit => 0, username => $db_user, password => $db_pwd, client => undef, skip => 0, sort_by => {_id => 1}}) {
+	my ($query, $options) = @_;
+	my $dbc = new PolyDB::DBCursor($query,$options);
 	return $dbc;
 }
