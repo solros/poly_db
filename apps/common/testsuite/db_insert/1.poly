@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="53015817"?>
+<?pm chk="57bf218b"?>
 
-<object name="F.4D.0000" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="F.4D.0000" type="polytope::Polytope&lt;Rational&gt;" version="3.0.5" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="H_STAR_VECTOR">
     <v>1 118 367 118 1</v>
   </property>
@@ -56,13 +56,6 @@
     <v>11 22 18 7</v>
   </property>
   <property name="GORENSTEIN" value="true" />
-  <property name="database" value="LatticePolytopes" />
-  <property name="collection" value="SmoothReflexive" />
   <property name="FEASIBLE" value="true" />
-  <property name="LINEALITY_SPACE">
-    <m />
-  </property>
-  <property name="AFFINE_HULL">
-    <m />
-  </property>
+  <property name="CONE_AMBIENT_DIM" value="5" />
 </object>

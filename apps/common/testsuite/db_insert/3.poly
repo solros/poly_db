@@ -1,23 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="5303ebbf"?>
+<?pm chk="57bf2ba2"?>
 
-<object name="c" type="polytope::Polytope&lt;Rational&gt;" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
-  <description><![CDATA[cube of dimension 3
-]]></description>
-  <property name="GROUP">
-    <object name="fullCombinatorialGroupOnFacets" type="group::GroupOfPolytope">
-      <description><![CDATA[full combinatorial group on facets of 3-dim cube
-]]></description>
-      <property name="DOMAIN" value="2" />
-      <property name="GENERATORS">
-        <m>
-          <v>1 0 2 3 4 5</v>
-          <v>2 3 0 1 4 5</v>
-          <v>0 1 4 5 2 3</v>
-        </m>
-      </property>
-    </object>
-  </property>
+<object name="c" type="polytope::Polytope&lt;Rational&gt;" version="3.0.5" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+  <description><![CDATA[cube of dimension 3]]></description>
   <property name="CONE_AMBIENT_DIM" value="4" />
   <property name="CONE_DIM" value="4" />
   <property name="FACETS" type="SparseMatrix&lt;Rational, NonSymmetric&gt;">
@@ -31,7 +16,7 @@
     </m>
   </property>
   <property name="AFFINE_HULL">
-    <m />
+    <m cols="4" />
   </property>
   <property name="VERTICES_IN_FACETS">
     <m cols="8">
@@ -61,7 +46,7 @@
         </m>
       </property>
       <property name="CONNECTED_COMPONENTS">
-        <m>
+        <m cols="8">
           <v>0 1 2 3 4 5 6 7</v>
         </m>
       </property>
@@ -70,6 +55,6 @@
   <property name="N_FACETS" value="6" />
   <property name="FULL_DIM" value="true" />
   <property name="LINEALITY_SPACE" type="SparseMatrix&lt;Rational, NonSymmetric&gt;">
-    <m />
+    <m cols="4" />
   </property>
 </object>

@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?pm chk="530158cb"?>
+<?pm chk="57bf2f72"?>
 
-<object name="test1" type="polytope::LatticePolytope" version="2.12.6" xmlns="http://www.math.tu-berlin.de/polymake/#3">
+<object name="F.4D.0000" type="polytope::Polytope&lt;Rational&gt;" version="3.0.5" xmlns="http://www.math.tu-berlin.de/polymake/#3">
   <property name="H_STAR_VECTOR">
     <v>1 118 367 118 1</v>
   </property>
   <property name="REFLEXIVE" value="true" />
   <property name="CONE_DIM" value="5" />
-  <property name="AFFINE_HULL">
-    <m />
-  </property>
-  <property name="date" value="2014-02-16" />
-  <property name="_id" value="test1" />
   <property name="LATTICE_CODEGREE" value="1" />
   <property name="N_INTERIOR_LATTICE_POINTS" value="1" />
   <property name="SMOOTH" value="true" />
@@ -50,10 +45,6 @@
   </property>
   <property name="N_VERTICES" value="11" />
   <property name="LATTICE_DEGREE" value="4" />
-  <property name="contributor" value="test" />
-  <property name="LINEALITY_SPACE">
-    <m />
-  </property>
   <property name="LATTICE_VOLUME" value="605" />
   <property name="EHRHART_POLYNOMIAL_COEFF">
     <v>1 127/12 859/24 605/12 605/24</v>
@@ -61,11 +52,10 @@
   <property name="N_BOUNDARY_LATTICE_POINTS" value="122" />
   <property name="ESSENTIALLY_GENERIC" value="false" />
   <property name="VERY_AMPLE" value="true" />
-  <property name="FEASIBLE" value="true" />
   <property name="F_VECTOR">
     <v>11 22 18 7</v>
   </property>
   <property name="GORENSTEIN" value="true" />
-  <property name="database" value="Test" />
-  <property name="collection" value="testsuite" />
+  <property name="FEASIBLE" value="true" />
+  <property name="CONE_AMBIENT_DIM" value="5" />
 </object>
