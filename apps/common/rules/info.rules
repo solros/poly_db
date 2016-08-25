@@ -31,7 +31,7 @@ user_function db_info ({db => undef, collection => undef, local => 0, username =
 	
 	my $client = get_client($options->{local},"","");
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my %query = ();
@@ -80,7 +80,7 @@ user_function db_get_list_db_col ({db => undef, collection => undef, local => 0,
 	
 	my $client = get_client($options->{local},"","");
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my @ret = ();
@@ -125,13 +125,13 @@ user_function db_get_list_db ({local => 0, username => $db_user}) {
 	
 	my $client = get_client($options->{local},"","");
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my @ret = ();
 
 	my %query = ();
-	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"pm"}] );
+	my %db_query = ('$or' => [{"users"=>$options->{username}}, {"users"=>"polymake"}] );
 	$db_query{"col"} = "db_info";
 
 	my $dbs = $icol->find(\%db_query)->sort({"db"=>1});
@@ -156,7 +156,7 @@ user_function db_get_list_col_for_db ($, {local => 0, username => $db_user}) {
 	
 	my $client = get_client($options->{local},"","");
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my @ret = ();
@@ -192,7 +192,7 @@ user_function set_db_info ($, $, {users => undef, local => 0, username => $db_us
 
 	my $client = get_client($options);
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my $search = $icol->find_one({'db'=>$db, 'col'=>"db_info"});
@@ -247,7 +247,7 @@ function add_user_to_db ($, $, {local => 0, username => $db_user, password => $d
 	
 	my $client = get_client($options);
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my $search = $icol->find_one({'db'=>$db, 'col'=>"db_info"});
@@ -284,7 +284,7 @@ user_function set_col_info ($, $, $, {local => 0, username => $db_user, password
 	
 	my $client = get_client($options);
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my $search = $icol->find_one({'db'=>$db, 'col'=>$col});
@@ -335,7 +335,7 @@ function get_col_info {
 
 	my $client = get_client($options->{local},"","");
 		
-	my $idb = $client->get_database($info_db);
+	my $idb = $client->get_database($db_info_db);
 	my $icol = $idb->get_collection("Info");
 
 	my %db_query = ();

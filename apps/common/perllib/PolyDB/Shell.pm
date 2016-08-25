@@ -76,7 +76,7 @@ sub list_db_completions {
 sub list_col_completions {
 	my $db = shift;
 	my $prefix = shift;
-	grep { /^\Q$prefix\E/ } @{common::db_get_list_col($db)};
+	grep { /^\Q$prefix\E/ } @{common::db_get_list_col_for_db($db)};
 }
 
 
