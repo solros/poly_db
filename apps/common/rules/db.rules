@@ -127,12 +127,11 @@ user_function db_count($, {db => $db_database_name, collection => $db_collection
 	check_options($options);
 	my ($client, $type, $col) = prepare_query({db=>$options->{"db"}, collection=>$options->{"collection"}, client=>$options->{"client"} });
 	my $output = $col->count($query);
-	unless ($output) { croak("No such object.\n"); }
-	
 	
 	unless (defined($options->{client})){
 		undef $client;
 	}
+	
 	return $output;
 }
 

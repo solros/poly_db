@@ -113,7 +113,7 @@ sub insert_into_col {
 
 	# check if polytope has a polyDB attachment
 	if ( defined( my $polydb_attachment = $obj->get_attachment("polyDB") ) ) {
-		foreach (@{$polydb_attachment}) {
+		foreach (keys %{$polydb_attachment}) {
 			$metadata->{$_} = $polydb_attachment->{$_};
 		}
 	} 

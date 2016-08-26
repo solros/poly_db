@@ -93,6 +93,7 @@ user_function db_searchable_fields ($, $, {local => 0, client => undef, template
 # Contained in extension ''polyDB''.
 # @param String db database name
 # @param String col collection name
+# @param String id id of the template
 # @option String app application name for the objects
 # @option String type type name for the objects
 # @option String version polymake version, will be set to the current version by default
@@ -102,7 +103,7 @@ user_function db_searchable_fields ($, $, {local => 0, client => undef, template
 # @option String password
 # @option Core::Object template
 # @option Bool verbose
-user_function set_type_info($, $, {app => "", type => "", version => "", contributor => "", local => 0, username => "", password => "", template_key => 'default', template => undef, db_template => undef, version => "", verbose => 0}) {
+user_function db_set_type_info($, $, {id => "", app => "", basic_type => "", modifier => "", type => "", version => "", contributor => "", local => 0, username => "", password => "", template_key => 'default', template => undef, verbose => 0}) {
 	my ($db, $col, $options) = @_;
 
 	my $client = get_client($options);
@@ -112,10 +113,16 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 
 	my $update = 0;
 	my $h = {};
-	if ($tcol->find_one({'db'=>$db, 'col'=>$col, 'key' => $options->{template_key} })) {
+	my $id = "";
+	if (my $res=$tcol->find_one({'db'=>$db, 'col'=>$col, 'key' => $options->{template_key} })) {
 		$update = 1;
+		$id = $res->{"_id"};
 	} else {
 		$h = {'db'=>$db, 'col'=>$col, 'key' => $options->{template_key} };
+	}
+
+	if ( !$update && ( !$options->{basic_type} || !$options->{id} || !$options->{app} ) ) {
+		croak ("for new type info records you mast define basic_type, app, and id");
 	}
 
 	if ($options->{app}) {
@@ -125,6 +132,15 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 	if ($options->{type}) {
 		$h->{type} = $options->{type};
 	}
+	if ($options->{id}) {
+		if ( $update ) {
+			if ( $options->{"id"} != $id ) {
+				croak("cannot change id of type info");
+			}
+		} else {
+			$h->{_id} = $options->{id};
+		}
+	}
 	if ($options->{version}) {
 		$h->{version} = $options->{version};
 	} elsif (!$update) {
@@ -133,18 +149,23 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 	if ($options->{contributor}) {
 		$h->{contributor} = $options->{contributor};
 	}
+	if ($options->{modifier}) {
+		$h->{modifier} = $options->{modifier};
+	}
+	if ($options->{basic_type}) {
+		$h->{basic_type} = $options->{basic_type};
+	}
 
 	if (defined(my $t = $options->{template})) {
 		$h->{template} = $t;
 	}
-	if (defined(my $t = $options->{db_template})) {
-		$h->{db_template} = $t;
-	}
-	
+	if (defined(my $t = $options->{template_key})) {
+		$h->{template_key} = $t;
+	}	
 	if ($update) {
-		my $output = $tcol->update({'db'=>$db, 'col'=>$col}, {'$set' => $h});
+		my $output = $tcol->update_one({'db'=>$db, 'col'=>$col, 'key'=>$options->{template_key}}, {'$set' => $h});
 		if ($options->{verbose}) {
-			if ($output->{ok}) {
+			if ($output->acknowledged) {
 				print "successfully updated type information for $db.$col\n"
 			} else {
 				print "an error occurred when trying to update type information for $db.$col:\n$output\n";
@@ -152,9 +173,9 @@ user_function set_type_info($, $, {app => "", type => "", version => "", contrib
 		}
 	
 	} else {
-		my $output = $tcol->save($h);
+		my $output = $tcol->insert_one($h);
 		if ($options->{verbose}) {
-			if ($output->{ok}) {
+			if ($output->acknowledged) {
 				print "successfully saved type information for $db.$col\n";
 			} else {
 				print "an error occurred when trying to save type information for $db.$col:\n$output\n";
