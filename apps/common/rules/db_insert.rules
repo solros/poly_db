@@ -88,10 +88,10 @@ sub adjust_properties {
 sub insert_into_col {
 	my ($obj, $collection, $id, $options) = @_;	
 	
-	my $use_template = 0;
+	my $use_type_info = 0;
 	my $temp;
 	if ( defined($temp = $options->{template}) ) {
-		$use_template = 1;
+		$use_type_info = 1;
 	}
 	
 	# prepare metadata
@@ -119,7 +119,7 @@ sub insert_into_col {
 	} 
 	
 	my $polymake_object;	
-	if ( $use_template ) {
+	if ( $use_type_info ) {
 		# returns a new polymake object with the properties of $obj copied to it if all should be kept or in template, properties required by template computed and nonoew not set
 		$obj = adjust_properties($obj, $temp->{"template"}, $temp->{"basic_type"}, {nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}});
 
@@ -168,13 +168,13 @@ sub set_entry_id {
 # @option Bool local            set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template     set to 1 to match properties with a template object  
+# @option Bool use_type_info     set to 1 to match properties with a template object  
 # @option Core::Object template 
-# @option Bool nonew            set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool nonew            set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_type_info is also set to 1)
 # @option Bool keep_all_props   keep all properties present in the polymake object (in the xml. not necessarily in the db representation)
 # @option MongoClient client
 # @return String
-user_function db_insert ($, $, $, { local => 0, id => undef, contributor => undef, username => $db_user, password => $db_pwd, client => undef, use_template => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
+user_function db_insert ($, $, $, { local => 0, id => undef, contributor => undef, username => $db_user, password => $db_pwd, client => undef, use_type_info => 0, template => undef, template_key=> "default", nonew => 0, keep_all_props=> 0}) {
 	my ($obj, $db, $col, $options) = @_;
  	 	
 	# get client if not given by the options
@@ -191,9 +191,9 @@ user_function db_insert ($, $, $, { local => 0, id => undef, contributor => unde
 	my $output;
 	# check if use of template is wanted
 	# check if template is given in the options, otherwise try to load one
-	if ($options->{use_template} or defined($temp = $options->{template})) {
+	if ($options->{use_type_info} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = db_get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = db_get_type_info($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 		}
 		$output = insert_into_col($obj, $collection, $id, {template => $temp, template_key => $options->{template_key}, nonew => $options->{nonew}, keep_all_props => $options->{keep_all_props}, contributor => $options->{contributor} });
 
@@ -226,12 +226,12 @@ user_function db_insert ($, $, $, { local => 0, id => undef, contributor => unde
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template set to 1 to match properties with a template object. 
+# @option Bool use_type_info set to 1 to match properties with a template object. 
 # @option Core::Object template
-# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_template is also set to 1)
+# @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones (only takes effect if use_type_info is also set to 1)
 # @option MongoClient client
 # @return String
-user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contributor => undef, nonew => 0, use_template => 0, template => undef,  template_key=> "default", keep_all_props=> 0, client => undef}) {
+user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, password => $db_pwd, id => "", contributor => undef, nonew => 0, use_type_info => 0, template => undef,  template_key=> "default", keep_all_props=> 0, client => undef}) {
 	my ($file, $db, $col, $options) = @_;
 
 	my $obj = User::load($file);
@@ -254,13 +254,13 @@ user_function db_insert_from_file($, $, $, {local => 0, username => $db_user, pa
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @option String username
 # @option String password
-# @option Bool use_template set to 1 to match properties with a template object.
-# @option Core::Object template (implies //use_templates//=>1)
+# @option Bool use_type_info set to 1 to match properties with a template object.
+# @option Core::Object template (implies //use_type_infos//=>1)
 # @option Bool nonew set to 1 if you don't want to compute missing properties but only delete surplus ones
 # @option Bool verbose print database output
 # @option MongoClient client
 # FIXME old version
-user_function db_insert_array ($, $, $, {contributor => undef, local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_template => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
+user_function db_insert_array ($, $, $, {contributor => undef, local => 0, username => $db_user, password => $db_pwd, nonew => 0, use_type_info => 0, move_dir => "", client => undef, rem_props => undef, template => undef, template_key => "default", verbose => 0}){
 	my ($objects, $db, $col, $options) = @_;
 	
 	# get client if not given by the options
@@ -272,9 +272,9 @@ user_function db_insert_array ($, $, $, {contributor => undef, local => 0, usern
 	my $collection = get_collection($client, $db, $col);
 	my $use_tamplate = 0;
 	my $temp;
-	if ($options->{use_template} or defined($temp = $options->{template})) {
+	if ($options->{use_type_info} or defined($temp = $options->{template})) {
 		unless (defined($temp)) {
-			$temp = db_get_template($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
+			$temp = db_get_type_info($db, $col, local => $options->{local}, client => $client, template_key => $options->{template_key});
 			if ( !$temp ) {
 				croak("Template requested but not loaded\n");
 			}

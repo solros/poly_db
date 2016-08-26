@@ -52,7 +52,7 @@ sub add_properties {
 # @param String collection name of the collection, see [[http://www.polymake.org/doku.php/data|here]] or [[db_info]] for available collections
 # @option Bool local set to 1 if you want to use a local database (on localhost), default 0
 # @return HASH
-user_function db_get_template($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
+user_function db_get_type_info($, $, {local => 0, tiny => 0, client => undef, template_key=>"default"}) {
 	my ($db, $col, $options) = @_;
 	my $local = $options->{local};
 	my $template_key = $options->{"template_key"};
@@ -74,7 +74,7 @@ user_function db_get_template($, $, {local => 0, tiny => 0, client => undef, tem
 user_function db_searchable_fields ($, $, {local => 0, client => undef, template_key => 'default'}) {
 	my ($db, $col, $options) = @_;
 	
-	my $t = db_get_template ( $db, $col, $options);
+	my $t = db_get_type_info ( $db, $col, $options);
 	
 	my $flat_properties = [];
 	add_properties($flat_properties,"",$t);

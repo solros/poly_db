@@ -5,12 +5,12 @@ my $date = DateTime->now->date;
 my $name = Sys::Hostname::hostname;
 my $col_name = "test-".$name."-".$now;
 
-my $t = db_get_template("LatticePolytopes", "SmoothReflexive", template_key=>"fano");
+my $t = db_get_type_info("LatticePolytopes", "SmoothReflexive", template_key=>"fano");
 db_set_type_info("Test", $col_name, template=>$t->{template}, template_key=>$col_name, app=>"polytope", basic_type=>"polytope::Polytope<Rational>", id=>$col_name);
-my $s = db_get_template("Test", $col_name, template_key=>$col_name);
+my $s = db_get_type_info("Test", $col_name, template_key=>$col_name);
 
 my $parray = load_data("1_in.pdata");
-db_insert_array($parray, "Test", $col_name, use_template=>1, template_key=>$col_name);
+db_insert_array($parray, "Test", $col_name, use_type_info=>1, template_key=>$col_name);
 
 my $count = db_count({}, db=>"Test", collection=>$col_name);
 
