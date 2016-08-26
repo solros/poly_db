@@ -185,17 +185,3 @@ user_function db_set_type_info($, $, {id => "", app => "", basic_type => "", mod
 		
 	undef $client;
 }
-
-
-function db_clean_up_type_info ($, $, {username => "", password => ""}) {
-	my ($db, $col, $options) = @_;
-	
-	my $client = get_client($options);
-		
-	my $tdb = $client->get_database($db);
-	my $tcol = $tdb->get_collection("type_information");
-	
-	$tcol->remove({"db"=>$db, "col"=>$col});
-	
-	$tdb->get_collection($col)->drop();
-}
