@@ -20,8 +20,7 @@ foreach (@{db_ids({}, db=>"Test", collection=>$col_name)}) {
 	db_remove($_, "Test", $col_name);
 }
 
-save_data($retarray,"1_out.pdata");
 compare_values( 'count', 18, $count );
 compare_data('1',$retarray);
 compare_values( 'remove', 0, db_count({}, db => "Test", collection => $col_name) );
-#db_clean_up_test();
+db_clean_up_test();
